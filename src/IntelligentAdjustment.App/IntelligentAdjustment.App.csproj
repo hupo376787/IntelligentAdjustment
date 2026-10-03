@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon />
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="HandyControl" Version="3.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../IntelligentAdjustment.Application/IntelligentAdjustment.Application.csproj" />
+    <ProjectReference Include="../IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
+    <ProjectReference Include="../IntelligentAdjustment.Core/IntelligentAdjustment.Core.csproj" />
+  </ItemGroup>
+</Project>

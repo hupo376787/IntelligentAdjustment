@@ -1,0 +1,62 @@
+<UserControl x:Class="IntelligentAdjustment.App.Views.LevelDifferencesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:domain="clr-namespace:IntelligentAdjustment.Domain;assembly=IntelligentAdjustment.Domain"
+             xmlns:behaviors="clr-namespace:IntelligentAdjustment.App.Behaviors">
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="新增一行" Command="{Binding AddCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Button Content="删除选中" Command="{Binding DeleteSelectedCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Separator Width="12"/>
+            <Button Content="设为平差点" Command="{Binding SetAdjustmentPointCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Button Content="设为过渡点" Command="{Binding SetTransitionPointCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Button Content="切换平差类型" Command="{Binding TogglePointRoleCommand}" Padding="12,5"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding Items}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  SelectionMode="Extended"
+                  SelectionUnit="FullRow"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="All"
+                  ClipboardCopyMode="ExcludeHeader"
+                  behaviors:DataGridSelectionBehavior.SelectedItems="{Binding SelectedRows}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="序号" Binding="{Binding Sequence}" Width="70" IsReadOnly="True"/>
+                <DataGridTextColumn Header="起点点名" Binding="{Binding FromPoint, UpdateSourceTrigger=LostFocus}" Width="120"/>
+                <DataGridTextColumn Header="终点点名" Binding="{Binding ToPoint, UpdateSourceTrigger=LostFocus}" Width="120"/>
+                <DataGridTextColumn Header="高差 [m]" Binding="{Binding HeightDifference, UpdateSourceTrigger=LostFocus, StringFormat=F5}" Width="120"/>
+                <DataGridTextColumn Header="距离 [m]" Binding="{Binding DistanceMeters, UpdateSourceTrigger=LostFocus, StringFormat=F4}" Width="120"/>
+                <DataGridTextColumn Header="测站数" Binding="{Binding StationCount, UpdateSourceTrigger=LostFocus}" Width="90"/>
+                <DataGridTemplateColumn Header="平差类型" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ToPointRole, Converter={StaticResource PointRoleConverter}}" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedValue="{Binding ToPointRole, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Tag">
+                                <ComboBoxItem Content="平差点" Tag="{x:Static domain:PointRole.AdjustmentPoint}"/>
+                                <ComboBoxItem Content="过渡点" Tag="{x:Static domain:PointRole.TransitionPoint}"/>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="线路" Binding="{Binding LineId}" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
+            </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="删除选中行" Command="{Binding DeleteSelectedCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="设为平差点" Command="{Binding SetAdjustmentPointCommand}"/>
+                    <MenuItem Header="设为过渡点" Command="{Binding SetTransitionPointCommand}"/>
+                    <MenuItem Header="切换平差类型" Command="{Binding TogglePointRoleCommand}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

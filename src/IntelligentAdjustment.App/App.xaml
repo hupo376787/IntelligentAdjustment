@@ -1,0 +1,42 @@
+<Application x:Class="IntelligentAdjustment.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:IntelligentAdjustment.App.ViewModels"
+             xmlns:views="clr-namespace:IntelligentAdjustment.App.Views"
+             xmlns:conv="clr-namespace:IntelligentAdjustment.App.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <conv:PointRoleConverter x:Key="PointRoleConverter"/>
+            <conv:RouteTypeConverter x:Key="RouteTypeConverter"/>
+
+            <DataTemplate DataType="{x:Type vm:DashboardTabViewModel}">
+                <views:DashboardView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LevelDifferencesTabViewModel}">
+                <views:LevelDifferencesView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:KnownHeightsTabViewModel}">
+                <views:KnownHeightsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:RoutesTabViewModel}">
+                <views:RoutesView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:AdjustmentResultsTabViewModel}">
+                <views:AdjustmentResultsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsTabViewModel}">
+                <views:SettingsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PlaceholderTabViewModel}">
+                <views:PlaceholderView/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

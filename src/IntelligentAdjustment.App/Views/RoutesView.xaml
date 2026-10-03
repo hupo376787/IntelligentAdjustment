@@ -1,0 +1,30 @@
+<UserControl x:Class="IntelligentAdjustment.App.Views.RoutesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel Margin="16">
+        <TextBlock DockPanel.Dock="Top" Text="闭合/附合路线" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOverLimit}" Value="True">
+                            <Setter Property="Foreground" Value="#C62828"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="70"/>
+                <DataGridTextColumn Header="类型" Binding="{Binding RouteType, Converter={StaticResource RouteTypeConverter}}" Width="100"/>
+                <DataGridTextColumn Header="路线" Binding="{Binding PointPath}" Width="*"/>
+                <DataGridTextColumn Header="边数" Binding="{Binding EdgeCount}" Width="80"/>
+                <DataGridTextColumn Header="长度 [m]" Binding="{Binding LengthMeters, StringFormat=F4}" Width="120"/>
+                <DataGridTextColumn Header="测站数" Binding="{Binding StationCount}" Width="90"/>
+                <DataGridTextColumn Header="闭合差 [mm]" Binding="{Binding ClosureMillimeters, StringFormat=F3}" Width="120"/>
+                <DataGridTextColumn Header="当前限差 [mm]" Binding="{Binding ActiveToleranceMillimeters, StringFormat=F3}" Width="130"/>
+                <DataGridCheckBoxColumn Header="超限" Binding="{Binding IsOverLimit}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

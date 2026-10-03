@@ -17,5 +17,6 @@
     <ProjectReference Include="../../src/IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
     <ProjectReference Include="../../src/IntelligentAdjustment.Core/IntelligentAdjustment.Core.csproj" />
     <ProjectReference Include="../../src/IntelligentAdjustment.Infrastructure/IntelligentAdjustment.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/IntelligentAdjustment.Application/IntelligentAdjustment.Application.csproj" />
   </ItemGroup>
 </Project>

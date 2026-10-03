@@ -1,0 +1,54 @@
+<UserControl x:Class="IntelligentAdjustment.App.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" Width="760" HorizontalAlignment="Left">
+            <TextBlock Text="工程设置" FontSize="24" FontWeight="SemiBold"/>
+            <TextBlock Text="这些参数跟随当前 .iap 工程保存。" Foreground="#6B7280" Margin="0,4,0,20"/>
+
+            <GroupBox Header="闭合差限差" Padding="16" Margin="0,0,0,14">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                        <RadioButton Content="限差按距离" IsChecked="{Binding IsDistanceTolerance}" VerticalAlignment="Center"/>
+                        <TextBox Width="90" Margin="16,0,6,0" Text="{Binding DistanceToleranceCoefficientMm, UpdateSourceTrigger=LostFocus}"/>
+                        <TextBlock Text="mm · √L (L 为 km)" VerticalAlignment="Center" Foreground="#6B7280"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
+                        <RadioButton Content="限差按测站" IsChecked="{Binding IsStationTolerance}" VerticalAlignment="Center"/>
+                        <TextBox Width="90" Margin="16,0,6,0" Text="{Binding StationToleranceCoefficientMm, UpdateSourceTrigger=LostFocus}"/>
+                        <TextBlock Text="mm · √n" VerticalAlignment="Center" Foreground="#6B7280"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="平差方式" Padding="16" Margin="0,0,0,14">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="经典平差方式" IsChecked="{Binding IsClassical}" Margin="0,0,24,0"/>
+                    <RadioButton Content="拟稳平差方式" IsChecked="{Binding IsQuasiStable}"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="数据设置" Padding="16" Margin="0,0,0,14">
+                <StackPanel>
+                    <CheckBox Content="自动识别/合并过渡点" IsChecked="{Binding AutoMergeTransitionPoints}" Margin="0,4"/>
+                    <CheckBox Content="更改原始观测值时提示更新高差值" IsChecked="{Binding AutoUpdateLevelDifferences}" Margin="0,8,0,4"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="显示精度" Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="距离小数位" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding DistanceDecimals, UpdateSourceTrigger=LostFocus}"/>
+                    <TextBlock Grid.Column="2" Text="高程小数位" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="3" Text="{Binding HeightDecimals, UpdateSourceTrigger=LostFocus}"/>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

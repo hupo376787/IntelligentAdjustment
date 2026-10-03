@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
+    <ProjectReference Include="../IntelligentAdjustment.Core/IntelligentAdjustment.Core.csproj" />
+    <ProjectReference Include="../IntelligentAdjustment.Infrastructure/IntelligentAdjustment.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
