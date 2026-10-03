@@ -652,29 +652,31 @@ public sealed class ProjectRepository
         }
 
         var routes = new List<NetworkRoute>();
-        await using var routeCommand = connection.CreateCommand();
-        routeCommand.CommandText = """
-            SELECT Id, RouteIndex, RouteType, LengthMeters, StationCount,
-                   ClosureMeters, LengthToleranceMeters, StationToleranceMeters
-            FROM ClosureRoute
-            WHERE CalculationRunId = $runId
-            ORDER BY RouteIndex, Id;
-            """;
-        routeCommand.Parameters.AddWithValue("$runId", runId.Value);
-
-        await using var routeReader = await routeCommand.ExecuteReaderAsync(cancellationToken);
         var rows = new List<(long Id, int Index, RouteType Type, double Length, int Stations, double Closure, double LengthTolerance, double StationTolerance)>();
-        while (await routeReader.ReadAsync(cancellationToken))
+        await using (var routeCommand = connection.CreateCommand())
         {
-            rows.Add((
-                routeReader.GetInt64(0),
-                routeReader.GetInt32(1),
-                (RouteType)routeReader.GetInt32(2),
-                routeReader.GetDouble(3),
-                routeReader.GetInt32(4),
-                routeReader.GetDouble(5),
-                routeReader.GetDouble(6),
-                routeReader.GetDouble(7)));
+            routeCommand.CommandText = """
+                SELECT Id, RouteIndex, RouteType, LengthMeters, StationCount,
+                       ClosureMeters, LengthToleranceMeters, StationToleranceMeters
+                FROM ClosureRoute
+                WHERE CalculationRunId = $runId
+                ORDER BY RouteIndex, Id;
+                """;
+            routeCommand.Parameters.AddWithValue("$runId", runId.Value);
+
+            await using var routeReader = await routeCommand.ExecuteReaderAsync(cancellationToken);
+            while (await routeReader.ReadAsync(cancellationToken))
+            {
+                rows.Add((
+                    routeReader.GetInt64(0),
+                    routeReader.GetInt32(1),
+                    (RouteType)routeReader.GetInt32(2),
+                    routeReader.GetDouble(3),
+                    routeReader.GetInt32(4),
+                    routeReader.GetDouble(5),
+                    routeReader.GetDouble(6),
+                    routeReader.GetDouble(7)));
+            }
         }
 
         foreach (var row in rows)
