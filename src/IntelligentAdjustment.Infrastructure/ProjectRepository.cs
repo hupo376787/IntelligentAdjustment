@@ -69,6 +69,205 @@ public sealed class ProjectRepository
         return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
     }
 
+    public async Task<long> CreateLineAsync(
+        string name,
+        string? instrumentType = "MANUAL",
+        CancellationToken cancellationToken = default)
+    {
+        string normalizedName = string.IsNullOrWhiteSpace(name) ? "新线路" : name.Trim();
+
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        int displayOrder;
+        await using (var orderCommand = connection.CreateCommand())
+        {
+            orderCommand.Transaction = transaction;
+            orderCommand.CommandText = "SELECT COALESCE(MAX(DisplayOrder), -1) + 1 FROM ObservationLine;";
+            displayOrder = Convert.ToInt32(await orderCommand.ExecuteScalarAsync(cancellationToken));
+        }
+
+        long id;
+        await using (var command = connection.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = """
+                INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
+                VALUES($displayOrder, $name, NULL, $instrumentType, $createdAt);
+                SELECT last_insert_rowid();
+                """;
+            command.Parameters.AddWithValue("$displayOrder", displayOrder);
+            command.Parameters.AddWithValue("$name", normalizedName);
+            command.Parameters.AddWithValue("$instrumentType", (object?)instrumentType ?? DBNull.Value);
+            command.Parameters.AddWithValue("$createdAt", DateTimeOffset.UtcNow.ToString("O"));
+            id = Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
+        }
+
+        transaction.Commit();
+        return id;
+    }
+
+    public async Task RenameLineAsync(
+        long lineId,
+        string name,
+        CancellationToken cancellationToken = default)
+    {
+        string normalizedName = name.Trim();
+        if (normalizedName.Length == 0)
+        {
+            throw new ArgumentException("线路名称不能为空。", nameof(name));
+        }
+
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE ObservationLine SET Name = $name WHERE Id = $id;";
+        command.Parameters.AddWithValue("$name", normalizedName);
+        command.Parameters.AddWithValue("$id", lineId);
+
+        if (await command.ExecuteNonQueryAsync(cancellationToken) == 0)
+        {
+            throw new InvalidOperationException("指定线路不存在。");
+        }
+    }
+
+    public async Task DeleteLineAsync(
+        long lineId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        long inputRowCount;
+        await using (var countCommand = connection.CreateCommand())
+        {
+            countCommand.Transaction = transaction;
+            countCommand.CommandText = """
+                SELECT
+                    (SELECT COUNT(*) FROM RawObservation WHERE ObservationLineId = $id) +
+                    (SELECT COUNT(*) FROM LevelDifference WHERE ObservationLineId = $id);
+                """;
+            countCommand.Parameters.AddWithValue("$id", lineId);
+            inputRowCount = Convert.ToInt64(await countCommand.ExecuteScalarAsync(cancellationToken));
+        }
+
+        await using (var deleteCommand = connection.CreateCommand())
+        {
+            deleteCommand.Transaction = transaction;
+            deleteCommand.CommandText = "DELETE FROM ObservationLine WHERE Id = $id;";
+            deleteCommand.Parameters.AddWithValue("$id", lineId);
+            if (await deleteCommand.ExecuteNonQueryAsync(cancellationToken) == 0)
+            {
+                throw new InvalidOperationException("指定线路不存在。");
+            }
+        }
+
+        int remaining;
+        await using (var countLines = connection.CreateCommand())
+        {
+            countLines.Transaction = transaction;
+            countLines.CommandText = "SELECT COUNT(*) FROM ObservationLine;";
+            remaining = Convert.ToInt32(await countLines.ExecuteScalarAsync(cancellationToken));
+        }
+
+        if (remaining == 0)
+        {
+            await using var createCommand = connection.CreateCommand();
+            createCommand.Transaction = transaction;
+            createCommand.CommandText = """
+                INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
+                VALUES(0, '线路 0', NULL, 'MANUAL', $createdAt);
+                """;
+            createCommand.Parameters.AddWithValue("$createdAt", DateTimeOffset.UtcNow.ToString("O"));
+            await createCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await NormalizeLineOrderAsync(connection, transaction, cancellationToken);
+
+        if (inputRowCount > 0)
+        {
+            await ExecuteAsync(
+                connection,
+                transaction,
+                "UPDATE ProjectState SET InputRevision = InputRevision + 1 WHERE Id = 1;",
+                cancellationToken);
+        }
+
+        transaction.Commit();
+    }
+
+    public async Task MoveLineAsync(
+        long lineId,
+        int direction,
+        CancellationToken cancellationToken = default)
+    {
+        if (direction is not (-1 or 1))
+        {
+            throw new ArgumentOutOfRangeException(nameof(direction), "方向只能是 -1 或 1。");
+        }
+
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        var lines = new List<(long Id, int Order)>();
+        await using (var command = connection.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = "SELECT Id, DisplayOrder FROM ObservationLine ORDER BY DisplayOrder, Id;";
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                lines.Add((reader.GetInt64(0), reader.GetInt32(1)));
+            }
+        }
+
+        int index = lines.FindIndex(x => x.Id == lineId);
+        if (index < 0)
+        {
+            throw new InvalidOperationException("指定线路不存在。");
+        }
+
+        int targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= lines.Count)
+        {
+            return;
+        }
+
+        (long Id, int Order) current = lines[index];
+        (long Id, int Order) target = lines[targetIndex];
+
+        await using (var tempCommand = connection.CreateCommand())
+        {
+            tempCommand.Transaction = transaction;
+            tempCommand.CommandText = "UPDATE ObservationLine SET DisplayOrder = -1 WHERE Id = $id;";
+            tempCommand.Parameters.AddWithValue("$id", current.Id);
+            await tempCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await using (var targetCommand = connection.CreateCommand())
+        {
+            targetCommand.Transaction = transaction;
+            targetCommand.CommandText = "UPDATE ObservationLine SET DisplayOrder = $order WHERE Id = $id;";
+            targetCommand.Parameters.AddWithValue("$order", current.Order);
+            targetCommand.Parameters.AddWithValue("$id", target.Id);
+            await targetCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await using (var currentCommand = connection.CreateCommand())
+        {
+            currentCommand.Transaction = transaction;
+            currentCommand.CommandText = "UPDATE ObservationLine SET DisplayOrder = $order WHERE Id = $id;";
+            currentCommand.Parameters.AddWithValue("$order", target.Order);
+            currentCommand.Parameters.AddWithValue("$id", current.Id);
+            await currentCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        transaction.Commit();
+    }
+
     public async Task<ProjectSettings> LoadSettingsAsync(CancellationToken cancellationToken = default)
     {
         await using var connection = _database.CreateConnection();
@@ -876,6 +1075,44 @@ public sealed class ProjectRepository
         }
 
         return routes;
+    }
+
+    private static async Task NormalizeLineOrderAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        var ids = new List<long>();
+        await using (var readCommand = connection.CreateCommand())
+        {
+            readCommand.Transaction = transaction;
+            readCommand.CommandText = "SELECT Id FROM ObservationLine ORDER BY DisplayOrder, Id;";
+            await using var reader = await readCommand.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                ids.Add(reader.GetInt64(0));
+            }
+        }
+
+        for (int i = 0; i < ids.Count; i++)
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = "UPDATE ObservationLine SET DisplayOrder = $temporary WHERE Id = $id;";
+            command.Parameters.AddWithValue("$temporary", -1000000 - i);
+            command.Parameters.AddWithValue("$id", ids[i]);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        for (int i = 0; i < ids.Count; i++)
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = "UPDATE ObservationLine SET DisplayOrder = $order WHERE Id = $id;";
+            command.Parameters.AddWithValue("$order", i);
+            command.Parameters.AddWithValue("$id", ids[i]);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
     }
 
     private static async Task UpdateMetadataAsync(
