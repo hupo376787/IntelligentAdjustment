@@ -133,6 +133,44 @@ public sealed class ProjectSessionService
         return await OpenAsync(destinationPath, cancellationToken);
     }
 
+    public async Task<ProjectWorkspace> CreateLineAsync(
+        string name,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+        _ = await _repository!.CreateLineAsync(name, "MANUAL", cancellationToken);
+        return await LoadAsync(cancellationToken);
+    }
+
+    public async Task<ProjectWorkspace> RenameLineAsync(
+        long lineId,
+        string name,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+        await _repository!.RenameLineAsync(lineId, name, cancellationToken);
+        return await LoadAsync(cancellationToken);
+    }
+
+    public async Task<ProjectWorkspace> DeleteLineAsync(
+        long lineId,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+        await _repository!.DeleteLineAsync(lineId, cancellationToken);
+        return await LoadAsync(cancellationToken);
+    }
+
+    public async Task<ProjectWorkspace> MoveLineAsync(
+        long lineId,
+        int direction,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+        await _repository!.MoveLineAsync(lineId, direction, cancellationToken);
+        return await LoadAsync(cancellationToken);
+    }
+
     public async Task<ProjectWorkspace> ImportOutFilesAsync(
         IEnumerable<string> filePaths,
         CancellationToken cancellationToken = default)
