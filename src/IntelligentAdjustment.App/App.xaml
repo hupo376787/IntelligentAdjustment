@@ -19,6 +19,12 @@
             <DataTemplate DataType="{x:Type vm:DashboardTabViewModel}">
                 <views:DashboardView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LineManagementTabViewModel}">
+                <views:LineManagementView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:RawObservationsTabViewModel}">
+                <views:RawObservationsView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vm:LevelDifferencesTabViewModel}">
                 <views:LevelDifferencesView/>
             </DataTemplate>
