@@ -47,10 +47,14 @@ public partial class MainWindowViewModel : ObservableObject
     {
         get
         {
+            string fallbackProjectName = string.IsNullOrWhiteSpace(CurrentProjectPath)
+                ? "未命名工程"
+                : Path.GetFileNameWithoutExtension(CurrentProjectPath) ?? "未命名工程";
+
             string project = basisWorkspace is null
                 ? "未打开工程"
                 : string.IsNullOrWhiteSpace(Document.ProjectName)
-                    ? Path.GetFileNameWithoutExtension(CurrentProjectPath)
+                    ? fallbackProjectName
                     : Document.ProjectName;
 
             return $"{project}{(Document.IsDirty ? " *" : string.Empty)} - IntelligentAdjustment";
