@@ -10,13 +10,16 @@ namespace IntelligentAdjustment.Application.Services;
 
 public sealed class ProjectSessionService
 {
-    private readonly OutFileImporter _outImporter = new();
+    private readonly InstrumentImportRegistry instrumentImportRegistry = new();
     private ProjectDatabase? _database;
     private ProjectRepository? _repository;
 
     public string? CurrentProjectPath { get; private set; }
 
     public bool HasOpenProject => _repository is not null;
+
+    public IReadOnlyList<InstrumentImporterDescriptor> InstrumentImportCatalog =>
+        instrumentImportRegistry.Catalog;
 
     public async Task<ProjectWorkspace> CreateAsync(
         string filePath,
@@ -171,21 +174,35 @@ public sealed class ProjectSessionService
         return await LoadAsync(cancellationToken);
     }
 
-    public async Task<ProjectWorkspace> ImportOutFilesAsync(
+    public Task<ProjectWorkspace> ImportOutFilesAsync(
+        IEnumerable<string> filePaths,
+        CancellationToken cancellationToken = default) =>
+        ImportInstrumentFilesAsync(
+            InstrumentVendor.GenericOut,
+            filePaths,
+            cancellationToken);
+
+    public async Task<ProjectWorkspace> ImportInstrumentFilesAsync(
+        InstrumentVendor vendor,
         IEnumerable<string> filePaths,
         CancellationToken cancellationToken = default)
     {
         EnsureOpen();
+
+        IInstrumentDataImporter importer = instrumentImportRegistry.GetRequiredImporter(vendor);
+
         foreach (string filePath in filePaths)
         {
-            OutImportResult parsed = await _outImporter.ParseAsync(filePath, cancellationToken);
+            InstrumentImportResult parsed = await importer.ParseAsync(filePath, cancellationToken);
             byte[] bytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
             string sha256 = Convert.ToHexString(SHA256.HashData(bytes));
 
-            await _repository!.ImportOutAsync(
+            await _repository!.ImportInstrumentFileAsync(
                 filePath,
+                importer.DisplayName,
                 bytes,
                 sha256,
+                parsed.RawObservations,
                 parsed.LevelDifferences,
                 parsed.KnownHeights,
                 cancellationToken);
