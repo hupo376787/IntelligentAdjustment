@@ -39,6 +39,7 @@
             </MenuItem>
             <MenuItem Header="视图(_V)">
                 <MenuItem Header="工程概览" Command="{Binding OpenDashboardCommand}"/>
+                <MenuItem Header="线路管理" Command="{Binding OpenLineManagementCommand}"/>
                 <MenuItem Header="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
                 <MenuItem Header="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
                 <MenuItem Header="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
@@ -112,6 +113,7 @@
                         <TextBlock Text="工程" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,8,8,6"/>
                         <Button Content="工程概览" Command="{Binding OpenDashboardCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <TextBlock Text="数据" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
+                        <Button Content="线路管理" Command="{Binding OpenLineManagementCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="原始观测" Command="{Binding OpenRawObservationsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="已知高程" Command="{Binding OpenKnownHeightsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
