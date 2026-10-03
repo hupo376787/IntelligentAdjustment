@@ -46,3 +46,14 @@ public enum ObservationOrder
     BFBF,
     FBFB
 }
+
+public enum InstrumentVendor
+{
+    LeicaDna = 0,
+    GeoMaxZdl = 1,
+    SokkiaSdl = 2,
+    TopconDl = 3,
+    TrimbleDiNi = 4,
+    LevNet = 5,
+    GenericOut = 6
+}
