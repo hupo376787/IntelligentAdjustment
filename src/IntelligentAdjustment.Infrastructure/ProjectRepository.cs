@@ -465,7 +465,7 @@ public sealed class ProjectRepository
         IReadOnlyList<LevelDifference> levelDifferences,
         IReadOnlyList<KnownHeight> knownHeights,
         CancellationToken cancellationToken = default) =>
-        SaveProjectInputsAsync(
+        SaveProjectInputsCoreAsync(
             metadata,
             settings,
             levelDifferences,
@@ -481,7 +481,7 @@ public sealed class ProjectRepository
         IReadOnlyList<KnownHeight> knownHeights,
         bool incrementInputRevision,
         CancellationToken cancellationToken = default) =>
-        SaveProjectInputsAsync(
+        SaveProjectInputsCoreAsync(
             metadata,
             settings,
             levelDifferences,
@@ -498,16 +498,16 @@ public sealed class ProjectRepository
         IReadOnlyList<RawObservation> rawObservations,
         bool incrementInputRevision,
         CancellationToken cancellationToken = default) =>
-        SaveProjectInputsAsync(
+        SaveProjectInputsCoreAsync(
             metadata,
             settings,
             levelDifferences,
             knownHeights,
-            (IReadOnlyList<RawObservation>?)rawObservations,
+            rawObservations,
             incrementInputRevision,
             cancellationToken);
 
-    public async Task SaveProjectInputsAsync(
+    private async Task SaveProjectInputsCoreAsync(
         ProjectMetadata metadata,
         ProjectSettings settings,
         IReadOnlyList<LevelDifference> levelDifferences,
