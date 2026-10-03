@@ -196,7 +196,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
                 return false;
             }
 
-            parsed.Add(row);
+            parsed.Add(row!);
         }
 
         if (parsed.Count == 0)
