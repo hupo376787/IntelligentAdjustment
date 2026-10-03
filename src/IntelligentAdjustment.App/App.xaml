@@ -22,6 +22,9 @@
             <DataTemplate DataType="{x:Type vm:LineManagementTabViewModel}">
                 <views:LineManagementView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:InstrumentImportTabViewModel}">
+                <views:InstrumentImportView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vm:RawObservationsTabViewModel}">
                 <views:RawObservationsView/>
             </DataTemplate>
