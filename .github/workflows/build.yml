@@ -18,6 +18,24 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Pin .NET 8 for CI only
+        shell: pwsh
+        run: |
+          $version = dotnet --list-sdks |
+            ForEach-Object { ($_ -split ' ')[0] } |
+            Where-Object { $_ -like '8.*' } |
+            Sort-Object { [version]$_ } -Descending |
+            Select-Object -First 1
+          if (-not $version) { throw ".NET 8 SDK was not installed by setup-dotnet." }
+          @{
+            sdk = @{
+              version = $version
+              rollForward = "latestPatch"
+              allowPrerelease = $false
+            }
+          } | ConvertTo-Json -Depth 3 | Set-Content -Encoding utf8 global.json
+          dotnet --version
+
       - name: Restore
         run: dotnet restore IntelligentAdjustment.sln
 
