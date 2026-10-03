@@ -25,7 +25,8 @@
                 <MenuItem Header="保存工程(_S)" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
                 <MenuItem Header="工程另存为..." Command="{Binding SaveProjectAsCommand}"/>
                 <Separator/>
-                <MenuItem Header="导入高差观测数据..." Command="{Binding ImportOutCommand}"/>
+                <MenuItem Header="仪器数据导入..." Command="{Binding OpenInstrumentImportCommand}"/>
+                <MenuItem Header="直接导入高差 OUT..." Command="{Binding ImportOutCommand}"/>
                 <Separator/>
                 <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
             </MenuItem>
@@ -73,7 +74,10 @@
                     <TextBlock Text="重做"/>
                 </Button>
                 <Separator/>
-                <Button Command="{Binding ImportOutCommand}" ToolTip="导入 OUT 高差数据">
+                <Button Command="{Binding OpenInstrumentImportCommand}" ToolTip="按仪器厂商/格式导入数据">
+                    <TextBlock Text="仪器导入"/>
+                </Button>
+                <Button Command="{Binding ImportOutCommand}" ToolTip="直接导入 OUT 高差数据">
                     <TextBlock Text="导入 OUT"/>
                 </Button>
                 <Separator/>
@@ -114,6 +118,7 @@
                         <Button Content="工程概览" Command="{Binding OpenDashboardCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <TextBlock Text="数据" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
                         <Button Content="线路管理" Command="{Binding OpenLineManagementCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
+                        <Button Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="原始观测" Command="{Binding OpenRawObservationsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="已知高程" Command="{Binding OpenKnownHeightsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
