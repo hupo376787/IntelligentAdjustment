@@ -24,7 +24,7 @@ public partial class AdjustmentResultsTabViewModel : WorkspaceTabViewModel
     public ObservableCollection<AdjustedHeight> Heights { get; } = new();
     public ObservableCollection<AdjustedDifference> Differences { get; } = new();
 
-    public void Load(AdjustmentResult result)
+    public void Load(AdjustmentResult result, bool isStale = false)
     {
         Heights.Clear();
         Differences.Clear();
@@ -41,7 +41,7 @@ public partial class AdjustmentResultsTabViewModel : WorkspaceTabViewModel
 
         string method = result.Method == AdjustmentMethod.Classical ? "经典平差" : "拟稳平差";
         Summary = $"{method}；单位权中误差 {result.UnitWeightStandardDeviation:F6} m；自由度 {result.DegreesOfFreedom}；迭代 {result.Iterations} 次";
-        IsStale = false;
+        IsStale = isStale;
     }
 
     [RelayCommand]

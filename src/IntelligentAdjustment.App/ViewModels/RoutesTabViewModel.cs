@@ -1,10 +1,14 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
-public sealed class RoutesTabViewModel : WorkspaceTabViewModel
+public partial class RoutesTabViewModel : WorkspaceTabViewModel
 {
+    [ObservableProperty]
+    private bool isStale;
+
     public RoutesTabViewModel()
         : base("routes", "闭合/附合路线")
     {
@@ -12,7 +16,10 @@ public sealed class RoutesTabViewModel : WorkspaceTabViewModel
 
     public ObservableCollection<RouteDisplayRow> Items { get; } = new();
 
-    public void Load(IEnumerable<NetworkRoute> routes, ProjectSettings settings)
+    public void Load(
+        IEnumerable<NetworkRoute> routes,
+        ProjectSettings settings,
+        bool isStale = false)
     {
         Items.Clear();
         foreach (var route in routes)
@@ -32,6 +39,8 @@ public sealed class RoutesTabViewModel : WorkspaceTabViewModel
                 activeTolerance * 1000.0,
                 Math.Abs(route.ClosureMeters) > activeTolerance));
         }
+
+        IsStale = isStale;
     }
 }
 

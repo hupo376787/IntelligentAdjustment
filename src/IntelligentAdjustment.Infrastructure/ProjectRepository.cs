@@ -526,6 +526,204 @@ public sealed class ProjectRepository
         transaction.Commit();
     }
 
+    public async Task<AdjustmentResult?> LoadLatestAdjustmentResultAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        long runId;
+        AdjustmentMethod method;
+        double sigma0;
+        int degreesOfFreedom;
+        int iterations;
+        double? lambda;
+
+        await using (var runCommand = connection.CreateCommand())
+        {
+            runCommand.CommandText = """
+                SELECT Id, AdjustmentMethod, UnitWeightStandardDeviation,
+                       DegreesOfFreedom, Iterations, QuasiStableLambda
+                FROM CalculationRun
+                WHERE IsSuccessful = 1
+                ORDER BY Id DESC
+                LIMIT 1;
+                """;
+
+            await using var reader = await runCommand.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            runId = reader.GetInt64(0);
+            method = (AdjustmentMethod)reader.GetInt32(1);
+            sigma0 = reader.IsDBNull(2) ? 0 : reader.GetDouble(2);
+            degreesOfFreedom = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
+            iterations = reader.IsDBNull(4) ? 0 : reader.GetInt32(4);
+            lambda = reader.IsDBNull(5) ? null : reader.GetDouble(5);
+        }
+
+        var heights = new List<AdjustedHeight>();
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                SELECT PointName, Height, StandardError, IsReferencePoint
+                FROM AdjustmentResultHeight
+                WHERE CalculationRunId = $runId
+                ORDER BY PointName COLLATE NOCASE;
+                """;
+            command.Parameters.AddWithValue("$runId", runId);
+
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                heights.Add(new AdjustedHeight(
+                    reader.GetString(0),
+                    reader.GetDouble(1),
+                    reader.GetDouble(2),
+                    reader.GetInt32(3) != 0));
+            }
+        }
+
+        var differences = new List<AdjustedDifference>();
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                SELECT LevelDifferenceId, FromPoint, ToPoint,
+                       ObservedDifference, AdjustedDifference, Residual,
+                       DistanceMeters, StationCount, StandardError
+                FROM AdjustmentResultDifference
+                WHERE CalculationRunId = $runId
+                ORDER BY Id;
+                """;
+            command.Parameters.AddWithValue("$runId", runId);
+
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                differences.Add(new AdjustedDifference(
+                    reader.IsDBNull(0) ? 0 : reader.GetInt64(0),
+                    reader.GetString(1),
+                    reader.GetString(2),
+                    reader.GetDouble(3),
+                    reader.GetDouble(4),
+                    reader.GetDouble(5),
+                    reader.GetDouble(6),
+                    reader.GetInt32(7),
+                    reader.GetDouble(8)));
+            }
+        }
+
+        return new AdjustmentResult(
+            method,
+            heights,
+            differences,
+            sigma0,
+            degreesOfFreedom,
+            iterations,
+            Converged: true,
+            lambda);
+    }
+
+    public async Task<IReadOnlyList<NetworkRoute>> LoadLatestRoutesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        long? runId;
+        await using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                SELECT Id
+                FROM CalculationRun
+                WHERE IsSuccessful = 1
+                ORDER BY Id DESC
+                LIMIT 1;
+                """;
+            object? value = await command.ExecuteScalarAsync(cancellationToken);
+            runId = value is null || value == DBNull.Value ? null : Convert.ToInt64(value);
+        }
+
+        if (runId is null)
+        {
+            return Array.Empty<NetworkRoute>();
+        }
+
+        var routes = new List<NetworkRoute>();
+        await using var routeCommand = connection.CreateCommand();
+        routeCommand.CommandText = """
+            SELECT Id, RouteIndex, RouteType, LengthMeters, StationCount,
+                   ClosureMeters, LengthToleranceMeters, StationToleranceMeters
+            FROM ClosureRoute
+            WHERE CalculationRunId = $runId
+            ORDER BY RouteIndex, Id;
+            """;
+        routeCommand.Parameters.AddWithValue("$runId", runId.Value);
+
+        await using var routeReader = await routeCommand.ExecuteReaderAsync(cancellationToken);
+        var rows = new List<(long Id, int Index, RouteType Type, double Length, int Stations, double Closure, double LengthTolerance, double StationTolerance)>();
+        while (await routeReader.ReadAsync(cancellationToken))
+        {
+            rows.Add((
+                routeReader.GetInt64(0),
+                routeReader.GetInt32(1),
+                (RouteType)routeReader.GetInt32(2),
+                routeReader.GetDouble(3),
+                routeReader.GetInt32(4),
+                routeReader.GetDouble(5),
+                routeReader.GetDouble(6),
+                routeReader.GetDouble(7)));
+        }
+
+        foreach (var row in rows)
+        {
+            var points = new List<string>();
+            await using (var pointCommand = connection.CreateCommand())
+            {
+                pointCommand.CommandText = """
+                    SELECT PointName
+                    FROM ClosureRoutePoint
+                    WHERE ClosureRouteId = $routeId
+                    ORDER BY Sequence;
+                    """;
+                pointCommand.Parameters.AddWithValue("$routeId", row.Id);
+
+                await using var pointReader = await pointCommand.ExecuteReaderAsync(cancellationToken);
+                while (await pointReader.ReadAsync(cancellationToken))
+                {
+                    points.Add(pointReader.GetString(0));
+                }
+            }
+
+            var edges = new List<RouteEdge>();
+            for (int i = 0; i + 1 < points.Count; i++)
+            {
+                edges.Add(new RouteEdge(
+                    ObservationId: 0,
+                    FromPoint: points[i],
+                    ToPoint: points[i + 1],
+                    SignedHeightDifference: 0,
+                    DistanceMeters: 0,
+                    StationCount: 0));
+            }
+
+            routes.Add(new NetworkRoute(
+                row.Index,
+                row.Type,
+                points,
+                edges,
+                row.Closure,
+                row.Length,
+                row.Stations,
+                row.LengthTolerance,
+                row.StationTolerance));
+        }
+
+        return routes;
+    }
+
     private static async Task UpdateMetadataAsync(
         SqliteConnection connection,
         SqliteTransaction transaction,

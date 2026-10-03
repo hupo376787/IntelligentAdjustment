@@ -103,6 +103,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             ProjectWorkspace workspace = await session.OpenAsync(filePath);
             LoadWorkspace(workspace, filePath);
+            await RestoreLatestCalculationAsync();
             StatusMessage = $"已打开工程：{Path.GetFileName(filePath)}";
         });
     }
@@ -144,6 +145,7 @@ public partial class MainWindowViewModel : ObservableObject
             ProjectWorkspace workspace = Document.ToWorkspace(basisWorkspace);
             ProjectWorkspace saved = await session.SaveAsAsync(workspace, target);
             LoadWorkspace(saved, target);
+            await RestoreLatestCalculationAsync();
             StatusMessage = $"工程已另存为：{Path.GetFileName(target)}";
         });
     }
@@ -175,7 +177,7 @@ public partial class MainWindowViewModel : ObservableObject
         await RunBusyAsync(async () =>
         {
             ProjectWorkspace workspace = await session.ImportOutFilesAsync(files);
-            LoadWorkspace(workspace, CurrentProjectPath!);
+            LoadWorkspace(workspace, CurrentProjectPath!, resetTabs: false);
             OpenLevelDifferences();
             StatusMessage = $"已导入 {files.Count} 个 OUT 文件；每个文件建立一条线路。";
         });
@@ -396,7 +398,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         ProjectWorkspace workspace = Document.ToWorkspace(basisWorkspace);
         ProjectWorkspace saved = await session.SaveAsync(workspace);
-        LoadWorkspace(saved, CurrentProjectPath!);
+        LoadWorkspace(saved, CurrentProjectPath!, resetTabs: false);
         StatusMessage = "工程已保存。";
     }
 
@@ -435,24 +437,66 @@ public partial class MainWindowViewModel : ObservableObject
         return true;
     }
 
-    private void LoadWorkspace(ProjectWorkspace workspace, string filePath)
+    private void LoadWorkspace(
+        ProjectWorkspace workspace,
+        string filePath,
+        bool resetTabs = true)
     {
         basisWorkspace = workspace;
         CurrentProjectPath = filePath;
         Document.Load(workspace);
 
-        foreach (WorkspaceTabViewModel tab in Tabs.ToArray())
+        if (resetTabs)
         {
-            if (tab.Key is not "dashboard")
+            foreach (WorkspaceTabViewModel tab in Tabs.ToArray())
             {
-                Tabs.Remove(tab);
+                if (tab.Key is not "dashboard")
+                {
+                    Tabs.Remove(tab);
+                }
+            }
+
+            adjustmentResultsTab = null;
+            OpenDashboard();
+        }
+        else
+        {
+            if (adjustmentResultsTab is not null && adjustmentResultsTab.Heights.Count > 0)
+            {
+                adjustmentResultsTab.IsStale = workspace.Revision.ResultsAreStale;
+            }
+
+            RoutesTabViewModel? routesTab = Tabs.OfType<RoutesTabViewModel>().FirstOrDefault();
+            if (routesTab is not null && routesTab.Items.Count > 0)
+            {
+                routesTab.IsStale = workspace.Revision.ResultsAreStale;
             }
         }
 
-        adjustmentResultsTab = null;
-        OpenDashboard();
         OnPropertyChanged(nameof(HasProject));
         OnPropertyChanged(nameof(WindowTitle));
+    }
+
+    private async Task RestoreLatestCalculationAsync()
+    {
+        CalculationBundle? bundle = await session.LoadLatestCalculationAsync();
+        if (bundle is null || basisWorkspace is null)
+        {
+            return;
+        }
+
+        bool isStale = bundle.Revision.ResultsAreStale;
+
+        RoutesTabViewModel routeTab = GetOrCreateRoutesTab();
+        routeTab.Load(bundle.Routes, basisWorkspace.Settings, isStale);
+
+        adjustmentResultsTab ??= new AdjustmentResultsTabViewModel(CalculateAdjustmentAsync);
+        if (!Tabs.Contains(adjustmentResultsTab))
+        {
+            Tabs.Add(adjustmentResultsTab);
+        }
+
+        adjustmentResultsTab.Load(bundle.AdjustmentResult, isStale);
     }
 
     private RoutesTabViewModel GetOrCreateRoutesTab()
@@ -485,9 +529,18 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (e.PropertyName == nameof(ProjectDocumentViewModel.IsDirty))
         {
-            if (Document.IsDirty && adjustmentResultsTab is not null && adjustmentResultsTab.Heights.Count > 0)
+            if (Document.IsDirty)
             {
-                adjustmentResultsTab.IsStale = true;
+                if (adjustmentResultsTab is not null && adjustmentResultsTab.Heights.Count > 0)
+                {
+                    adjustmentResultsTab.IsStale = true;
+                }
+
+                RoutesTabViewModel? routesTab = Tabs.OfType<RoutesTabViewModel>().FirstOrDefault();
+                if (routesTab is not null && routesTab.Items.Count > 0)
+                {
+                    routesTab.IsStale = true;
+                }
             }
 
             OnPropertyChanged(nameof(WindowTitle));

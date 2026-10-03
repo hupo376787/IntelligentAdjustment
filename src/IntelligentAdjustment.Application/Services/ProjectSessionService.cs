@@ -138,6 +138,22 @@ public sealed class ProjectSessionService
         return await LoadAsync(cancellationToken);
     }
 
+    public async Task<CalculationBundle?> LoadLatestCalculationAsync(
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+
+        AdjustmentResult? result = await _repository!.LoadLatestAdjustmentResultAsync(cancellationToken);
+        if (result is null)
+        {
+            return null;
+        }
+
+        IReadOnlyList<NetworkRoute> routes = await _repository.LoadLatestRoutesAsync(cancellationToken);
+        ProjectRevisionState revision = await _repository.LoadRevisionAsync(cancellationToken);
+        return new CalculationBundle(routes, result, revision);
+    }
+
     public async Task<CalculationBundle> CalculateAsync(
         ProjectWorkspace workspace,
         CancellationToken cancellationToken = default)
