@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Threading;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.ViewModels;
 using IntelligentAdjustment.Application.Services;
@@ -9,6 +10,7 @@ namespace IntelligentAdjustment.App;
 public partial class MainWindow : Window
 {
     private bool closeApproved;
+    private bool closeCheckInProgress;
 
     public MainWindow()
     {
@@ -30,11 +32,37 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Always cancel this closing pass first. CanCloseAsync can complete synchronously
+        // (for example when the document is not dirty), and calling Close() again from
+        // inside the active Closing event causes WPF to throw InvalidOperationException.
         e.Cancel = true;
-        if (await ViewModel.CanCloseAsync())
+
+        if (closeCheckInProgress)
         {
-            closeApproved = true;
-            Close();
+            return;
         }
+
+        closeCheckInProgress = true;
+        bool canClose;
+        try
+        {
+            canClose = await ViewModel.CanCloseAsync();
+        }
+        finally
+        {
+            closeCheckInProgress = false;
+        }
+
+        if (!canClose)
+        {
+            return;
+        }
+
+        closeApproved = true;
+
+        // Queue the real close after the current Closing event has returned.
+        _ = Dispatcher.BeginInvoke(
+            DispatcherPriority.Normal,
+            new Action(Close));
     }
 }
