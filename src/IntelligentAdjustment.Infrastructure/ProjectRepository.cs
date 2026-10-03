@@ -630,14 +630,40 @@ public sealed class ProjectRepository
         transaction.Commit();
     }
 
-    public async Task<long> ImportOutAsync(
+    public Task<long> ImportOutAsync(
         string sourceFileName,
         byte[] sourceBytes,
         string sha256,
         IReadOnlyList<LevelDifference> differences,
         IReadOnlyList<KnownHeight> knownHeights,
+        CancellationToken cancellationToken = default) =>
+        ImportInstrumentFileAsync(
+            sourceFileName,
+            instrumentType: "OUT",
+            sourceBytes,
+            sha256,
+            Array.Empty<RawObservation>(),
+            differences,
+            knownHeights,
+            cancellationToken);
+
+    public async Task<long> ImportInstrumentFileAsync(
+        string sourceFileName,
+        string instrumentType,
+        byte[] sourceBytes,
+        string sha256,
+        IReadOnlyList<RawObservation> rawObservations,
+        IReadOnlyList<LevelDifference> differences,
+        IReadOnlyList<KnownHeight> knownHeights,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(instrumentType);
+        ArgumentNullException.ThrowIfNull(sourceBytes);
+        ArgumentNullException.ThrowIfNull(rawObservations);
+        ArgumentNullException.ThrowIfNull(differences);
+        ArgumentNullException.ThrowIfNull(knownHeights);
+
         await using var connection = _database.CreateConnection();
         await connection.OpenAsync(cancellationToken);
         using SqliteTransaction transaction = connection.BeginTransaction();
@@ -656,14 +682,59 @@ public sealed class ProjectRepository
             command.Transaction = transaction;
             command.CommandText = """
                 INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
-                VALUES($order, $name, $source, 'OUT', $created);
+                VALUES($order, $name, $source, $instrumentType, $created);
                 SELECT last_insert_rowid();
                 """;
             command.Parameters.AddWithValue("$order", displayOrder);
             command.Parameters.AddWithValue("$name", Path.GetFileNameWithoutExtension(sourceFileName));
             command.Parameters.AddWithValue("$source", Path.GetFileName(sourceFileName));
+            command.Parameters.AddWithValue("$instrumentType", instrumentType);
             command.Parameters.AddWithValue("$created", DateTimeOffset.UtcNow.ToString("O"));
             lineId = Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
+        }
+
+        foreach (var observation in rawObservations.OrderBy(x => x.Sequence))
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = """
+                INSERT INTO RawObservation(
+                    ObservationLineId, Sequence, FromPoint, ToPoint,
+                    B1, B2, F1, F2,
+                    DistanceB1, DistanceB2, DistanceF1, DistanceF2,
+                    MeasurementMode, ObservationOrder, IsValid, InvalidReason,
+                    MeasuredAtUtc, TemperatureCelsius, Comment)
+                VALUES(
+                    $lineId, $sequence, $fromPoint, $toPoint,
+                    $b1, $b2, $f1, $f2,
+                    $distanceB1, $distanceB2, $distanceF1, $distanceF2,
+                    $measurementMode, $observationOrder, $isValid, $invalidReason,
+                    $measuredAtUtc, $temperatureCelsius, $comment);
+                """;
+            command.Parameters.AddWithValue("$lineId", lineId);
+            command.Parameters.AddWithValue("$sequence", observation.Sequence);
+            command.Parameters.AddWithValue("$fromPoint", observation.FromPoint);
+            command.Parameters.AddWithValue("$toPoint", observation.ToPoint);
+            command.Parameters.AddWithValue("$b1", (object?)observation.B1 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$b2", (object?)observation.B2 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$f1", (object?)observation.F1 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$f2", (object?)observation.F2 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$distanceB1", (object?)observation.DistanceB1 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$distanceB2", (object?)observation.DistanceB2 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$distanceF1", (object?)observation.DistanceF1 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$distanceF2", (object?)observation.DistanceF2 ?? DBNull.Value);
+            command.Parameters.AddWithValue("$measurementMode", (int)observation.MeasurementMode);
+            command.Parameters.AddWithValue("$observationOrder", (int)observation.ObservationOrder);
+            command.Parameters.AddWithValue("$isValid", observation.IsValid ? 1 : 0);
+            command.Parameters.AddWithValue("$invalidReason", (object?)observation.InvalidReason ?? DBNull.Value);
+            command.Parameters.AddWithValue(
+                "$measuredAtUtc",
+                observation.MeasuredAt is null ? DBNull.Value : observation.MeasuredAt.Value.ToString("O"));
+            command.Parameters.AddWithValue(
+                "$temperatureCelsius",
+                (object?)observation.TemperatureCelsius ?? DBNull.Value);
+            command.Parameters.AddWithValue("$comment", (object?)observation.Comment ?? DBNull.Value);
+            await command.ExecuteNonQueryAsync(cancellationToken);
         }
 
         foreach (var difference in differences.OrderBy(x => x.Sequence))
@@ -711,10 +782,11 @@ public sealed class ProjectRepository
             command.Transaction = transaction;
             command.CommandText = """
                 INSERT INTO ImportSource(ObservationLineId, FileName, InstrumentType, ImportedAtUtc, Sha256, OriginalData)
-                VALUES($lineId, $fileName, 'OUT', $importedAt, $sha256, $data);
+                VALUES($lineId, $fileName, $instrumentType, $importedAt, $sha256, $data);
                 """;
             command.Parameters.AddWithValue("$lineId", lineId);
             command.Parameters.AddWithValue("$fileName", Path.GetFileName(sourceFileName));
+            command.Parameters.AddWithValue("$instrumentType", instrumentType);
             command.Parameters.AddWithValue("$importedAt", DateTimeOffset.UtcNow.ToString("O"));
             command.Parameters.AddWithValue("$sha256", sha256);
             command.Parameters.Add("$data", SqliteType.Blob).Value = sourceBytes;
