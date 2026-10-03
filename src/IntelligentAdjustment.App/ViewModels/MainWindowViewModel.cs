@@ -35,6 +35,11 @@ public partial class MainWindowViewModel : ObservableObject
         this.session = session;
         this.dialogs = dialogs;
         Document.PropertyChanged += Document_PropertyChanged;
+        Document.UndoStateChanged += (_, _) =>
+        {
+            UndoCommand.NotifyCanExecuteChanged();
+            RedoCommand.NotifyCanExecuteChanged();
+        };
         OpenDashboard();
     }
 
