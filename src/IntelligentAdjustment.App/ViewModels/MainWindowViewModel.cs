@@ -17,6 +17,8 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IUserDialogService dialogs;
     private ProjectWorkspace? basisWorkspace;
     private AdjustmentResultsTabViewModel? adjustmentResultsTab;
+    private LineManagementTabViewModel? lineManagementTab;
+    private RawObservationsTabViewModel? rawObservationsTab;
 
     [ObservableProperty]
     private WorkspaceTabViewModel? selectedTab;
@@ -255,13 +257,45 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenRawObservations() =>
-        SelectedTab = GetOrCreateTab(
-            "raw-observations",
-            () => new PlaceholderTabViewModel(
-                "raw-observations",
-                "原始观测",
-                "仪器原始观测页面将在各厂商 Parser 接入后启用。"));
+    private void OpenRawObservations()
+    {
+        rawObservationsTab ??= new RawObservationsTabViewModel(Document, dialogs);
+        if (!Tabs.Contains(rawObservationsTab))
+        {
+            Tabs.Add(rawObservationsTab);
+        }
+
+        rawObservationsTab.Refresh();
+        SelectedTab = rawObservationsTab;
+    }
+
+    [RelayCommand]
+    private void OpenLineManagement()
+    {
+        lineManagementTab ??= new LineManagementTabViewModel(
+            Document,
+            session,
+            dialogs,
+            EnsureSavedProjectAsync,
+            workspace =>
+            {
+                if (string.IsNullOrWhiteSpace(CurrentProjectPath))
+                {
+                    return;
+                }
+
+                LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
+                StatusMessage = "线路信息已更新。";
+            });
+
+        if (!Tabs.Contains(lineManagementTab))
+        {
+            Tabs.Add(lineManagementTab);
+        }
+
+        lineManagementTab.Refresh();
+        SelectedTab = lineManagementTab;
+    }
 
     [RelayCommand]
     private void OpenLevelDifferences() =>
@@ -467,6 +501,8 @@ public partial class MainWindowViewModel : ObservableObject
             }
 
             adjustmentResultsTab = null;
+            lineManagementTab = null;
+            rawObservationsTab = null;
             OpenDashboard();
         }
         else
@@ -481,6 +517,9 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 routesTab.IsStale = workspace.Revision.ResultsAreStale;
             }
+
+            lineManagementTab?.Refresh();
+            rawObservationsTab?.Refresh();
         }
 
         OnPropertyChanged(nameof(HasProject));
