@@ -1,4 +1,5 @@
 using System.IO;
+using IntelligentAdjustment.Application.Import;
 using Microsoft.Win32;
 using System.Windows;
 
@@ -41,6 +42,31 @@ public sealed class UserDialogService : IUserDialogService
             CheckFileExists = true
         };
         return dialog.ShowDialog() == true ? dialog.FileNames : Array.Empty<string>();
+    }
+
+    public IReadOnlyList<string> PickInstrumentFiles(InstrumentImporterDescriptor descriptor)
+    {
+        ArgumentNullException.ThrowIfNull(descriptor);
+
+        string patterns = string.Join(
+            ";",
+            descriptor.Extensions.Select(x => $"*{x}"));
+
+        string filter = descriptor.Extensions.Count == 0
+            ? "所有文件 (*.*)|*.*"
+            : $"{descriptor.DisplayName} ({patterns})|{patterns}|所有文件 (*.*)|*.*";
+
+        var dialog = new OpenFileDialog
+        {
+            Title = $"导入 {descriptor.DisplayName} 数据",
+            Filter = filter,
+            Multiselect = true,
+            CheckFileExists = true
+        };
+
+        return dialog.ShowDialog() == true
+            ? dialog.FileNames
+            : Array.Empty<string>();
     }
 
     public string? PickSaveAsProjectPath(string? currentProjectPath)
