@@ -8,7 +8,8 @@ public sealed record ProjectWorkspace(
     ProjectRevisionState Revision,
     IReadOnlyList<ObservationLineInfo> Lines,
     IReadOnlyList<LevelDifference> LevelDifferences,
-    IReadOnlyList<KnownHeight> KnownHeights);
+    IReadOnlyList<KnownHeight> KnownHeights,
+    IReadOnlyList<RawObservation> RawObservations);
 
 public sealed record CalculationBundle(
     IReadOnlyList<NetworkRoute> Routes,

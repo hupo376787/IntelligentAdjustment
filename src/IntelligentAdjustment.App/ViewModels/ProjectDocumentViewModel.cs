@@ -45,6 +45,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
     public ObservableCollection<ObservationLineInfo> Lines { get; } = new();
     public ObservableCollection<LevelDifferenceRowViewModel> LevelDifferences { get; } = new();
     public ObservableCollection<KnownHeightRowViewModel> KnownHeights { get; } = new();
+    public ObservableCollection<RawObservationRowViewModel> RawObservations { get; } = new();
 
     public bool CanUndo => undoStack.Count > 0;
     public bool CanRedo => redoStack.Count > 0;
@@ -55,6 +56,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
     {
         LevelDifferences.CollectionChanged += LevelDifferences_CollectionChanged;
         KnownHeights.CollectionChanged += KnownHeights_CollectionChanged;
+        RawObservations.CollectionChanged += RawObservations_CollectionChanged;
         PropertyChanging += Document_PropertyChanging;
         PropertyChanged += Document_PropertyChanged;
     }
@@ -73,7 +75,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             Settings = workspace.Settings;
             Revision = workspace.Revision;
 
-            ReplaceRowsCore(workspace.LevelDifferences, workspace.KnownHeights);
+            ReplaceRowsCore(workspace.LevelDifferences, workspace.KnownHeights, workspace.RawObservations);
 
             undoStack.Clear();
             redoStack.Clear();
@@ -107,7 +109,8 @@ public partial class ProjectDocumentViewModel : ObservableObject
             Revision,
             Lines.ToArray(),
             LevelDifferences.Select(x => x.ToDomain()).ToArray(),
-            KnownHeights.Select(x => x.ToDomain()).ToArray());
+            KnownHeights.Select(x => x.ToDomain()).ToArray(),
+            RawObservations.Select(x => x.ToDomain()).ToArray());
     }
 
     public void AcceptChanges(ProjectRevisionState revision)
@@ -164,6 +167,19 @@ public partial class ProjectDocumentViewModel : ObservableObject
             foreach (var item in differences.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
             {
                 LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item));
+            }
+        });
+    }
+
+    public void ReplaceRawObservations(IReadOnlyList<RawObservation> observations)
+    {
+        ExecuteUndoable(() =>
+        {
+            UnsubscribeRows(RawObservations);
+            RawObservations.Clear();
+            foreach (var item in observations.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
+            {
+                RawObservations.Add(RawObservationRowViewModel.FromDomain(item));
             }
         });
     }
@@ -249,6 +265,17 @@ public partial class ProjectDocumentViewModel : ObservableObject
     }
 
     private void KnownHeights_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateRowSubscriptions(e);
+        if (!suppressDirty)
+        {
+            CalculationInputsChanged = true;
+        }
+
+        MarkDirty();
+    }
+
+    private void RawObservations_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         UpdateRowSubscriptions(e);
         if (!suppressDirty)
@@ -355,7 +382,8 @@ public partial class ProjectDocumentViewModel : ObservableObject
         Reviewer,
         Settings,
         LevelDifferences.Select(x => x.ToDomain()).ToArray(),
-        KnownHeights.Select(x => x.ToDomain()).ToArray());
+        KnownHeights.Select(x => x.ToDomain()).ToArray(),
+        RawObservations.Select(x => x.ToDomain()).ToArray());
 
     private void ApplySnapshot(ProjectInputSnapshot snapshot)
     {
@@ -369,7 +397,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             ProjectLeader = snapshot.ProjectLeader;
             Reviewer = snapshot.Reviewer;
             Settings = snapshot.Settings;
-            ReplaceRowsCore(snapshot.LevelDifferences, snapshot.KnownHeights);
+            ReplaceRowsCore(snapshot.LevelDifferences, snapshot.KnownHeights, snapshot.RawObservations);
         }
         finally
         {
@@ -380,10 +408,12 @@ public partial class ProjectDocumentViewModel : ObservableObject
 
     private void ReplaceRowsCore(
         IReadOnlyList<LevelDifference> levelDifferences,
-        IReadOnlyList<KnownHeight> knownHeights)
+        IReadOnlyList<KnownHeight> knownHeights,
+        IReadOnlyList<RawObservation> rawObservations)
     {
         UnsubscribeRows(LevelDifferences);
         UnsubscribeRows(KnownHeights);
+        UnsubscribeRows(RawObservations);
 
         LevelDifferences.Clear();
         foreach (var item in levelDifferences)
@@ -395,6 +425,12 @@ public partial class ProjectDocumentViewModel : ObservableObject
         foreach (var item in knownHeights)
         {
             KnownHeights.Add(KnownHeightRowViewModel.FromDomain(item));
+        }
+
+        RawObservations.Clear();
+        foreach (var item in rawObservations)
+        {
+            RawObservations.Add(RawObservationRowViewModel.FromDomain(item));
         }
     }
 
@@ -420,7 +456,8 @@ public partial class ProjectDocumentViewModel : ObservableObject
     {
         if (CalculationSettingsDiffer(left.Settings, right.Settings)
             || left.LevelDifferences.Count != right.LevelDifferences.Count
-            || left.KnownHeights.Count != right.KnownHeights.Count)
+            || left.KnownHeights.Count != right.KnownHeights.Count
+            || left.RawObservations.Count != right.RawObservations.Count)
         {
             return false;
         }
@@ -436,6 +473,14 @@ public partial class ProjectDocumentViewModel : ObservableObject
         for (int i = 0; i < left.KnownHeights.Count; i++)
         {
             if (left.KnownHeights[i] != right.KnownHeights[i])
+            {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < left.RawObservations.Count; i++)
+        {
+            if (left.RawObservations[i] != right.RawObservations[i])
             {
                 return false;
             }
@@ -480,6 +525,14 @@ public partial class ProjectDocumentViewModel : ObservableObject
             }
         }
 
+        for (int i = 0; i < left.RawObservations.Count; i++)
+        {
+            if (left.RawObservations[i] != right.RawObservations[i])
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -493,5 +546,6 @@ public partial class ProjectDocumentViewModel : ObservableObject
         string Reviewer,
         ProjectSettings Settings,
         IReadOnlyList<LevelDifference> LevelDifferences,
-        IReadOnlyList<KnownHeight> KnownHeights);
+        IReadOnlyList<KnownHeight> KnownHeights,
+        IReadOnlyList<RawObservation> RawObservations);
 }

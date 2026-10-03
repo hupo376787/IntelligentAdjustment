@@ -187,6 +187,56 @@ public sealed class ProjectRepository
         return result;
     }
 
+    public async Task<IReadOnlyList<RawObservation>> LoadRawObservationsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var result = new List<RawObservation>();
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT r.Id, r.ObservationLineId, r.Sequence, r.FromPoint, r.ToPoint,
+                   r.B1, r.B2, r.F1, r.F2,
+                   r.DistanceB1, r.DistanceB2, r.DistanceF1, r.DistanceF2,
+                   r.MeasurementMode, r.ObservationOrder, r.IsValid, r.InvalidReason,
+                   r.MeasuredAtUtc, r.TemperatureCelsius, l.SourceFileName, r.Comment
+            FROM RawObservation AS r
+            INNER JOIN ObservationLine AS l ON l.Id = r.ObservationLineId
+            ORDER BY r.ObservationLineId, r.Sequence, r.Id;
+            """;
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new RawObservation
+            {
+                Id = reader.GetInt64(0),
+                LineId = reader.GetInt64(1),
+                Sequence = reader.GetInt32(2),
+                FromPoint = reader.GetString(3),
+                ToPoint = reader.GetString(4),
+                B1 = reader.IsDBNull(5) ? null : reader.GetDouble(5),
+                B2 = reader.IsDBNull(6) ? null : reader.GetDouble(6),
+                F1 = reader.IsDBNull(7) ? null : reader.GetDouble(7),
+                F2 = reader.IsDBNull(8) ? null : reader.GetDouble(8),
+                DistanceB1 = reader.IsDBNull(9) ? null : reader.GetDouble(9),
+                DistanceB2 = reader.IsDBNull(10) ? null : reader.GetDouble(10),
+                DistanceF1 = reader.IsDBNull(11) ? null : reader.GetDouble(11),
+                DistanceF2 = reader.IsDBNull(12) ? null : reader.GetDouble(12),
+                MeasurementMode = (MeasurementMode)reader.GetInt32(13),
+                ObservationOrder = (ObservationOrder)reader.GetInt32(14),
+                IsValid = reader.GetInt32(15) != 0,
+                InvalidReason = reader.IsDBNull(16) ? null : reader.GetString(16),
+                MeasuredAt = reader.IsDBNull(17) ? null : DateTimeOffset.Parse(reader.GetString(17)),
+                TemperatureCelsius = reader.IsDBNull(18) ? null : reader.GetDouble(18),
+                SourceFileName = reader.IsDBNull(19) ? null : reader.GetString(19),
+                Comment = reader.IsDBNull(20) ? null : reader.GetString(20)
+            });
+        }
+
+        return result;
+    }
+
     public async Task<IReadOnlyList<KnownHeight>> LoadKnownHeightsAsync(CancellationToken cancellationToken = default)
     {
         var result = new List<KnownHeight>();
@@ -221,7 +271,41 @@ public sealed class ProjectRepository
             settings,
             levelDifferences,
             knownHeights,
+            rawObservations: null,
             incrementInputRevision: true,
+            cancellationToken);
+
+    public Task SaveProjectInputsAsync(
+        ProjectMetadata metadata,
+        ProjectSettings settings,
+        IReadOnlyList<LevelDifference> levelDifferences,
+        IReadOnlyList<KnownHeight> knownHeights,
+        bool incrementInputRevision,
+        CancellationToken cancellationToken = default) =>
+        SaveProjectInputsAsync(
+            metadata,
+            settings,
+            levelDifferences,
+            knownHeights,
+            rawObservations: null,
+            incrementInputRevision,
+            cancellationToken);
+
+    public Task SaveProjectInputsAsync(
+        ProjectMetadata metadata,
+        ProjectSettings settings,
+        IReadOnlyList<LevelDifference> levelDifferences,
+        IReadOnlyList<KnownHeight> knownHeights,
+        IReadOnlyList<RawObservation> rawObservations,
+        bool incrementInputRevision,
+        CancellationToken cancellationToken = default) =>
+        SaveProjectInputsAsync(
+            metadata,
+            settings,
+            levelDifferences,
+            knownHeights,
+            (IReadOnlyList<RawObservation>?)rawObservations,
+            incrementInputRevision,
             cancellationToken);
 
     public async Task SaveProjectInputsAsync(
@@ -229,6 +313,7 @@ public sealed class ProjectRepository
         ProjectSettings settings,
         IReadOnlyList<LevelDifference> levelDifferences,
         IReadOnlyList<KnownHeight> knownHeights,
+        IReadOnlyList<RawObservation>? rawObservations,
         bool incrementInputRevision,
         CancellationToken cancellationToken = default)
     {
@@ -238,6 +323,55 @@ public sealed class ProjectRepository
 
         await UpdateMetadataAsync(connection, transaction, metadata, cancellationToken);
         await UpdateSettingsAsync(connection, transaction, settings, cancellationToken);
+
+        if (rawObservations is not null)
+        {
+            await ExecuteAsync(connection, transaction, "DELETE FROM RawObservation;", cancellationToken);
+
+            foreach (var observation in rawObservations.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
+            {
+                await using var rawCommand = connection.CreateCommand();
+                rawCommand.Transaction = transaction;
+                rawCommand.CommandText = """
+                    INSERT INTO RawObservation(
+                        ObservationLineId, Sequence, FromPoint, ToPoint,
+                        B1, B2, F1, F2,
+                        DistanceB1, DistanceB2, DistanceF1, DistanceF2,
+                        MeasurementMode, ObservationOrder, IsValid, InvalidReason,
+                        MeasuredAtUtc, TemperatureCelsius, Comment)
+                    VALUES(
+                        $lineId, $sequence, $fromPoint, $toPoint,
+                        $b1, $b2, $f1, $f2,
+                        $distanceB1, $distanceB2, $distanceF1, $distanceF2,
+                        $measurementMode, $observationOrder, $isValid, $invalidReason,
+                        $measuredAtUtc, $temperatureCelsius, $comment);
+                    """;
+                rawCommand.Parameters.AddWithValue("$lineId", observation.LineId);
+                rawCommand.Parameters.AddWithValue("$sequence", observation.Sequence);
+                rawCommand.Parameters.AddWithValue("$fromPoint", observation.FromPoint);
+                rawCommand.Parameters.AddWithValue("$toPoint", observation.ToPoint);
+                rawCommand.Parameters.AddWithValue("$b1", (object?)observation.B1 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$b2", (object?)observation.B2 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$f1", (object?)observation.F1 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$f2", (object?)observation.F2 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$distanceB1", (object?)observation.DistanceB1 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$distanceB2", (object?)observation.DistanceB2 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$distanceF1", (object?)observation.DistanceF1 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$distanceF2", (object?)observation.DistanceF2 ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$measurementMode", (int)observation.MeasurementMode);
+                rawCommand.Parameters.AddWithValue("$observationOrder", (int)observation.ObservationOrder);
+                rawCommand.Parameters.AddWithValue("$isValid", observation.IsValid ? 1 : 0);
+                rawCommand.Parameters.AddWithValue("$invalidReason", (object?)observation.InvalidReason ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue(
+                    "$measuredAtUtc",
+                    observation.MeasuredAt is null ? DBNull.Value : observation.MeasuredAt.Value.ToString("O"));
+                rawCommand.Parameters.AddWithValue(
+                    "$temperatureCelsius",
+                    (object?)observation.TemperatureCelsius ?? DBNull.Value);
+                rawCommand.Parameters.AddWithValue("$comment", (object?)observation.Comment ?? DBNull.Value);
+                await rawCommand.ExecuteNonQueryAsync(cancellationToken);
+            }
+        }
 
         await ExecuteAsync(connection, transaction, "DELETE FROM LevelDifference;", cancellationToken);
         foreach (var difference in levelDifferences.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
