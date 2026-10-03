@@ -46,6 +46,7 @@ public sealed class ProjectSessionService
             workspace.Settings,
             workspace.LevelDifferences,
             workspace.KnownHeights,
+            incrementInputRevision: false,
             cancellationToken);
 
         return await LoadAsync(cancellationToken);
@@ -84,8 +85,14 @@ public sealed class ProjectSessionService
             await _repository.LoadKnownHeightsAsync(cancellationToken));
     }
 
+    public Task<ProjectWorkspace> SaveAsync(
+        ProjectWorkspace workspace,
+        CancellationToken cancellationToken = default) =>
+        SaveAsync(workspace, incrementInputRevision: true, cancellationToken);
+
     public async Task<ProjectWorkspace> SaveAsync(
         ProjectWorkspace workspace,
+        bool incrementInputRevision,
         CancellationToken cancellationToken = default)
     {
         EnsureOpen();
@@ -94,17 +101,25 @@ public sealed class ProjectSessionService
             workspace.Settings,
             workspace.LevelDifferences,
             workspace.KnownHeights,
+            incrementInputRevision,
             cancellationToken);
         return await LoadAsync(cancellationToken);
     }
 
+    public Task<ProjectWorkspace> SaveAsAsync(
+        ProjectWorkspace workspace,
+        string destinationPath,
+        CancellationToken cancellationToken = default) =>
+        SaveAsAsync(workspace, destinationPath, incrementInputRevision: true, cancellationToken);
+
     public async Task<ProjectWorkspace> SaveAsAsync(
         ProjectWorkspace workspace,
         string destinationPath,
+        bool incrementInputRevision,
         CancellationToken cancellationToken = default)
     {
         EnsureOpen();
-        _ = await SaveAsync(workspace, cancellationToken);
+        _ = await SaveAsync(workspace, incrementInputRevision, cancellationToken);
 
         if (File.Exists(destinationPath))
         {

@@ -39,6 +39,9 @@ public partial class ProjectDocumentViewModel : ObservableObject
     [ObservableProperty]
     private bool isDirty;
 
+    [ObservableProperty]
+    private bool calculationInputsChanged;
+
     public ObservableCollection<ObservationLineInfo> Lines { get; } = new();
     public ObservableCollection<LevelDifferenceRowViewModel> LevelDifferences { get; } = new();
     public ObservableCollection<KnownHeightRowViewModel> KnownHeights { get; } = new();
@@ -75,6 +78,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             undoStack.Clear();
             redoStack.Clear();
             savedSnapshot = CaptureSnapshot();
+            CalculationInputsChanged = false;
             IsDirty = false;
             RaiseUndoStateChanged();
         }
@@ -116,6 +120,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             undoStack.Clear();
             redoStack.Clear();
             savedSnapshot = CaptureSnapshot();
+            CalculationInputsChanged = false;
             IsDirty = false;
             RaiseUndoStateChanged();
         }
@@ -235,12 +240,22 @@ public partial class ProjectDocumentViewModel : ObservableObject
     private void LevelDifferences_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         UpdateRowSubscriptions(e);
+        if (!suppressDirty)
+        {
+            CalculationInputsChanged = true;
+        }
+
         MarkDirty();
     }
 
     private void KnownHeights_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         UpdateRowSubscriptions(e);
+        if (!suppressDirty)
+        {
+            CalculationInputsChanged = true;
+        }
+
         MarkDirty();
     }
 
@@ -297,7 +312,23 @@ public partial class ProjectDocumentViewModel : ObservableObject
         }
     }
 
-    private void Row_PropertyChanged(object? sender, PropertyChangedEventArgs e) => MarkDirty();
+    private void Row_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!suppressDirty)
+        {
+            CalculationInputsChanged = true;
+        }
+
+        MarkDirty();
+    }
+
+    partial void OnSettingsChanging(ProjectSettings value)
+    {
+        if (!suppressDirty && CalculationSettingsDiffer(Settings, value))
+        {
+            CalculationInputsChanged = true;
+        }
+    }
 
     private void PushUndoSnapshot()
     {
@@ -380,8 +411,44 @@ public partial class ProjectDocumentViewModel : ObservableObject
 
     private void UpdateDirtyFromSavedSnapshot()
     {
-        IsDirty = savedSnapshot is null || !SnapshotsEqual(savedSnapshot, CaptureSnapshot());
+        ProjectInputSnapshot current = CaptureSnapshot();
+        IsDirty = savedSnapshot is null || !SnapshotsEqual(savedSnapshot, current);
+        CalculationInputsChanged = savedSnapshot is null || !CalculationInputsEqual(savedSnapshot, current);
     }
+
+    private static bool CalculationInputsEqual(ProjectInputSnapshot left, ProjectInputSnapshot right)
+    {
+        if (CalculationSettingsDiffer(left.Settings, right.Settings)
+            || left.LevelDifferences.Count != right.LevelDifferences.Count
+            || left.KnownHeights.Count != right.KnownHeights.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < left.LevelDifferences.Count; i++)
+        {
+            if (left.LevelDifferences[i] != right.LevelDifferences[i])
+            {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < left.KnownHeights.Count; i++)
+        {
+            if (left.KnownHeights[i] != right.KnownHeights[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool CalculationSettingsDiffer(ProjectSettings left, ProjectSettings right) =>
+        left.ToleranceMode != right.ToleranceMode
+        || left.DistanceToleranceCoefficientMm != right.DistanceToleranceCoefficientMm
+        || left.StationToleranceCoefficientMm != right.StationToleranceCoefficientMm
+        || left.AdjustmentMethod != right.AdjustmentMethod;
 
     private static bool SnapshotsEqual(ProjectInputSnapshot left, ProjectInputSnapshot right)
     {

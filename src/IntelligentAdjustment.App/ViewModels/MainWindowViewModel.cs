@@ -148,7 +148,10 @@ public partial class MainWindowViewModel : ObservableObject
         await RunBusyAsync(async () =>
         {
             ProjectWorkspace workspace = Document.ToWorkspace(basisWorkspace);
-            ProjectWorkspace saved = await session.SaveAsAsync(workspace, target);
+            ProjectWorkspace saved = await session.SaveAsAsync(
+                workspace,
+                target,
+                Document.CalculationInputsChanged);
             LoadWorkspace(saved, target);
             await RestoreLatestCalculationAsync();
             StatusMessage = $"工程已另存为：{Path.GetFileName(target)}";
@@ -402,7 +405,9 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         ProjectWorkspace workspace = Document.ToWorkspace(basisWorkspace);
-        ProjectWorkspace saved = await session.SaveAsync(workspace);
+        ProjectWorkspace saved = await session.SaveAsync(
+            workspace,
+            Document.CalculationInputsChanged);
         LoadWorkspace(saved, CurrentProjectPath!, resetTabs: false);
         StatusMessage = "工程已保存。";
     }

@@ -210,11 +210,26 @@ public sealed class ProjectRepository
         return result;
     }
 
+    public Task SaveProjectInputsAsync(
+        ProjectMetadata metadata,
+        ProjectSettings settings,
+        IReadOnlyList<LevelDifference> levelDifferences,
+        IReadOnlyList<KnownHeight> knownHeights,
+        CancellationToken cancellationToken = default) =>
+        SaveProjectInputsAsync(
+            metadata,
+            settings,
+            levelDifferences,
+            knownHeights,
+            incrementInputRevision: true,
+            cancellationToken);
+
     public async Task SaveProjectInputsAsync(
         ProjectMetadata metadata,
         ProjectSettings settings,
         IReadOnlyList<LevelDifference> levelDifferences,
         IReadOnlyList<KnownHeight> knownHeights,
+        bool incrementInputRevision,
         CancellationToken cancellationToken = default)
     {
         await using var connection = _database.CreateConnection();
@@ -266,15 +281,18 @@ public sealed class ProjectRepository
             await command.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        await ExecuteAsync(
-            connection,
-            transaction,
-            """
-            UPDATE ProjectState
-            SET InputRevision = InputRevision + 1
-            WHERE Id = 1;
-            """,
-            cancellationToken);
+        if (incrementInputRevision)
+        {
+            await ExecuteAsync(
+                connection,
+                transaction,
+                """
+                UPDATE ProjectState
+                SET InputRevision = InputRevision + 1
+                WHERE Id = 1;
+                """,
+                cancellationToken);
+        }
 
         transaction.Commit();
     }
