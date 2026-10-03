@@ -19,6 +19,7 @@ public partial class MainWindowViewModel : ObservableObject
     private AdjustmentResultsTabViewModel? adjustmentResultsTab;
     private LineManagementTabViewModel? lineManagementTab;
     private RawObservationsTabViewModel? rawObservationsTab;
+    private InstrumentImportTabViewModel? instrumentImportTab;
 
     [ObservableProperty]
     private WorkspaceTabViewModel? selectedTab;
@@ -270,6 +271,32 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void OpenInstrumentImport()
+    {
+        instrumentImportTab ??= new InstrumentImportTabViewModel(
+            session,
+            dialogs,
+            EnsureSavedProjectAsync,
+            workspace =>
+            {
+                if (string.IsNullOrWhiteSpace(CurrentProjectPath))
+                {
+                    return;
+                }
+
+                LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
+                StatusMessage = "仪器数据导入完成。";
+            });
+
+        if (!Tabs.Contains(instrumentImportTab))
+        {
+            Tabs.Add(instrumentImportTab);
+        }
+
+        SelectedTab = instrumentImportTab;
+    }
+
+    [RelayCommand]
     private void OpenLineManagement()
     {
         lineManagementTab ??= new LineManagementTabViewModel(
@@ -503,6 +530,7 @@ public partial class MainWindowViewModel : ObservableObject
             adjustmentResultsTab = null;
             lineManagementTab = null;
             rawObservationsTab = null;
+            instrumentImportTab = null;
             OpenDashboard();
         }
         else
