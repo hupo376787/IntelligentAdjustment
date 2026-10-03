@@ -1,3 +1,4 @@
+using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.Application.Import;
