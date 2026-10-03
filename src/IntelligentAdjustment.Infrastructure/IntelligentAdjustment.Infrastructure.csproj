@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.31" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sql/schema.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
