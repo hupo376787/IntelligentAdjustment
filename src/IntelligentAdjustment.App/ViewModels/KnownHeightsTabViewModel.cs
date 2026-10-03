@@ -37,16 +37,25 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
             return;
         }
 
-        if (Items.Any(x => string.Equals(x.PointName, name, StringComparison.Ordinal)))
+        if (!double.IsFinite(NewHeight))
+        {
+            dialogs.Info("请输入有效的高程数值。");
+            return;
+        }
+
+        if (Items.Any(x => string.Equals(x.PointName.Trim(), name, StringComparison.Ordinal)))
         {
             dialogs.Info($"点名“{name}”已经存在，重复输入无效。");
             return;
         }
 
-        Items.Add(new KnownHeightRowViewModel
+        document.ExecuteUndoable(() =>
         {
-            PointName = name,
-            Height = NewHeight
+            Items.Add(new KnownHeightRowViewModel
+            {
+                PointName = name,
+                Height = NewHeight
+            });
         });
 
         NewPointName = string.Empty;
@@ -56,10 +65,14 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void DeleteSelected()
     {
-        foreach (var row in SelectedRows.ToArray())
+        KnownHeightRowViewModel[] selected = SelectedRows.ToArray();
+        document.ExecuteUndoable(() =>
         {
-            Items.Remove(row);
-        }
+            foreach (var row in selected)
+            {
+                Items.Remove(row);
+            }
+        });
 
         SelectedRows.Clear();
     }

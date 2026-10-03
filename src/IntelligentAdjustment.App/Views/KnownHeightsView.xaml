@@ -17,12 +17,17 @@
         <DataGrid ItemsSource="{Binding Items}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
+                  CanUserDeleteRows="False"
                   SelectionMode="Extended"
                   SelectionUnit="FullRow"
                   behaviors:DataGridSelectionBehavior.SelectedItems="{Binding SelectedRows}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="点名" Binding="{Binding PointName, UpdateSourceTrigger=LostFocus}" Width="180"/>
-                <DataGridTextColumn Header="高程 [m]" Binding="{Binding Height, UpdateSourceTrigger=LostFocus, StringFormat=F5}" Width="160"/>
+                <DataGridTextColumn Header="点名"
+                                    Binding="{Binding PointName, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
+                                    Width="180"/>
+                <DataGridTextColumn Header="高程 [m]"
+                                    Binding="{Binding Height, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
+                                    Width="160"/>
                 <DataGridTextColumn Header="备注" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

@@ -257,7 +257,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void OpenLevelDifferences() =>
         SelectedTab = GetOrCreateTab(
             "differences",
-            () => new LevelDifferencesTabViewModel(Document));
+            () => new LevelDifferencesTabViewModel(Document, dialogs));
 
     [RelayCommand]
     private void OpenKnownHeights() =>

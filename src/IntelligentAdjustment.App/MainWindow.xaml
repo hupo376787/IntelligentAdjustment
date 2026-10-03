@@ -12,6 +12,8 @@
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewProjectCommand}"/>
         <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveProjectCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}"/>
+        <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}"/>
     </Window.InputBindings>
 
     <DockPanel>
@@ -28,8 +30,8 @@
                 <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="编辑(_E)">
-                <MenuItem Header="撤销" IsEnabled="False" InputGestureText="Ctrl+Z"/>
-                <MenuItem Header="重做" IsEnabled="False" InputGestureText="Ctrl+Y"/>
+                <MenuItem Header="撤销" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
+                <MenuItem Header="重做" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
             </MenuItem>
             <MenuItem Header="计算(_C)">
                 <MenuItem Header="搜索闭合/附合路线" Command="{Binding SearchRoutesCommand}"/>
@@ -61,6 +63,13 @@
                 </Button>
                 <Button Command="{Binding SaveProjectCommand}" ToolTip="保存工程">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="💾"/><TextBlock Text=" 保存"/></StackPanel>
+                </Button>
+                <Separator/>
+                <Button Command="{Binding UndoCommand}" ToolTip="撤销 (Ctrl+Z)">
+                    <TextBlock Text="撤销"/>
+                </Button>
+                <Button Command="{Binding RedoCommand}" ToolTip="重做 (Ctrl+Y)">
+                    <TextBlock Text="重做"/>
                 </Button>
                 <Separator/>
                 <Button Command="{Binding ImportOutCommand}" ToolTip="导入 OUT 高差数据">

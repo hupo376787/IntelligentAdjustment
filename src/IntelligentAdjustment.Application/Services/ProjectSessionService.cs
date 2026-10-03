@@ -31,6 +31,7 @@ public sealed class ProjectSessionService
         await _database.CreateAsync(cancellationToken);
         _repository = new ProjectRepository(_database);
         CurrentProjectPath = filePath;
+        _ = await _repository.EnsureManualLineAsync(cancellationToken);
 
         var workspace = await LoadAsync(cancellationToken);
         string defaultName = Path.GetFileNameWithoutExtension(filePath);
@@ -67,6 +68,7 @@ public sealed class ProjectSessionService
         _database = new ProjectDatabase(filePath);
         _repository = new ProjectRepository(_database);
         CurrentProjectPath = filePath;
+        _ = await _repository.EnsureManualLineAsync(cancellationToken);
         return await LoadAsync(cancellationToken);
     }
 

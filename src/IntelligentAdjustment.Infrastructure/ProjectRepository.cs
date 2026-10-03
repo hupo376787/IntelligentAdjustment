@@ -39,6 +39,36 @@ public sealed class ProjectRepository
             DateTimeOffset.Parse(reader.GetString(6)));
     }
 
+    public async Task<long> EnsureManualLineAsync(CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        await using (var existing = connection.CreateCommand())
+        {
+            existing.CommandText = """
+                SELECT Id
+                FROM ObservationLine
+                ORDER BY DisplayOrder, Id
+                LIMIT 1;
+                """;
+            object? value = await existing.ExecuteScalarAsync(cancellationToken);
+            if (value is not null && value != DBNull.Value)
+            {
+                return Convert.ToInt64(value);
+            }
+        }
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
+            VALUES(0, '线路 0', NULL, 'MANUAL', $created);
+            SELECT last_insert_rowid();
+            """;
+        command.Parameters.AddWithValue("$created", DateTimeOffset.UtcNow.ToString("O"));
+        return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
+    }
+
     public async Task<ProjectSettings> LoadSettingsAsync(CancellationToken cancellationToken = default)
     {
         await using var connection = _database.CreateConnection();
