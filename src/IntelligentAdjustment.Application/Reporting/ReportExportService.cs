@@ -165,7 +165,7 @@ public sealed class ReportExportService
         run.SetText(text);
         run.IsBold = true;
         run.FontSize = size;
-        run.SetFontFamily("Microsoft YaHei");
+        run.FontFamily = "Microsoft YaHei";
     }
 
     private static void AddCenteredParagraph(XWPFDocument document, string? text, int size)
@@ -175,7 +175,7 @@ public sealed class ReportExportService
         XWPFRun run = paragraph.CreateRun();
         run.SetText(text ?? string.Empty);
         run.FontSize = size;
-        run.SetFontFamily("Microsoft YaHei");
+        run.FontFamily = "Microsoft YaHei";
     }
 
     private static void AddHeading(XWPFDocument document, string text, int level)
@@ -185,7 +185,7 @@ public sealed class ReportExportService
         run.SetText(text);
         run.IsBold = true;
         run.FontSize = level == 1 ? 16 : 13;
-        run.SetFontFamily("Microsoft YaHei");
+        run.FontFamily = "Microsoft YaHei";
     }
 
     private static void AddBody(XWPFDocument document, string? text)
@@ -197,7 +197,7 @@ public sealed class ReportExportService
             XWPFRun run = paragraph.CreateRun();
             run.SetText(line);
             run.FontSize = 11;
-            run.SetFontFamily("Microsoft YaHei");
+            run.FontFamily = "Microsoft YaHei";
         }
     }
 
@@ -334,7 +334,7 @@ public sealed class ReportExportService
         run.SetText(text ?? string.Empty);
         run.IsBold = bold;
         run.FontSize = 10;
-        run.SetFontFamily("Microsoft YaHei");
+        run.FontFamily = "Microsoft YaHei";
     }
 
     private static ICellStyle CreateHeaderStyle(IWorkbook workbook)
