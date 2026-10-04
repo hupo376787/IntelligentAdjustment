@@ -37,6 +37,23 @@
                    Foreground="#6B7280"
                    Text="原始观测修改后，如工程设置启用了“自动更新高差”，提交影响高差的单元格时会询问是否立即重新计算当前线路。"/>
 
+        <Expander DockPanel.Dock="Bottom"
+                  Header="观测剖面（由当前线路原始读数实时计算）"
+                  IsExpanded="False"
+                  Expanded="ProfileExpander_Expanded"
+                  Margin="0,8,0,0">
+            <Border Height="230"
+                    BorderBrush="#D7DCE2"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Background="White">
+                <Canvas x:Name="ProfileCanvas"
+                        Background="White"
+                        ClipToBounds="True"
+                        SizeChanged="ProfileCanvas_SizeChanged"/>
+            </Border>
+        </Expander>
+
         <DataGrid x:Name="RawGrid"
                   ItemsSource="{Binding Items}"
                   AutoGenerateColumns="False"
