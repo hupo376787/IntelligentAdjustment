@@ -531,25 +531,38 @@ internal sealed class LegacyTemplateReportExporter
 
     private static void SetParagraphText(XWPFParagraph paragraph, string value)
     {
-        XWPFRun? first = paragraph.Runs.FirstOrDefault();
-        if (first is null)
+        // NPOI 2.7.2 cannot RemoveRun() when the run is nested in a Word field
+        // or hyperlink. The legacy template contains such runs, so keep the run
+        // containers and clear only their literal text nodes.
+        XWPFRun? target = paragraph.Runs.FirstOrDefault(run =>
+            run is not XWPFFieldRun && run is not XWPFHyperlinkRun);
+
+        foreach (XWPFRun run in paragraph.Runs)
         {
-            paragraph.CreateRun().SetText(value ?? string.Empty);
-            return;
+            ClearRunText(run);
         }
 
-        first.SetText(value ?? string.Empty, 0);
-        for (int i = paragraph.Runs.Count - 1; i >= 1; i--)
-        {
-            paragraph.RemoveRun(i);
-        }
+        target ??= paragraph.CreateRun();
+        target.SetText(value ?? string.Empty, 0);
     }
 
     private static void ClearRuns(XWPFParagraph paragraph)
     {
-        for (int i = paragraph.Runs.Count - 1; i >= 0; i--)
+        // Do not call paragraph.RemoveRun() here. Older NPOI versions throw
+        // "Removing Field or Hyperlink runs not yet supported" for template
+        // paragraphs containing fields/hyperlinks.
+        foreach (XWPFRun run in paragraph.Runs)
         {
-            paragraph.RemoveRun(i);
+            ClearRunText(run);
+        }
+    }
+
+    private static void ClearRunText(XWPFRun run)
+    {
+        var ctRun = run.GetCTR();
+        for (int i = ctRun.SizeOfTArray() - 1; i >= 0; i--)
+        {
+            ctRun.RemoveT(i);
         }
     }
 
