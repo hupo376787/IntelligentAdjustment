@@ -38,6 +38,7 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
         Refresh();
     }
 
+    public ProjectDocumentViewModel Document => document;
     public ObservableCollection<ObservationLineInfo> Lines => document.Lines;
     public ICollectionView Items { get; }
     public ObservableCollection<RawObservationRowViewModel> SelectedRows { get; } = new();
