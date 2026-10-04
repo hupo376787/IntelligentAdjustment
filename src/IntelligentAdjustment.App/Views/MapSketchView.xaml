@@ -1,0 +1,77 @@
+<UserControl x:Class="IntelligentAdjustment.App.Views.MapSketchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel Margin="16">
+        <Border DockPanel.Dock="Top"
+                Padding="10"
+                Margin="0,0,0,10"
+                BorderBrush="#E1E5EA"
+                BorderThickness="1"
+                CornerRadius="6">
+            <WrapPanel VerticalAlignment="Center">
+                <TextBlock Text="网络点"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                <ComboBox Width="150"
+                          ItemsSource="{Binding NetworkPointNames}"
+                          SelectedItem="{Binding SelectedPointName, Mode=TwoWay}"
+                          Margin="0,0,8,0"/>
+                <Button Content="放置节点"
+                        Command="{Binding StartPlacementCommand}"
+                        Padding="12,5"
+                        Margin="0,0,6,0"/>
+                <Button Content="取消放置"
+                        Command="{Binding CancelPlacementCommand}"
+                        Padding="12,5"
+                        Margin="0,0,10,0"/>
+                <Button Content="自动布局未定位点"
+                        Command="{Binding AutoLayoutUnpositionedCommand}"
+                        Padding="12,5"
+                        Margin="0,0,6,0"/>
+                <Button Content="Fit to View"
+                        Command="{Binding FitToViewCommand}"
+                        Padding="12,5"
+                        Margin="0,0,14,0"/>
+
+                <CheckBox Content="吸附"
+                          IsChecked="{Binding SnapEnabled}"
+                          VerticalAlignment="Center"
+                          Margin="0,0,6,0"/>
+                <TextBlock Text="间距"
+                           VerticalAlignment="Center"
+                           Margin="0,0,4,0"/>
+                <TextBox Width="58"
+                         Text="{Binding SnapSize, UpdateSourceTrigger=LostFocus}"
+                         Margin="0,0,12,0"/>
+
+                <TextBlock x:Name="ScaleText"
+                           VerticalAlignment="Center"
+                           Foreground="#6B7280"/>
+            </WrapPanel>
+        </Border>
+
+        <Border BorderBrush="#D7DCE2"
+                BorderThickness="1"
+                CornerRadius="6"
+                Background="White">
+            <Canvas x:Name="SketchCanvas"
+                    Background="White"
+                    ClipToBounds="True"
+                    Focusable="True"
+                    MouseWheel="SketchCanvas_MouseWheel"
+                    MouseLeftButtonDown="SketchCanvas_MouseLeftButtonDown"
+                    MouseLeftButtonUp="SketchCanvas_MouseLeftButtonUp"
+                    MouseRightButtonDown="SketchCanvas_MouseRightButtonDown"
+                    MouseMove="SketchCanvas_MouseMove"
+                    MouseDown="SketchCanvas_MouseDown"
+                    MouseUp="SketchCanvas_MouseUp"
+                    SizeChanged="SketchCanvas_SizeChanged"/>
+        </Border>
+
+        <TextBlock DockPanel.Dock="Bottom"
+                   Text="{Binding StatusText}"
+                   Foreground="#6B7280"
+                   Margin="2,8,0,0"
+                   TextWrapping="Wrap"/>
+    </DockPanel>
+</UserControl>
