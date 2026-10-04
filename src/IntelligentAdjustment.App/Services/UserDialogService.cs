@@ -85,6 +85,45 @@ public sealed class UserDialogService : IUserDialogService
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
+    public string? PickReportDocxPath(string projectName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出高程控制网平差报告",
+            Filter = "Word 文档 (*.docx)|*.docx",
+            DefaultExt = ".docx",
+            AddExtension = true,
+            FileName = $"{SanitizeFileName(projectName)}-高程控制网平差报告.docx"
+        };
+
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
+    public string? PickReportXlsxPath(string projectName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出平差成果 Excel",
+            Filter = "Excel 工作簿 (*.xlsx)|*.xlsx",
+            DefaultExt = ".xlsx",
+            AddExtension = true,
+            FileName = $"{SanitizeFileName(projectName)}-平差成果.xlsx"
+        };
+
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
+    private static string SanitizeFileName(string? value)
+    {
+        string source = string.IsNullOrWhiteSpace(value) ? "未命名工程" : value.Trim();
+        foreach (char invalid in Path.GetInvalidFileNameChars())
+        {
+            source = source.Replace(invalid, '_');
+        }
+
+        return source;
+    }
+
     public UnsavedChangesChoice AskUnsavedChanges()
     {
         MessageBoxResult result = MessageBox.Show(
