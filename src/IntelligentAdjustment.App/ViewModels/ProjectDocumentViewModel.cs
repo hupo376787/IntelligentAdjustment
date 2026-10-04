@@ -600,8 +600,17 @@ public partial class ProjectDocumentViewModel : ObservableObject
             || !string.Equals(left.ProjectLeader, right.ProjectLeader, StringComparison.Ordinal)
             || !string.Equals(left.Reviewer, right.Reviewer, StringComparison.Ordinal)
             || left.Settings != right.Settings
+            || !string.Equals(left.TaskOverview, right.TaskOverview, StringComparison.Ordinal)
+            || !string.Equals(left.NaturalGeography, right.NaturalGeography, StringComparison.Ordinal)
+            || !string.Equals(left.ExistingData, right.ExistingData, StringComparison.Ordinal)
+            || !string.Equals(left.ReferencedStandards, right.ReferencedStandards, StringComparison.Ordinal)
+            || !string.Equals(left.TechnicalIndicators, right.TechnicalIndicators, StringComparison.Ordinal)
+            || !string.Equals(left.FieldWorkSummary, right.FieldWorkSummary, StringComparison.Ordinal)
+            || !string.Equals(left.ConclusionAndRecommendations, right.ConclusionAndRecommendations, StringComparison.Ordinal)
             || left.LevelDifferences.Count != right.LevelDifferences.Count
-            || left.KnownHeights.Count != right.KnownHeights.Count)
+            || left.KnownHeights.Count != right.KnownHeights.Count
+            || left.RawObservations.Count != right.RawObservations.Count
+            || left.MapPoints.Count != right.MapPoints.Count)
         {
             return false;
         }
