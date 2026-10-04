@@ -28,6 +28,8 @@
                 <MenuItem Header="仪器数据导入..." Command="{Binding OpenInstrumentImportCommand}"/>
                 <MenuItem Header="直接导入高差 OUT..." Command="{Binding ImportOutCommand}"/>
                 <Separator/>
+                <MenuItem Header="报告与导出..." Command="{Binding OpenReportCommand}"/>
+                <Separator/>
                 <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="编辑(_E)">
@@ -46,6 +48,7 @@
                 <MenuItem Header="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
                 <MenuItem Header="网形草图" Command="{Binding OpenMapSketchCommand}"/>
                 <MenuItem Header="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
+                <MenuItem Header="报告与导出" Command="{Binding OpenReportCommand}"/>
             </MenuItem>
             <MenuItem Header="工具(_T)">
                 <MenuItem Header="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
@@ -128,6 +131,7 @@
                         <Button Content="闭合/附合路线" Command="{Binding OpenRoutesCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="平差结果" Command="{Binding OpenAdjustmentResultsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
                         <Button Content="水准网图" Command="{Binding OpenNetworkGraphCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
+                        <Button Content="报告与导出" Command="{Binding OpenReportCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
 
                         <TextBlock Text="项目" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
                         <Button Content="工程设置" Command="{Binding OpenProjectSettingsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
