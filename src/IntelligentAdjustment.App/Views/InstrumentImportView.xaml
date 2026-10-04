@@ -74,7 +74,7 @@
                     BorderThickness="1">
                 <TextBlock TextWrapping="Wrap"
                            Foreground="#4B5563">
-                    当前已经建立统一 Parser 接口和厂商注册表。Leica DNA、GeoMax ZDL、Sokkia SDL、Topcon DL、Trimble DiNi、Lev_Net 的入口已经预留；在对应样本规则正式接入前不会用猜测格式解析文件。
+                    已按原程序随附 Sample 文件与使用手册接入 Leica DNA（GSI/MDT）、GeoMax ZDL（MDT）、Sokkia SDL（CSV）、Topcon DL（DAT）、Trimble DiNi（DAT）、Lev_Net（OUT/MDT）以及通用高差 OUT。多选文件时默认一文件一线路，并保留原始文件字节与 SHA-256。
                 </TextBlock>
             </Border>
         </StackPanel>
