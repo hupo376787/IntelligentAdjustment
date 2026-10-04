@@ -140,8 +140,21 @@ internal static class MdtBffbFileParser
         RawObservation raw;
         if (backs.Length >= 2 && fores.Length >= 2)
         {
-            ObservationOrder order = InstrumentImportHelpers.GetOrder(
-                readings.Select(x => NormalizeReadingLabel(x.Label, backs, fores)).ToArray());
+            var backOccurrence = 0;
+            var foreOccurrence = 0;
+            string[] normalizedLabels = readings.Select(x =>
+            {
+                if (x.Label.StartsWith('B'))
+                {
+                    backOccurrence++;
+                    return x.Label.Length > 1 ? x.Label : $"B{backOccurrence}";
+                }
+
+                foreOccurrence++;
+                return x.Label.Length > 1 ? x.Label : $"F{foreOccurrence}";
+            }).ToArray();
+
+            ObservationOrder order = InstrumentImportHelpers.GetOrder(normalizedLabels);
 
             raw = InstrumentImportHelpers.CreateDoubleReadingObservation(
                 -(sequence + 1),
@@ -184,34 +197,5 @@ internal static class MdtBffbFileParser
 
         rawObservations.Add(raw);
         differences.Add(InstrumentImportHelpers.BuildDifference(raw, -(sequence + 1)));
-    }
-
-    private static string NormalizeReadingLabel(
-        string label,
-        IReadOnlyList<Reading> backs,
-        IReadOnlyList<Reading> fores)
-    {
-        if (label.Length > 1)
-        {
-            return label;
-        }
-
-        if (label == "B")
-        {
-            int index = 0;
-            foreach (Reading reading in backs)
-            {
-                if (ReferenceEquals(reading, backs[0]))
-                {
-                    break;
-                }
-
-                index++;
-            }
-
-            return index == 0 ? "B1" : "B2";
-        }
-
-        return "F1";
     }
 }
