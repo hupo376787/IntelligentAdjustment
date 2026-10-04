@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,6 +47,14 @@ public partial class NetworkGraphView : UserControl
         viewModel.RedrawRequested += ViewModel_RedrawRequested;
         viewModel.ExportRequested += ViewModel_ExportRequested;
         viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        viewModel.Document.MapPoints.CollectionChanged += DocumentCollectionChanged;
+        viewModel.Document.LevelDifferences.CollectionChanged += DocumentCollectionChanged;
+        viewModel.Document.KnownHeights.CollectionChanged += DocumentCollectionChanged;
+
+        foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
+        {
+            point.PropertyChanged += MapPoint_PropertyChanged;
+        }
     }
 
     private void DetachViewModel()
@@ -59,6 +68,45 @@ public partial class NetworkGraphView : UserControl
         viewModel.RedrawRequested -= ViewModel_RedrawRequested;
         viewModel.ExportRequested -= ViewModel_ExportRequested;
         viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        viewModel.Document.MapPoints.CollectionChanged -= DocumentCollectionChanged;
+        viewModel.Document.LevelDifferences.CollectionChanged -= DocumentCollectionChanged;
+        viewModel.Document.KnownHeights.CollectionChanged -= DocumentCollectionChanged;
+
+        foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
+        {
+            point.PropertyChanged -= MapPoint_PropertyChanged;
+        }
+    }
+
+    private void DocumentCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (sender == viewModel?.Document.MapPoints)
+        {
+            if (e.OldItems is not null)
+            {
+                foreach (NetworkMapPointRowViewModel point in e.OldItems)
+                {
+                    point.PropertyChanged -= MapPoint_PropertyChanged;
+                }
+            }
+
+            if (e.NewItems is not null)
+            {
+                foreach (NetworkMapPointRowViewModel point in e.NewItems)
+                {
+                    point.PropertyChanged += MapPoint_PropertyChanged;
+                }
+            }
+        }
+
+        RebuildScene();
+        Redraw();
+    }
+
+    private void MapPoint_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        RebuildScene();
+        Redraw();
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
