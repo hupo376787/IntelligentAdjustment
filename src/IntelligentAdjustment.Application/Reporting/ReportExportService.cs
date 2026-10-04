@@ -4,6 +4,8 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
 using SpreadsheetCell = NPOI.SS.UserModel.ICell;
+using SpreadsheetHorizontalAlignment = NPOI.SS.UserModel.HorizontalAlignment;
+using SpreadsheetVerticalAlignment = NPOI.SS.UserModel.VerticalAlignment;
 
 namespace IntelligentAdjustment.Application.Reporting;
 
@@ -345,8 +347,8 @@ public sealed class ReportExportService
 
         ICellStyle style = workbook.CreateCellStyle();
         style.SetFont(font);
-        style.Alignment = HorizontalAlignment.Center;
-        style.VerticalAlignment = VerticalAlignment.Center;
+        style.Alignment = SpreadsheetHorizontalAlignment.Center;
+        style.VerticalAlignment = SpreadsheetVerticalAlignment.Center;
         return style;
     }
 
