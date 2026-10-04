@@ -42,10 +42,32 @@ public partial class ProjectDocumentViewModel : ObservableObject
     [ObservableProperty]
     private bool calculationInputsChanged;
 
+    [ObservableProperty]
+    private string taskOverview = string.Empty;
+
+    [ObservableProperty]
+    private string naturalGeography = string.Empty;
+
+    [ObservableProperty]
+    private string existingData = string.Empty;
+
+    [ObservableProperty]
+    private string referencedStandards = string.Empty;
+
+    [ObservableProperty]
+    private string technicalIndicators = string.Empty;
+
+    [ObservableProperty]
+    private string fieldWorkSummary = string.Empty;
+
+    [ObservableProperty]
+    private string conclusionAndRecommendations = string.Empty;
+
     public ObservableCollection<ObservationLineInfo> Lines { get; } = new();
     public ObservableCollection<LevelDifferenceRowViewModel> LevelDifferences { get; } = new();
     public ObservableCollection<KnownHeightRowViewModel> KnownHeights { get; } = new();
     public ObservableCollection<RawObservationRowViewModel> RawObservations { get; } = new();
+    public ObservableCollection<NetworkMapPointRowViewModel> MapPoints { get; } = new();
 
     public bool CanUndo => undoStack.Count > 0;
     public bool CanRedo => redoStack.Count > 0;
@@ -57,6 +79,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
         LevelDifferences.CollectionChanged += LevelDifferences_CollectionChanged;
         KnownHeights.CollectionChanged += KnownHeights_CollectionChanged;
         RawObservations.CollectionChanged += RawObservations_CollectionChanged;
+        MapPoints.CollectionChanged += MapPoints_CollectionChanged;
         PropertyChanging += Document_PropertyChanging;
         PropertyChanged += Document_PropertyChanged;
     }
@@ -75,7 +98,25 @@ public partial class ProjectDocumentViewModel : ObservableObject
             Settings = workspace.Settings;
             Revision = workspace.Revision;
 
-            ReplaceRowsCore(workspace.LevelDifferences, workspace.KnownHeights, workspace.RawObservations);
+            Lines.Clear();
+            foreach (ObservationLineInfo line in workspace.Lines.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id))
+            {
+                Lines.Add(line);
+            }
+
+            TaskOverview = workspace.ReportText.TaskOverview;
+            NaturalGeography = workspace.ReportText.NaturalGeography;
+            ExistingData = workspace.ReportText.ExistingData;
+            ReferencedStandards = workspace.ReportText.ReferencedStandards;
+            TechnicalIndicators = workspace.ReportText.TechnicalIndicators;
+            FieldWorkSummary = workspace.ReportText.FieldWorkSummary;
+            ConclusionAndRecommendations = workspace.ReportText.ConclusionAndRecommendations;
+
+            ReplaceRowsCore(
+                workspace.LevelDifferences,
+                workspace.KnownHeights,
+                workspace.RawObservations,
+                workspace.MapPoints);
 
             undoStack.Clear();
             redoStack.Clear();
@@ -110,7 +151,16 @@ public partial class ProjectDocumentViewModel : ObservableObject
             Lines.ToArray(),
             LevelDifferences.Select(x => x.ToDomain()).ToArray(),
             KnownHeights.Select(x => x.ToDomain()).ToArray(),
-            RawObservations.Select(x => x.ToDomain()).ToArray());
+            RawObservations.Select(x => x.ToDomain()).ToArray(),
+            MapPoints.Select(x => x.ToDomain()).ToArray(),
+            new ReportTextContent(
+                TaskOverview,
+                NaturalGeography,
+                ExistingData,
+                ReferencedStandards,
+                TechnicalIndicators,
+                FieldWorkSummary,
+                ConclusionAndRecommendations));
     }
 
     public void AcceptChanges(ProjectRevisionState revision)
@@ -234,7 +284,14 @@ public partial class ProjectDocumentViewModel : ObservableObject
             or nameof(UnitName)
             or nameof(ProjectLeader)
             or nameof(Reviewer)
-            or nameof(Settings))
+            or nameof(Settings)
+            or nameof(TaskOverview)
+            or nameof(NaturalGeography)
+            or nameof(ExistingData)
+            or nameof(ReferencedStandards)
+            or nameof(TechnicalIndicators)
+            or nameof(FieldWorkSummary)
+            or nameof(ConclusionAndRecommendations))
         {
             PushUndoSnapshot();
         }
@@ -247,7 +304,14 @@ public partial class ProjectDocumentViewModel : ObservableObject
             or nameof(UnitName)
             or nameof(ProjectLeader)
             or nameof(Reviewer)
-            or nameof(Settings))
+            or nameof(Settings)
+            or nameof(TaskOverview)
+            or nameof(NaturalGeography)
+            or nameof(ExistingData)
+            or nameof(ReferencedStandards)
+            or nameof(TechnicalIndicators)
+            or nameof(FieldWorkSummary)
+            or nameof(ConclusionAndRecommendations))
         {
             MarkDirty();
         }
@@ -283,6 +347,12 @@ public partial class ProjectDocumentViewModel : ObservableObject
             CalculationInputsChanged = true;
         }
 
+        MarkDirty();
+    }
+
+    private void MapPoints_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateRowSubscriptions(e);
         MarkDirty();
     }
 
@@ -381,9 +451,17 @@ public partial class ProjectDocumentViewModel : ObservableObject
         ProjectLeader,
         Reviewer,
         Settings,
+        TaskOverview,
+        NaturalGeography,
+        ExistingData,
+        ReferencedStandards,
+        TechnicalIndicators,
+        FieldWorkSummary,
+        ConclusionAndRecommendations,
         LevelDifferences.Select(x => x.ToDomain()).ToArray(),
         KnownHeights.Select(x => x.ToDomain()).ToArray(),
-        RawObservations.Select(x => x.ToDomain()).ToArray());
+        RawObservations.Select(x => x.ToDomain()).ToArray(),
+        MapPoints.Select(x => x.ToDomain()).ToArray());
 
     private void ApplySnapshot(ProjectInputSnapshot snapshot)
     {
@@ -397,7 +475,18 @@ public partial class ProjectDocumentViewModel : ObservableObject
             ProjectLeader = snapshot.ProjectLeader;
             Reviewer = snapshot.Reviewer;
             Settings = snapshot.Settings;
-            ReplaceRowsCore(snapshot.LevelDifferences, snapshot.KnownHeights, snapshot.RawObservations);
+            TaskOverview = snapshot.TaskOverview;
+            NaturalGeography = snapshot.NaturalGeography;
+            ExistingData = snapshot.ExistingData;
+            ReferencedStandards = snapshot.ReferencedStandards;
+            TechnicalIndicators = snapshot.TechnicalIndicators;
+            FieldWorkSummary = snapshot.FieldWorkSummary;
+            ConclusionAndRecommendations = snapshot.ConclusionAndRecommendations;
+            ReplaceRowsCore(
+                snapshot.LevelDifferences,
+                snapshot.KnownHeights,
+                snapshot.RawObservations,
+                snapshot.MapPoints);
         }
         finally
         {
@@ -409,11 +498,13 @@ public partial class ProjectDocumentViewModel : ObservableObject
     private void ReplaceRowsCore(
         IReadOnlyList<LevelDifference> levelDifferences,
         IReadOnlyList<KnownHeight> knownHeights,
-        IReadOnlyList<RawObservation> rawObservations)
+        IReadOnlyList<RawObservation> rawObservations,
+        IReadOnlyList<NetworkMapPoint> mapPoints)
     {
         UnsubscribeRows(LevelDifferences);
         UnsubscribeRows(KnownHeights);
         UnsubscribeRows(RawObservations);
+        UnsubscribeRows(MapPoints);
 
         LevelDifferences.Clear();
         foreach (var item in levelDifferences)
@@ -431,6 +522,12 @@ public partial class ProjectDocumentViewModel : ObservableObject
         foreach (var item in rawObservations)
         {
             RawObservations.Add(RawObservationRowViewModel.FromDomain(item));
+        }
+
+        MapPoints.Clear();
+        foreach (var item in mapPoints)
+        {
+            MapPoints.Add(NetworkMapPointRowViewModel.FromDomain(item));
         }
     }
 
@@ -533,6 +630,14 @@ public partial class ProjectDocumentViewModel : ObservableObject
             }
         }
 
+        for (int i = 0; i < left.MapPoints.Count; i++)
+        {
+            if (left.MapPoints[i] != right.MapPoints[i])
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -545,7 +650,15 @@ public partial class ProjectDocumentViewModel : ObservableObject
         string ProjectLeader,
         string Reviewer,
         ProjectSettings Settings,
+        string TaskOverview,
+        string NaturalGeography,
+        string ExistingData,
+        string ReferencedStandards,
+        string TechnicalIndicators,
+        string FieldWorkSummary,
+        string ConclusionAndRecommendations,
         IReadOnlyList<LevelDifference> LevelDifferences,
         IReadOnlyList<KnownHeight> KnownHeights,
-        IReadOnlyList<RawObservation> RawObservations);
+        IReadOnlyList<RawObservation> RawObservations,
+        IReadOnlyList<NetworkMapPoint> MapPoints);
 }
