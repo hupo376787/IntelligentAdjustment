@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -126,10 +127,7 @@ public static class NetworkDiagramExporter
                     writer.WriteAttributeString(
                         "points",
                         FormattableString.Invariant(
-                            $"{p.X:F3},{p.Y - 9:F3} " +
-                            $"{p.X + 9:F3},{p.Y:F3} " +
-                            $"{p.X:F3},{p.Y + 9:F3} " +
-                            $"{p.X - 9:F3},{p.Y:F3}"));
+                            $"{p.X:F3},{p.Y - 9:F3} {p.X + 9:F3},{p.Y:F3} {p.X:F3},{p.Y + 9:F3} {p.X - 9:F3},{p.Y:F3}"));
                     writer.WriteAttributeString("fill", "white");
                     writer.WriteAttributeString("stroke", "#EF6C00");
                     writer.WriteAttributeString("stroke-width", "3");
