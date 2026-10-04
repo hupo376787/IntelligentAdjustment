@@ -87,7 +87,9 @@ public sealed class ProjectSessionService
             await _repository.LoadLinesAsync(cancellationToken),
             await _repository.LoadLevelDifferencesAsync(cancellationToken),
             await _repository.LoadKnownHeightsAsync(cancellationToken),
-            await _repository.LoadRawObservationsAsync(cancellationToken));
+            await _repository.LoadRawObservationsAsync(cancellationToken),
+            await _repository.LoadMapPointsAsync(cancellationToken),
+            await _repository.LoadReportTextAsync(cancellationToken));
     }
 
     public Task<ProjectWorkspace> SaveAsync(
@@ -109,6 +111,8 @@ public sealed class ProjectSessionService
             workspace.RawObservations,
             incrementInputRevision,
             cancellationToken);
+        await _repository.SaveMapPointsAsync(workspace.MapPoints, cancellationToken);
+        await _repository.SaveReportTextAsync(workspace.ReportText, cancellationToken);
         return await LoadAsync(cancellationToken);
     }
 
