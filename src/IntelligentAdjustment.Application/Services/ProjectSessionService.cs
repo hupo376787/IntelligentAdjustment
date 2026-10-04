@@ -3,6 +3,7 @@ using IntelligentAdjustment.Application.Import;
 using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Core.Adjustment;
 using IntelligentAdjustment.Core.Routes;
+using IntelligentAdjustment.Core.Transitions;
 using IntelligentAdjustment.Domain;
 using IntelligentAdjustment.Infrastructure;
 
@@ -212,7 +213,35 @@ public sealed class ProjectSessionService
                 cancellationToken);
         }
 
-        return await LoadAsync(cancellationToken);
+        ProjectWorkspace workspace = await LoadAsync(cancellationToken);
+
+        if (workspace.Settings.AutoMergeTransitionPoints &&
+            workspace.LevelDifferences.Count > 0)
+        {
+            IReadOnlySet<string> knownPoints = workspace.KnownHeights
+                .Select(x => x.PointName.Trim())
+                .Where(x => x.Length > 0)
+                .ToHashSet(StringComparer.Ordinal);
+
+            var transitionProcessor = new TransitionPointProcessor();
+            IReadOnlyList<LevelDifference> classified =
+                transitionProcessor.AutoDetectTransitionPoints(
+                    workspace.LevelDifferences,
+                    knownPoints);
+
+            await _repository!.SaveProjectInputsAsync(
+                workspace.Metadata,
+                workspace.Settings,
+                classified,
+                workspace.KnownHeights,
+                workspace.RawObservations,
+                incrementInputRevision: false,
+                cancellationToken);
+
+            workspace = await LoadAsync(cancellationToken);
+        }
+
+        return workspace;
     }
 
     public async Task<CalculationBundle?> LoadLatestCalculationAsync(
