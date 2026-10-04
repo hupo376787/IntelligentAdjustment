@@ -417,7 +417,7 @@ internal sealed class LegacyTemplateReportExporter
     }
 
     private static string RowText(XWPFTableRow row) =>
-        string.Concat(row.GetTableCells().Select(cell => cell.Text));
+        string.Concat(row.GetTableCells().Select(cell => cell.GetText()));
 
     private static void SetRowValues(XWPFTableRow row, IReadOnlyList<string> values)
     {
