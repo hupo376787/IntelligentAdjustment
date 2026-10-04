@@ -20,6 +20,9 @@ public partial class MainWindowViewModel : ObservableObject
     private LineManagementTabViewModel? lineManagementTab;
     private RawObservationsTabViewModel? rawObservationsTab;
     private InstrumentImportTabViewModel? instrumentImportTab;
+    private MapSketchTabViewModel? mapSketchTab;
+    private NetworkGraphTabViewModel? networkGraphTab;
+    private ReportTabViewModel? reportTab;
 
     [ObservableProperty]
     private WorkspaceTabViewModel? selectedTab;
@@ -352,31 +355,53 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenMapSketch() =>
-        SelectedTab = GetOrCreateTab(
-            "map-sketch",
-            () => new PlaceholderTabViewModel(
-                "map-sketch",
-                "网形草图",
-                "下一阶段将加入节点拖动、框选、平移、滚轮缩放、Fit to View 与坐标持久化。"));
+    private void OpenMapSketch()
+    {
+        mapSketchTab ??= new MapSketchTabViewModel(Document);
+        if (!Tabs.Contains(mapSketchTab))
+        {
+            Tabs.Add(mapSketchTab);
+        }
+
+        mapSketchTab.Refresh();
+        SelectedTab = mapSketchTab;
+    }
 
     [RelayCommand]
-    private void OpenNetworkGraph() =>
-        SelectedTab = GetOrCreateTab(
-            "network-graph",
-            () => new PlaceholderTabViewModel(
-                "network-graph",
-                "水准网图",
-                "水准网图将使用草图逻辑坐标与高差网络拓扑生成，并支持 PNG/SVG 导出。"));
+    private void OpenNetworkGraph()
+    {
+        IReadOnlyList<NetworkRoute> routes = BuildCurrentRoutes();
+
+        networkGraphTab ??= new NetworkGraphTabViewModel(Document, routes);
+        if (!Tabs.Contains(networkGraphTab))
+        {
+            Tabs.Add(networkGraphTab);
+        }
+        else
+        {
+            networkGraphTab.LoadRoutes(routes);
+        }
+
+        networkGraphTab.Refresh();
+        SelectedTab = networkGraphTab;
+    }
 
     [RelayCommand]
-    private void OpenSettings() =>
-        SelectedTab = GetOrCreateTab(
-            "settings",
-            () => new PlaceholderTabViewModel(
-                "settings",
-                "工程设置",
-                "工程设置 UI 将绑定到当前 .iap 项目的 ProjectSettings。"));
+    private void OpenReport()
+    {
+        reportTab ??= new ReportTabViewModel(
+            Document,
+            session,
+            dialogs,
+            EnsureSavedProjectAsync);
+
+        if (!Tabs.Contains(reportTab))
+        {
+            Tabs.Add(reportTab);
+        }
+
+        SelectedTab = reportTab;
+    }
 
     [RelayCommand]
     private void About() =>
@@ -531,6 +556,9 @@ public partial class MainWindowViewModel : ObservableObject
             lineManagementTab = null;
             rawObservationsTab = null;
             instrumentImportTab = null;
+            mapSketchTab = null;
+            networkGraphTab = null;
+            reportTab = null;
             OpenDashboard();
         }
         else
@@ -548,6 +576,11 @@ public partial class MainWindowViewModel : ObservableObject
 
             lineManagementTab?.Refresh();
             rawObservationsTab?.Refresh();
+            mapSketchTab?.Refresh();
+            if (networkGraphTab is not null)
+            {
+                networkGraphTab.LoadRoutes(BuildCurrentRoutes());
+            }
         }
 
         OnPropertyChanged(nameof(HasProject));
@@ -574,6 +607,28 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         adjustmentResultsTab.Load(bundle.AdjustmentResult, isStale);
+    }
+
+    private IReadOnlyList<NetworkRoute> BuildCurrentRoutes()
+    {
+        if (basisWorkspace is null)
+        {
+            return Array.Empty<NetworkRoute>();
+        }
+
+        try
+        {
+            ProjectWorkspace current = Document.ToWorkspace(basisWorkspace);
+            var routeSearch = new RouteSearchEngine();
+            return routeSearch.Search(
+                current.LevelDifferences,
+                current.KnownHeights,
+                current.Settings);
+        }
+        catch
+        {
+            return Array.Empty<NetworkRoute>();
+        }
     }
 
     private RoutesTabViewModel GetOrCreateRoutesTab()
