@@ -113,6 +113,20 @@ public sealed class UserDialogService : IUserDialogService
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
+    public string? PickResultTextPath(string projectName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出文本成果",
+            Filter = "文本文件 (*.txt)|*.txt",
+            DefaultExt = ".txt",
+            AddExtension = true,
+            FileName = $"{SanitizeFileName(projectName)}-平差成果.txt"
+        };
+
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
     private static string SanitizeFileName(string? value)
     {
         string source = string.IsNullOrWhiteSpace(value) ? "未命名工程" : value.Trim();
