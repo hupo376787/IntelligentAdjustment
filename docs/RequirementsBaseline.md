@@ -36,11 +36,11 @@ The user explicitly chooses the importer; no automatic vendor detector is requir
 
 - level-difference OUT
 - Leica DNA MDT/GSI
-- Leica Sprinter TXT
-- GeoMax/ZDL MDT
+- GeoMax ZDL MDT
 - Trimble DiNi DAT
-- Sokkia SDL CSV/CS1/CS2
+- Sokkia SDL CSV
 - Topcon DL DAT
+- Lev_Net OUT/MDT
 
 Multiple selected instrument files default to one observation line per file.
 
@@ -75,7 +75,7 @@ UI text:
 
 `当前结果基于旧数据，工程数据已发生修改，是否更新？`
 
-## WPF UI (next stage)
+## WPF UI
 
 - traditional Menu + Toolbar
 - modern HandyControl left navigation
@@ -87,9 +87,23 @@ UI text:
 - graph/table two-way selection highlighting
 - export graph as PNG and SVG
 
-## Reporting (later stage)
+## Reporting
 
 - DOCX and XLSX, no Office Interop
 - report layout follows the supplied old report's professional chapter/table organization, not its old template engine
 - project standards are editable rather than hard-coded
 - do not auto-claim acceptance/inspection statements that the software cannot verify
+
+
+## Implemented production modules
+
+- WPF/HandyControl Menu + Toolbar + left navigation + tab workspace
+- line management and one-file-one-line import
+- editable raw observations and derived profile view
+- editable level differences / known heights / transition-point operations
+- persistent undo/redo and stale-result tracking
+- interactive network sketch with placement, drag, marquee, pan, wheel zoom, fit, coordinate deletion/reposition and snapping
+- network graph generated from sketch coordinates + topology with table linkage and over-limit highlighting
+- PNG/SVG network graph export
+- DOCX/XLSX/TXT report/result export without Office Interop
+- Leica DNA, GeoMax ZDL, Sokkia SDL, Topcon DL, Trimble DiNi, Lev_Net and generic OUT import strategies based on the original application's bundled sample formats
