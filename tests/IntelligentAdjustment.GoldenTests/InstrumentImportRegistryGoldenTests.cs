@@ -8,27 +8,27 @@ namespace IntelligentAdjustment.GoldenTests;
 public sealed class InstrumentImportRegistryGoldenTests
 {
     [Fact]
-    public void Catalog_ContainsAllPlannedVendors_AndOnlyOutIsEnabledForNow()
+    public void Catalog_ContainsAndEnablesAllLegacySampleImporters()
     {
         var registry = new InstrumentImportRegistry();
 
         Assert.Equal(7, registry.Catalog.Count);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.LeicaDna);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.GeoMaxZdl);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.SokkiaSdl);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.TopconDl);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.TrimbleDiNi);
-        Assert.Contains(registry.Catalog, x => x.Vendor == InstrumentVendor.LevNet);
+        Assert.All(registry.Catalog, descriptor => Assert.True(descriptor.IsImplemented));
 
-        InstrumentImporterDescriptor outDescriptor =
-            Assert.Single(registry.Catalog, x => x.Vendor == InstrumentVendor.GenericOut);
-
-        Assert.True(outDescriptor.IsImplemented);
+        Assert.IsType<LeicaDnaInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.LeicaDna));
+        Assert.IsType<GeoMaxZdlInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.GeoMaxZdl));
+        Assert.IsType<SokkiaSdlInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.SokkiaSdl));
+        Assert.IsType<TopconDlInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.TopconDl));
+        Assert.IsType<TrimbleDiNiInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.TrimbleDiNi));
+        Assert.IsType<LevNetInstrumentDataImporter>(
+            registry.GetRequiredImporter(InstrumentVendor.LevNet));
         Assert.IsType<OutInstrumentDataImporter>(
             registry.GetRequiredImporter(InstrumentVendor.GenericOut));
-
-        Assert.Throws<NotSupportedException>(
-            () => registry.GetRequiredImporter(InstrumentVendor.LeicaDna));
     }
 
     [Fact]
