@@ -24,3 +24,18 @@ public sealed record ProjectRevisionState(
 {
     public bool ResultsAreStale => ResultRevision != InputRevision;
 }
+
+public sealed record NetworkMapPoint(
+    string PointName,
+    double X,
+    double Y,
+    DateTimeOffset UpdatedAtUtc);
+
+public sealed record ReportTextContent(
+    string TaskOverview = "",
+    string NaturalGeography = "",
+    string ExistingData = "",
+    string ReferencedStandards = "",
+    string TechnicalIndicators = "",
+    string FieldWorkSummary = "",
+    string ConclusionAndRecommendations = "");
