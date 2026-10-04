@@ -3,6 +3,7 @@ using IntelligentAdjustment.Domain;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
+using SpreadsheetCell = NPOI.SS.UserModel.ICell;
 
 namespace IntelligentAdjustment.Application.Reporting;
 
@@ -462,7 +463,7 @@ public sealed class ReportExportService
         {
             IRow row = sheet.CreateRow(i + 1);
             row.CreateCell(0).SetCellValue(items[i].PointName);
-            ICell height = row.CreateCell(1);
+            SpreadsheetCell height = row.CreateCell(1);
             height.SetCellValue(items[i].Height);
             height.CellStyle = numberStyle;
             row.CreateCell(2).SetCellValue(items[i].Comment ?? string.Empty);
@@ -488,10 +489,10 @@ public sealed class ReportExportService
             IRow row = sheet.CreateRow(i + 1);
             row.CreateCell(0).SetCellValue(item.FromPoint);
             row.CreateCell(1).SetCellValue(item.ToPoint);
-            ICell diff = row.CreateCell(2);
+            SpreadsheetCell diff = row.CreateCell(2);
             diff.SetCellValue(item.HeightDifference);
             diff.CellStyle = numberStyle;
-            ICell distance = row.CreateCell(3);
+            SpreadsheetCell distance = row.CreateCell(3);
             distance.SetCellValue(item.DistanceMeters);
             distance.CellStyle = distanceStyle;
             row.CreateCell(4).SetCellValue(item.StationCount);
@@ -561,7 +562,7 @@ public sealed class ReportExportService
         ICellStyle headerStyle)
     {
         IRow row = sheet.CreateRow(rowIndex);
-        ICell keyCell = row.CreateCell(0);
+        SpreadsheetCell keyCell = row.CreateCell(0);
         keyCell.SetCellValue(key);
         keyCell.CellStyle = headerStyle;
         row.CreateCell(1).SetCellValue(value ?? string.Empty);
@@ -572,7 +573,7 @@ public sealed class ReportExportService
         IRow row = sheet.CreateRow(0);
         for (int i = 0; i < headers.Count; i++)
         {
-            ICell cell = row.CreateCell(i);
+            SpreadsheetCell cell = row.CreateCell(i);
             cell.SetCellValue(headers[i]);
             cell.CellStyle = headerStyle;
         }
@@ -580,7 +581,7 @@ public sealed class ReportExportService
 
     private static void SetNumeric(IRow row, int index, double value, ICellStyle style)
     {
-        ICell cell = row.CreateCell(index);
+        SpreadsheetCell cell = row.CreateCell(index);
         cell.SetCellValue(value);
         cell.CellStyle = style;
     }
@@ -590,8 +591,9 @@ public sealed class ReportExportService
         for (int i = 0; i < columnCount; i++)
         {
             sheet.AutoSizeColumn(i);
-            int current = sheet.GetColumnWidth(i);
-            sheet.SetColumnWidth(i, Math.Min(current + 512, 80 * 256));
+            double current = sheet.GetColumnWidth(i);
+            int targetWidth = (int)Math.Min(current + 512.0, 80 * 256.0);
+            sheet.SetColumnWidth(i, targetWidth);
         }
     }
 }
