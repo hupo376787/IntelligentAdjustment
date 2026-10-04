@@ -3,6 +3,19 @@
     <PackageReference Include="NPOI" Version="2.7.2" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece00_*" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece01" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece02" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece02_tail" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece03" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece04" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece05" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece06" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece07" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece07_tail" />
+    <EmbeddedResource Include="Reporting/Templates/Report.docx.b64.piece08" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
     <ProjectReference Include="../IntelligentAdjustment.Core/IntelligentAdjustment.Core.csproj" />
     <ProjectReference Include="../IntelligentAdjustment.Infrastructure/IntelligentAdjustment.Infrastructure.csproj" />
