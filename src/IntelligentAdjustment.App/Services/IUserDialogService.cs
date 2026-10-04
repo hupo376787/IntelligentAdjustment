@@ -18,6 +18,7 @@ public interface IUserDialogService
     string? PickSaveAsProjectPath(string? currentProjectPath);
     string? PickReportDocxPath(string projectName);
     string? PickReportXlsxPath(string projectName);
+    string? PickResultTextPath(string projectName);
     UnsavedChangesChoice AskUnsavedChanges();
     bool Confirm(string message, string title);
     void Info(string message, string title = "IntelligentAdjustment");
