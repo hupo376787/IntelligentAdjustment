@@ -122,6 +122,22 @@ public partial class RawObservationsView : UserControl
             return;
         }
 
+        if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.V)
+        {
+            string text = Clipboard.ContainsText(TextDataFormat.UnicodeText)
+                ? Clipboard.GetText(TextDataFormat.UnicodeText)
+                : Clipboard.ContainsText()
+                    ? Clipboard.GetText()
+                    : string.Empty;
+
+            if (vm.PasteRows(text))
+            {
+                e.Handled = true;
+            }
+
+            return;
+        }
+
         if (e.Key == Key.Delete && Keyboard.Modifiers == ModifierKeys.None)
         {
             if (vm.DeleteSelectedCommand.CanExecute(null))
