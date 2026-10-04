@@ -436,6 +436,122 @@ public sealed class ProjectRepository
         return result;
     }
 
+    public async Task<IReadOnlyList<NetworkMapPoint>> LoadMapPointsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var result = new List<NetworkMapPoint>();
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT PointName, X, Y, UpdatedAtUtc
+            FROM NetworkMapPoint
+            ORDER BY PointName COLLATE NOCASE;
+            """;
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new NetworkMapPoint(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                DateTimeOffset.Parse(reader.GetString(3))));
+        }
+
+        return result;
+    }
+
+    public async Task<ReportTextContent> LoadReportTextAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT TaskOverview,
+                   NaturalGeography,
+                   ExistingData,
+                   ReferencedStandards,
+                   TechnicalIndicators,
+                   FieldWorkSummary,
+                   ConclusionAndRecommendations
+            FROM ReportText
+            WHERE Id = 1;
+            """;
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return new ReportTextContent();
+        }
+
+        return new ReportTextContent(
+            reader.GetString(0),
+            reader.GetString(1),
+            reader.GetString(2),
+            reader.GetString(3),
+            reader.GetString(4),
+            reader.GetString(5),
+            reader.GetString(6));
+    }
+
+    public async Task SaveMapPointsAsync(
+        IReadOnlyList<NetworkMapPoint> points,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        await ExecuteAsync(connection, transaction, "DELETE FROM NetworkMapPoint;", cancellationToken);
+
+        foreach (var point in points.OrderBy(x => x.PointName, StringComparer.Ordinal))
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = """
+                INSERT INTO NetworkMapPoint(PointName, X, Y, UpdatedAtUtc)
+                VALUES($name, $x, $y, $updated);
+                """;
+            command.Parameters.AddWithValue("$name", point.PointName);
+            command.Parameters.AddWithValue("$x", point.X);
+            command.Parameters.AddWithValue("$y", point.Y);
+            command.Parameters.AddWithValue("$updated", point.UpdatedAtUtc.ToString("O"));
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        transaction.Commit();
+    }
+
+    public async Task SaveReportTextAsync(
+        ReportTextContent reportText,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE ReportText
+            SET TaskOverview = $taskOverview,
+                NaturalGeography = $naturalGeography,
+                ExistingData = $existingData,
+                ReferencedStandards = $referencedStandards,
+                TechnicalIndicators = $technicalIndicators,
+                FieldWorkSummary = $fieldWorkSummary,
+                ConclusionAndRecommendations = $conclusion
+            WHERE Id = 1;
+            """;
+        command.Parameters.AddWithValue("$taskOverview", reportText.TaskOverview ?? string.Empty);
+        command.Parameters.AddWithValue("$naturalGeography", reportText.NaturalGeography ?? string.Empty);
+        command.Parameters.AddWithValue("$existingData", reportText.ExistingData ?? string.Empty);
+        command.Parameters.AddWithValue("$referencedStandards", reportText.ReferencedStandards ?? string.Empty);
+        command.Parameters.AddWithValue("$technicalIndicators", reportText.TechnicalIndicators ?? string.Empty);
+        command.Parameters.AddWithValue("$fieldWorkSummary", reportText.FieldWorkSummary ?? string.Empty);
+        command.Parameters.AddWithValue("$conclusion", reportText.ConclusionAndRecommendations ?? string.Empty);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<KnownHeight>> LoadKnownHeightsAsync(CancellationToken cancellationToken = default)
     {
         var result = new List<KnownHeight>();
