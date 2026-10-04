@@ -9,7 +9,9 @@ public sealed record ProjectWorkspace(
     IReadOnlyList<ObservationLineInfo> Lines,
     IReadOnlyList<LevelDifference> LevelDifferences,
     IReadOnlyList<KnownHeight> KnownHeights,
-    IReadOnlyList<RawObservation> RawObservations);
+    IReadOnlyList<RawObservation> RawObservations,
+    IReadOnlyList<NetworkMapPoint> MapPoints,
+    ReportTextContent ReportText);
 
 public sealed record CalculationBundle(
     IReadOnlyList<NetworkRoute> Routes,
