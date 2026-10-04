@@ -141,9 +141,9 @@ public sealed partial class LeicaDnaInstrumentDataImporter : IInstrumentDataImpo
         double Distance,
         double Value);
 
-    [GeneratedRegex(@"^d{6}+(?<point>.{8})s+32...6(?<distance>[+-]d+)s+(?<code>331|332|335|336).26(?<reading>[+-]d+)", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^\\d{6}\\+(?<point>.{8})\\s+32\\.\\.\\.6(?<distance>[+-]\\d+)\\s+(?<code>331|332|335|336)\\.26(?<reading>[+-]\\d+)", RegexOptions.CultureInvariant)]
     private static partial Regex ReadingRegex();
 
-    [GeneratedRegex(@"^d{6}+(?<point>.{8}).*?s83...6(?<height>[+-]d+)", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^\\d{6}\\+(?<point>.{8}).*?\\s83\\.\\.\\.6(?<height>[+-]\\d+)", RegexOptions.CultureInvariant)]
     private static partial Regex KnownHeightRegex();
 }
