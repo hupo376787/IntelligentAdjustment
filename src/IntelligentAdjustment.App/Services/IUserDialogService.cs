@@ -16,6 +16,8 @@ public interface IUserDialogService
     IReadOnlyList<string> PickOutFiles();
     IReadOnlyList<string> PickInstrumentFiles(InstrumentImporterDescriptor descriptor);
     string? PickSaveAsProjectPath(string? currentProjectPath);
+    string? PickReportDocxPath(string projectName);
+    string? PickReportXlsxPath(string projectName);
     UnsavedChangesChoice AskUnsavedChanges();
     bool Confirm(string message, string title);
     void Info(string message, string title = "IntelligentAdjustment");
