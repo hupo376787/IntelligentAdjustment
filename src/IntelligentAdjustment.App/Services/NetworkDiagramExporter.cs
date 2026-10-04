@@ -1,9 +1,8 @@
 using System.Globalization;
-using System.Security;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Xml;
 using IntelligentAdjustment.App.ViewModels;
 
 namespace IntelligentAdjustment.App.Services;
@@ -25,7 +24,7 @@ public static class NetworkDiagramExporter
         using (DrawingContext dc = visual.RenderOpen())
         {
             dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
-            DrawScene(dc, scene, scale, offset, width, height);
+            DrawScene(dc, scene, scale, offset, height);
         }
 
         var bitmap = new RenderTargetBitmap(
@@ -58,11 +57,26 @@ public static class NetworkDiagramExporter
             x => Transform(x.Position, scale, offset),
             StringComparer.Ordinal);
 
-        var builder = new StringBuilder();
-        builder.AppendLine("""<?xml version="1.0" encoding="UTF-8"?>""");
-        builder.AppendLine(
-            $"<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">");
-        builder.AppendLine("""  <rect width="100%" height="100%" fill="white"/>""");
+        var settings = new XmlWriterSettings
+        {
+            Indent = true,
+            Encoding = new System.Text.UTF8Encoding(false)
+        };
+
+        using XmlWriter writer = XmlWriter.Create(filePath, settings);
+        writer.WriteStartDocument();
+        writer.WriteStartElement("svg", "http://www.w3.org/2000/svg");
+        writer.WriteAttributeString("width", width.ToString(CultureInfo.InvariantCulture));
+        writer.WriteAttributeString("height", height.ToString(CultureInfo.InvariantCulture));
+        writer.WriteAttributeString(
+            "viewBox",
+            FormattableString.Invariant($"0 0 {width} {height}"));
+
+        writer.WriteStartElement("rect");
+        writer.WriteAttributeString("width", "100%");
+        writer.WriteAttributeString("height", "100%");
+        writer.WriteAttributeString("fill", "white");
+        writer.WriteEndElement();
 
         foreach (DiagramSceneEdge edge in scene.Edges)
         {
@@ -72,65 +86,114 @@ public static class NetworkDiagramExporter
                 continue;
             }
 
-            string stroke = edge.IsOverLimit ? "#C62828" : "#7B8794";
-            string dash = edge.IsOverLimit ? " stroke-dasharray="10 6"" : string.Empty;
-            double thickness = edge.IsOverLimit ? 4 : 2;
+            writer.WriteStartElement("line");
+            WriteDoubleAttribute(writer, "x1", from.X);
+            WriteDoubleAttribute(writer, "y1", from.Y);
+            WriteDoubleAttribute(writer, "x2", to.X);
+            WriteDoubleAttribute(writer, "y2", to.Y);
+            writer.WriteAttributeString("stroke", edge.IsOverLimit ? "#C62828" : "#7B8794");
+            writer.WriteAttributeString("stroke-width", edge.IsOverLimit ? "4" : "2");
 
-            builder.AppendLine(
-                FormattableString.Invariant(
-                    $"  <line x1="{from.X:F3}" y1="{from.Y:F3}" x2="{to.X:F3}" y2="{to.Y:F3}" stroke="{stroke}" stroke-width="{thickness:F1}"{dash}/>"));
+            if (edge.IsOverLimit)
+            {
+                writer.WriteAttributeString("stroke-dasharray", "10 6");
+            }
+
+            writer.WriteEndElement();
         }
 
         foreach (DiagramSceneNode node in scene.Nodes)
         {
             Point p = positions[node.PointName];
-            string label = SecurityElement.Escape(node.PointName) ?? string.Empty;
 
             switch (node.Kind)
             {
                 case DiagramNodeKind.Known:
-                    builder.AppendLine(
-                        FormattableString.Invariant(
-                            $"  <rect x="{p.X - 8:F3}" y="{p.Y - 8:F3}" width="16" height="16" rx="2" fill="#1A237E" stroke="#1A237E" stroke-width="2"/>"));
+                    writer.WriteStartElement("rect");
+                    WriteDoubleAttribute(writer, "x", p.X - 8);
+                    WriteDoubleAttribute(writer, "y", p.Y - 8);
+                    writer.WriteAttributeString("width", "16");
+                    writer.WriteAttributeString("height", "16");
+                    writer.WriteAttributeString("rx", "2");
+                    writer.WriteAttributeString("fill", "#1A237E");
+                    writer.WriteAttributeString("stroke", "#1A237E");
+                    writer.WriteAttributeString("stroke-width", "2");
+                    writer.WriteEndElement();
                     break;
 
                 case DiagramNodeKind.Transition:
-                    builder.AppendLine(
+                    writer.WriteStartElement("polygon");
+                    writer.WriteAttributeString(
+                        "points",
                         FormattableString.Invariant(
-                            $"  <polygon points="{p.X:F3},{p.Y - 9:F3} {p.X + 9:F3},{p.Y:F3} {p.X:F3},{p.Y + 9:F3} {p.X - 9:F3},{p.Y:F3}" fill="white" stroke="#EF6C00" stroke-width="3"/>"));
+                            $"{p.X:F3},{p.Y - 9:F3} " +
+                            $"{p.X + 9:F3},{p.Y:F3} " +
+                            $"{p.X:F3},{p.Y + 9:F3} " +
+                            $"{p.X - 9:F3},{p.Y:F3}"));
+                    writer.WriteAttributeString("fill", "white");
+                    writer.WriteAttributeString("stroke", "#EF6C00");
+                    writer.WriteAttributeString("stroke-width", "3");
+                    writer.WriteEndElement();
                     break;
 
                 default:
-                    builder.AppendLine(
-                        FormattableString.Invariant(
-                            $"  <circle cx="{p.X:F3}" cy="{p.Y:F3}" r="8" fill="white" stroke="#2F6F9F" stroke-width="3"/>"));
+                    writer.WriteStartElement("circle");
+                    WriteDoubleAttribute(writer, "cx", p.X);
+                    WriteDoubleAttribute(writer, "cy", p.Y);
+                    writer.WriteAttributeString("r", "8");
+                    writer.WriteAttributeString("fill", "white");
+                    writer.WriteAttributeString("stroke", "#2F6F9F");
+                    writer.WriteAttributeString("stroke-width", "3");
+                    writer.WriteEndElement();
                     break;
             }
 
             if (!node.HasPersistedCoordinate)
             {
-                builder.AppendLine(
-                    FormattableString.Invariant(
-                        $"  <circle cx="{p.X:F3}" cy="{p.Y:F3}" r="13" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4 3"/>"));
+                writer.WriteStartElement("circle");
+                WriteDoubleAttribute(writer, "cx", p.X);
+                WriteDoubleAttribute(writer, "cy", p.Y);
+                writer.WriteAttributeString("r", "13");
+                writer.WriteAttributeString("fill", "none");
+                writer.WriteAttributeString("stroke", "#9CA3AF");
+                writer.WriteAttributeString("stroke-width", "1.5");
+                writer.WriteAttributeString("stroke-dasharray", "4 3");
+                writer.WriteEndElement();
             }
 
-            builder.AppendLine(
-                FormattableString.Invariant(
-                    $"  <text x="{p.X + 12:F3}" y="{p.Y - 12:F3}" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#111827">{label}</text>"));
+            writer.WriteStartElement("text");
+            WriteDoubleAttribute(writer, "x", p.X + 12);
+            WriteDoubleAttribute(writer, "y", p.Y - 12);
+            writer.WriteAttributeString("font-family", "Segoe UI,Arial,sans-serif");
+            writer.WriteAttributeString("font-size", "16");
+            writer.WriteAttributeString("fill", "#111827");
+            writer.WriteString(node.PointName);
+            writer.WriteEndElement();
         }
 
-        builder.AppendLine("""  <g font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="#374151">""");
-        builder.AppendLine("""    <text x="28" y="34">■ 已知点　○ 平差点　◇ 过渡点　红色虚线：超限闭合/附合路线</text>""");
+        writer.WriteStartElement("g");
+        writer.WriteAttributeString("font-family", "Segoe UI,Arial,sans-serif");
+        writer.WriteAttributeString("font-size", "15");
+        writer.WriteAttributeString("fill", "#374151");
+
+        writer.WriteStartElement("text");
+        writer.WriteAttributeString("x", "28");
+        writer.WriteAttributeString("y", "34");
+        writer.WriteString("■ 已知点　○ 平差点　◇ 过渡点　红色虚线：超限闭合/附合路线");
+        writer.WriteEndElement();
+
         if (scene.MissingCoordinateCount > 0)
         {
-            builder.AppendLine(
-                $"    <text x="28" y="58">注：{scene.MissingCoordinateCount} 个点未保存草图坐标，本图使用临时布局。</text>");
+            writer.WriteStartElement("text");
+            writer.WriteAttributeString("x", "28");
+            writer.WriteAttributeString("y", "58");
+            writer.WriteString($"注：{scene.MissingCoordinateCount} 个点未保存草图坐标，本图使用临时布局。");
+            writer.WriteEndElement();
         }
 
-        builder.AppendLine("  </g>");
-        builder.AppendLine("</svg>");
-
-        File.WriteAllText(filePath, builder.ToString(), new UTF8Encoding(false));
+        writer.WriteEndElement();
+        writer.WriteEndElement();
+        writer.WriteEndDocument();
     }
 
     private static void DrawScene(
@@ -138,7 +201,6 @@ public static class NetworkDiagramExporter
         NetworkDiagramScene scene,
         double scale,
         Vector offset,
-        double width,
         double height)
     {
         var positions = scene.Nodes.ToDictionary(
@@ -268,22 +330,25 @@ public static class NetworkDiagramExporter
         double sceneWidth = Math.Max(1, maxX - minX);
         double sceneHeight = Math.Max(1, maxY - minY);
 
-        double scale = Math.Min(
+        double fitScale = Math.Min(
             Math.Max(1, width - margin * 2) / sceneWidth,
             Math.Max(1, height - margin * 2) / sceneHeight);
 
-        scale = Math.Clamp(scale, 0.02, 100);
+        fitScale = Math.Clamp(fitScale, 0.02, 100);
 
         double centerX = (minX + maxX) / 2;
         double centerY = (minY + maxY) / 2;
 
         return (
-            scale,
+            fitScale,
             new Vector(
-                width / 2 - centerX * scale,
-                height / 2 - centerY * scale));
+                width / 2 - centerX * fitScale,
+                height / 2 - centerY * fitScale));
     }
 
     private static Point Transform(Point world, double scale, Vector offset) =>
         new(world.X * scale + offset.X, world.Y * scale + offset.Y);
+
+    private static void WriteDoubleAttribute(XmlWriter writer, string name, double value) =>
+        writer.WriteAttributeString(name, value.ToString("F3", CultureInfo.InvariantCulture));
 }
