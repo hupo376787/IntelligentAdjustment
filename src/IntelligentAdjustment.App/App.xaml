@@ -28,6 +28,15 @@
             <DataTemplate DataType="{x:Type vm:RawObservationsTabViewModel}">
                 <views:RawObservationsView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:MapSketchTabViewModel}">
+                <views:MapSketchView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:NetworkGraphTabViewModel}">
+                <views:NetworkGraphView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ReportTabViewModel}">
+                <views:ReportView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vm:LevelDifferencesTabViewModel}">
                 <views:LevelDifferencesView/>
             </DataTemplate>
