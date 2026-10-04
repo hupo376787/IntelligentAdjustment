@@ -16,6 +16,10 @@
                             Margin="0,0,6,0"/>
                     <Button Content="导出 XLSX"
                             Command="{Binding ExportXlsxCommand}"
+                            Padding="14,5"
+                            Margin="0,0,6,0"/>
+                    <Button Content="导出 TXT"
+                            Command="{Binding ExportTextCommand}"
                             Padding="14,5"/>
                 </StackPanel>
 
