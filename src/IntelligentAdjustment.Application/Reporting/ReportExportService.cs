@@ -16,75 +16,8 @@ public sealed class ReportExportService
         CalculationBundle? calculation,
         string filePath)
     {
-        ArgumentNullException.ThrowIfNull(workspace);
-        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
-
-        using var document = new XWPFDocument();
-
-        AddTitle(document, "高程控制网平差报告", 22);
-        AddCenteredParagraph(document, workspace.Metadata.UnitName, 13);
-        AddCenteredParagraph(document, DateTime.Now.ToString("yyyy年MM月dd日"), 12);
-
-        AddHeading(document, "工程信息", 1);
-        AddKeyValueTable(
-            document,
-            [
-                ("项目名称", workspace.Metadata.ProjectName),
-                ("项目编号", workspace.Metadata.ProjectNumber),
-                ("项目负责人", workspace.Metadata.ProjectLeader),
-                ("审核人", workspace.Metadata.Reviewer),
-                ("工程单位", workspace.Metadata.UnitName),
-                ("结果状态", calculation is null
-                    ? "尚未执行高程平差"
-                    : calculation.Revision.ResultsAreStale
-                        ? "当前结果基于旧数据"
-                        : "结果与当前输入一致")
-            ]);
-
-        AddHeading(document, "1 项目概述", 1);
-        AddHeading(document, "1.1 任务概述", 2);
-        AddBody(document, workspace.ReportText.TaskOverview);
-        AddHeading(document, "1.2 测区自然地理情况", 2);
-        AddBody(document, workspace.ReportText.NaturalGeography);
-
-        AddHeading(document, "2 高程控制测量", 1);
-        AddHeading(document, "2.1 已有资料情况", 2);
-        AddBody(document, workspace.ReportText.ExistingData);
-        AddHeading(document, "2.2 引用文件", 2);
-        AddBody(document, workspace.ReportText.ReferencedStandards);
-        AddHeading(document, "2.3 主要技术指标", 2);
-        AddBody(document, workspace.ReportText.TechnicalIndicators);
-        AddHeading(document, "2.4 外业完成的工作量", 2);
-        AddBody(document, workspace.ReportText.FieldWorkSummary);
-
-        AddHeading(document, "3 高程控制网平差", 1);
-        AddHeading(document, "3.1 控制网精度评定", 2);
-        AddBody(document, BuildAccuracySummary(workspace, calculation));
-
-        AddHeading(document, "3.2 闭合线路统计", 2);
-        AddClosureTable(document, workspace, calculation);
-
-        AddHeading(document, "3.3 已知点成果", 2);
-        AddKnownHeightTable(document, workspace.KnownHeights);
-
-        AddHeading(document, "3.4 高差观测值成果", 2);
-        AddObservedDifferenceTable(document, workspace.LevelDifferences);
-
-        AddHeading(document, "3.5 测段高差中误差及残差", 2);
-        AddAdjustedDifferenceTable(document, calculation?.AdjustmentResult.Differences ?? []);
-
-        AddHeading(document, "3.6 高程成果", 2);
-        AddAdjustedHeightTable(document, calculation?.AdjustmentResult.Heights ?? []);
-
-        AddHeading(document, "4 结论和建议", 1);
-        AddBody(
-            document,
-            string.IsNullOrWhiteSpace(workspace.ReportText.ConclusionAndRecommendations)
-                ? "请根据项目实际检查、验收和使用要求填写结论与建议。本软件不自动生成无法由计算结果验证的验收结论。"
-                : workspace.ReportText.ConclusionAndRecommendations);
-
-        using FileStream stream = File.Create(filePath);
-        document.Write(stream);
+        var exporter = new LegacyTemplateReportExporter();
+        exporter.Export(workspace, calculation, filePath);
     }
 
     public void ExportXlsx(
