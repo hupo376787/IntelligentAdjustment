@@ -411,7 +411,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
 
     private void Row_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (!suppressDirty)
+        if (!suppressDirty && sender is not NetworkMapPointRowViewModel)
         {
             CalculationInputsChanged = true;
         }
