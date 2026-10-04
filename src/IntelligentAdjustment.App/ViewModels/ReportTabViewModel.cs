@@ -14,6 +14,7 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
     private readonly IUserDialogService dialogs;
     private readonly Func<Task<bool>> ensureSaved;
     private readonly ReportExportService exporter = new();
+    private readonly ResultTextExportService textExporter = new();
 
     [ObservableProperty]
     private string statusText = "报告章节内容随工程保存；DOCX/XLSX 导出不依赖本机 Office。";
@@ -84,6 +85,33 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
 
         exporter.ExportXlsx(workspace, calculation, path);
         StatusText = $"XLSX 已导出：{path}";
+        dialogs.Info(StatusText);
+    }
+
+    [RelayCommand]
+    private async Task ExportTextAsync()
+    {
+        if (!await ensureSaved())
+        {
+            return;
+        }
+
+        ProjectWorkspace workspace = await session.LoadAsync();
+        CalculationBundle? calculation = await session.LoadLatestCalculationAsync();
+
+        if (!ConfirmStaleResult(calculation))
+        {
+            return;
+        }
+
+        string? path = dialogs.PickResultTextPath(workspace.Metadata.ProjectName);
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return;
+        }
+
+        textExporter.Export(workspace, calculation, path);
+        StatusText = $"TXT 已导出：{path}";
         dialogs.Info(StatusText);
     }
 
