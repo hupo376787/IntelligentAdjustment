@@ -242,9 +242,14 @@
                             <Button Content="{DynamicResource Loc.Settings.SaveDefaults}"
                                     Command="{Binding SaveAsApplicationDefaultsCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
+                                    Visibility="Collapsed"
                                     Margin="0,0,0,8"/>
                             <Button Content="{DynamicResource Loc.Settings.ApplyDefaults}"
                                     Command="{Binding ApplyApplicationDefaultsCommand}"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                    Margin="0,0,0,8"/>
+                            <Button Content="{DynamicResource Loc.Settings.RestoreSystemDefaults}"
+                                    Command="{Binding RestoreSystemDefaultsCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"/>
                         </StackPanel>
                     </GroupBox>
