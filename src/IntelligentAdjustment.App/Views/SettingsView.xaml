@@ -1,6 +1,17 @@
 <UserControl x:Class="IntelligentAdjustment.App.Views.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="SettingsActionButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ButtonDefault}">
+            <Setter Property="MinHeight" Value="44"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="16,9"/>
+        </Style>
+    </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="28"
               MaxWidth="1180"
@@ -206,13 +217,11 @@
                                        Margin="0,0,0,12"/>
                             <Button Content="保存当前设置为应用默认值"
                                     Command="{Binding SaveAsApplicationDefaultsCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Padding="14,8"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
                                     Margin="0,0,0,8"/>
                             <Button Content="应用默认值到当前工程"
                                     Command="{Binding ApplyApplicationDefaultsCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Padding="14,8"/>
+                                    Style="{StaticResource SettingsActionButtonStyle}"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>

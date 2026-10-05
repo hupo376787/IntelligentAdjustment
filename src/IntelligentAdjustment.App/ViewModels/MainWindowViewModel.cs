@@ -273,6 +273,9 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
+        int routeCount = 0;
+        bool completed = false;
+
         await RunBusyAsync(() =>
         {
             var engine = new RouteSearchEngine();
@@ -281,12 +284,21 @@ public partial class MainWindowViewModel : ObservableObject
                 basisWorkspace.KnownHeights,
                 basisWorkspace.Settings);
 
+            routeCount = routes.Count;
             RoutesTabViewModel tab = GetOrCreateRoutesTab();
             tab.Load(routes, basisWorkspace.Settings);
             SelectedTab = tab;
-            StatusMessage = $"线路搜索完成，共 {routes.Count} 条闭合/附合路线。";
+            StatusMessage = $"线路搜索完成，共 {routeCount} 条闭合/附合路线。";
+            completed = true;
             return Task.CompletedTask;
         });
+
+        if (completed)
+        {
+            dialogs.Info(
+                $"路线搜索完成，共找到 {routeCount} 条闭合/附合路线。",
+                "搜索路线");
+        }
     }
 
     [RelayCommand]
@@ -298,6 +310,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         WorkspaceTabViewModel? returnToTab = SelectedTab;
+        bool completed = false;
 
         await RunBusyAsync(async () =>
         {
@@ -325,7 +338,15 @@ public partial class MainWindowViewModel : ObservableObject
 
             StatusMessage = "高程平差计算完成，可点击“平差结果”查看成果。";
             OnPropertyChanged(nameof(WindowTitle));
+            completed = true;
         });
+
+        if (completed)
+        {
+            dialogs.Info(
+                "高程平差计算完成。\n\n结果已生成，可点击左侧“平差结果”查看成果。",
+                "高程平差");
+        }
     }
 
     [RelayCommand]

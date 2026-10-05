@@ -9,16 +9,15 @@
            ShowInTaskbar="False"
            WindowStartupLocation="CenterOwner"
            Background="{DynamicResource AppPageBackgroundBrush}"
+           FontSize="{DynamicResource AppFontSize}"
            Width="560"
-           Height="440">
+           SizeToContent="Height">
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="18"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="18"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -33,7 +32,8 @@
                             HorizontalAlignment="Left"
                             Template="{StaticResource AppLogoTemplate}"/>
 
-            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <StackPanel Grid.Column="1"
+                        VerticalAlignment="Center">
                 <TextBlock Text="IntelligentAdjustment"
                            FontSize="28"
                            FontWeight="SemiBold"
@@ -66,44 +66,17 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="4"
-                Style="{StaticResource SurfaceCardStyle}"
-                Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="92"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="技术框架" Foreground="{DynamicResource AppMutedTextBrush}"/>
-                <TextBlock Grid.Column="1" Text=".NET 8 · WPF · HandyControl" Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-
-                <TextBlock Grid.Row="2" Text="工程格式" Foreground="{DynamicResource AppMutedTextBrush}"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="单文件 .iap · SQLite" Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-
-                <TextBlock Grid.Row="4" Text="产品定位" Foreground="{DynamicResource AppMutedTextBrush}"/>
-                <TextBlock Grid.Row="4" Grid.Column="1" Text="高程控制网数据处理、平差计算与成果输出" Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-            </Grid>
-        </Border>
-
-        <TextBlock Grid.Row="5"
+        <TextBlock Grid.Row="3"
                    Text="{Binding CopyrightText}"
-                   Margin="0,16,0,0"
+                   Margin="0,18,0,0"
                    HorizontalAlignment="Center"
-                   VerticalAlignment="Bottom"
                    Foreground="{DynamicResource AppMutedTextBrush}"/>
 
-        <Button Grid.Row="6"
-                Width="100"
-                Height="36"
+        <Button Grid.Row="4"
+                MinWidth="110"
+                MinHeight="42"
                 Margin="0,16,0,0"
+                Padding="20,8"
                 HorizontalAlignment="Center"
                 IsDefault="True"
                 IsCancel="True"

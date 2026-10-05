@@ -67,7 +67,7 @@
                 <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
                 <Setter Property="AlternatingRowBackground" Value="{DynamicResource AppSurfaceAltBrush}"/>
-                <Setter Property="RowHeight" Value="42"/>
+                <Setter Property="MinRowHeight" Value="42"/>
             </Style>
             <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxBaseStyle}">
                 <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
