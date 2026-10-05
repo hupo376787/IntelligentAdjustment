@@ -120,7 +120,15 @@
             <MenuItem Tag="menu-help"
                       Header="{DynamicResource Loc.Menu.Help}"
                       HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
-                <MenuItem Tag="menu-about" Header="{DynamicResource Loc.Menu.About}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding AboutCommand}"/>
+                <MenuItem Tag="menu-manual"
+                          Header="{DynamicResource Loc.Menu.UserManual}"
+                          HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}"
+                          Command="{Binding OpenUserManualCommand}"/>
+                <Separator/>
+                <MenuItem Tag="menu-about"
+                          Header="{DynamicResource Loc.Menu.About}"
+                          HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}"
+                          Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
 
