@@ -60,6 +60,12 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
 
         byte[]? networkSketchPng = BuildNetworkSketchPng(workspace, calculation);
         exporter.ExportDocx(workspace, calculation, path, networkSketchPng);
+
+        // NPOI preserves the Word TOC field but does not have Word's pagination
+        // engine. When Microsoft Word is installed, silently paginate, update the
+        // cached TOC and save now so the user opens an already-updated report.
+        _ = WordReportPostProcessor.TryRefreshTableOfContents(path);
+
         StatusText = LocalizationService.Format("Loc.Report.ExportedDocx", path);
         dialogs.Info(StatusText);
     }

@@ -56,9 +56,10 @@ internal sealed class LegacyTemplateReportExporter
             : workspace.ReportText.ConclusionAndRecommendations.Trim();
         ReplaceParagraphBeginningWith(document, "本平差成果按照有关测绘产品检查验收", conclusion);
 
-        // Word's TOC in the legacy template is a field with cached display text.
-        // Ask Word to refresh it on open after narrative text / figure insertion changed pagination.
-        document.EnforceUpdateFields();
+        // Keep the legacy TOC field, but do not set updateFields=true here.
+        // That setting makes Word show "update table of contents" / field-security
+        // prompts when the user opens the generated report. The desktop app performs
+        // a silent Word post-processing pass after this DOCX is written instead.
 
         // Remove any unfilled legacy placeholders instead of leaking template tokens into the report.
         foreach (string token in new[]

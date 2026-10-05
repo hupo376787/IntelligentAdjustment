@@ -1,4 +1,5 @@
 using IntelligentAdjustment.Application.Import;
+using IntelligentAdjustment.Core.Routes;
 using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.GoldenTests;
@@ -106,10 +107,30 @@ public sealed class InstrumentSampleParserGoldenTests
             var importer = new GeoMaxZdlInstrumentDataImporter();
             InstrumentImportResult result = await importer.ParseAsync(file, cancellationToken);
 
-            Assert.Equal(30.0, Assert.Single(result.KnownHeights).Height);
+            Assert.Collection(
+                result.KnownHeights,
+                start =>
+                {
+                    Assert.Equal("1", start.PointName);
+                    Assert.Equal(30.0, start.Height);
+                },
+                end =>
+                {
+                    Assert.Equal("2", end.PointName);
+                    Assert.Equal(30.0, end.Height);
+                });
+
             RawObservation raw = Assert.Single(result.RawObservations);
             Assert.Equal(ObservationOrder.BFFB, raw.ObservationOrder);
             Assert.Equal(MeasurementMode.AlternatingBFFB, raw.MeasurementMode);
+
+            NetworkRoute route = Assert.Single(
+                new RouteSearchEngine().Search(
+                    result.LevelDifferences,
+                    result.KnownHeights,
+                    new ProjectSettings()));
+            Assert.Equal(RouteType.Attached, route.RouteType);
+            Assert.Equal(["1", "2"], route.Points);
         }
         finally
         {

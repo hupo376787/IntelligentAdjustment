@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.IO;
 using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.App.Services;
 
@@ -10,21 +9,9 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void OpenUserManual()
     {
-        string path = Path.Combine(
-            AppContext.BaseDirectory,
-            "Help",
-            "Intelligent_Adjustment_User_Manual.pdf");
-
-        if (!File.Exists(path))
-        {
-            dialogs.Error(
-                LocalizationService.Text("Loc.Help.ManualMissing"),
-                LocalizationService.Text("Loc.Menu.UserManual"));
-            return;
-        }
-
         try
         {
+            string path = BundledUserManual.GetOrCreatePath();
             Process.Start(new ProcessStartInfo(path)
             {
                 UseShellExecute = true
