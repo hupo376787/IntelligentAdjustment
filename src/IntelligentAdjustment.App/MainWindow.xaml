@@ -85,13 +85,6 @@
                 <Button Command="{Binding ImportOutCommand}" ToolTip="直接导入 OUT 高差数据">
                     <TextBlock Text="导入 OUT"/>
                 </Button>
-                <Separator/>
-                <Button Command="{Binding SearchRoutesCommand}" ToolTip="搜索闭合/附合路线">
-                    <TextBlock Text="搜索路线"/>
-                </Button>
-                <Button Command="{Binding CalculateAdjustmentCommand}" ToolTip="高程平差计算">
-                    <TextBlock Text="高程平差"/>
-                </Button>
             </ToolBar>
         </ToolBarTray>
 
@@ -116,41 +109,97 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" BorderBrush="#D7DCE2" BorderThickness="0,0,1,0" Background="#F7F8FA">
+            <Border Grid.Column="0"
+                    BorderBrush="#D7DCE2"
+                    BorderThickness="0,0,1,0"
+                    Background="#F7F8FA">
+                <Border.Resources>
+                    <Style x:Key="NavigationExpanderStyle" TargetType="Expander">
+                        <Setter Property="IsExpanded" Value="True"/>
+                        <Setter Property="Margin" Value="0,4,0,4"/>
+                    </Style>
+                    <Style x:Key="NavigationButtonStyle" TargetType="Button">
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        <Setter Property="Margin" Value="0,2"/>
+                        <Setter Property="Padding" Value="12,5"/>
+                    </Style>
+                </Border.Resources>
+
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="12">
-                        <TextBlock Text="工程" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,8,8,6"/>
-                        <Button Content="工程概览" Command="{Binding OpenDashboardCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <TextBlock Text="数据" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
-                        <Button Content="线路管理" Command="{Binding OpenLineManagementCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="原始观测" Command="{Binding OpenRawObservationsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="已知高程" Command="{Binding OpenKnownHeightsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="网形草图" Command="{Binding OpenMapSketchCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
+                        <Expander Header="工程"
+                                  Style="{StaticResource NavigationExpanderStyle}">
+                            <StackPanel Margin="12,4,0,4">
+                                <Button Content="工程概览"
+                                        Command="{Binding OpenDashboardCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                            </StackPanel>
+                        </Expander>
 
-                        <TextBlock Text="计算" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
-                        <Button Content="闭合/附合路线" Command="{Binding OpenRoutesCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="平差结果" Command="{Binding OpenAdjustmentResultsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="水准网图" Command="{Binding OpenNetworkGraphCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
-                        <Button Content="报告与导出" Command="{Binding OpenReportCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
+                        <Expander Header="数据"
+                                  Style="{StaticResource NavigationExpanderStyle}">
+                            <StackPanel Margin="12,4,0,4">
+                                <Button Content="线路管理"
+                                        Command="{Binding OpenLineManagementCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="仪器导入"
+                                        Command="{Binding OpenInstrumentImportCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="原始观测"
+                                        Command="{Binding OpenRawObservationsCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="高差观测"
+                                        Command="{Binding OpenLevelDifferencesCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="已知高程"
+                                        Command="{Binding OpenKnownHeightsCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="网形草图"
+                                        Command="{Binding OpenMapSketchCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                            </StackPanel>
+                        </Expander>
 
-                        <TextBlock Text="项目" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="8,16,8,6"/>
-                        <Button Content="工程设置" Command="{Binding OpenProjectSettingsCommand}" HorizontalContentAlignment="Left" Margin="0,2"/>
+                        <Expander Header="计算"
+                                  Style="{StaticResource NavigationExpanderStyle}">
+                            <StackPanel Margin="12,4,0,4">
+                                <Button Content="搜索路线"
+                                        Command="{Binding SearchRoutesCommand}"
+                                        ToolTip="搜索闭合/附合路线"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="闭合/附合路线"
+                                        Command="{Binding OpenRoutesCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="高程平差"
+                                        Command="{Binding CalculateAdjustmentCommand}"
+                                        ToolTip="执行高程平差计算"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="平差结果"
+                                        Command="{Binding OpenAdjustmentResultsCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="水准网图"
+                                        Command="{Binding OpenNetworkGraphCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                                <Button Content="报告与导出"
+                                        Command="{Binding OpenReportCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="项目"
+                                  Style="{StaticResource NavigationExpanderStyle}">
+                            <StackPanel Margin="12,4,0,4">
+                                <Button Content="工程设置"
+                                        Command="{Binding OpenProjectSettingsCommand}"
+                                        Style="{StaticResource NavigationButtonStyle}"/>
+                            </StackPanel>
+                        </Expander>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
 
-            <TabControl Grid.Column="1"
-                        ItemsSource="{Binding Tabs}"
-                        SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
-                        BorderThickness="0">
-                <TabControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Header}" Margin="8,3"/>
-                    </DataTemplate>
-                </TabControl.ItemTemplate>
-            </TabControl>
+            <ContentControl Grid.Column="1"
+                            Content="{Binding SelectedTab}"/>
         </Grid>
     </DockPanel>
 </Window>
