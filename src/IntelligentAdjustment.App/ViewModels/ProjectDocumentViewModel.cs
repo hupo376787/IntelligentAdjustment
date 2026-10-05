@@ -9,6 +9,9 @@ namespace IntelligentAdjustment.App.ViewModels;
 
 public partial class ProjectDocumentViewModel : ObservableObject
 {
+    public const string DefaultConclusionAndRecommendations =
+        "本平差成果按照有关测绘产品检查验收的规定进行了二级检查一级验收，各项成果资料符合规范要求，资料齐全，手续完备，可作为正式成果提供给顾客。";
+
     private bool suppressDirty;
     private bool suppressUndo;
     private readonly Stack<ProjectInputSnapshot> undoStack = new();
@@ -61,7 +64,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
     private string fieldWorkSummary = string.Empty;
 
     [ObservableProperty]
-    private string conclusionAndRecommendations = string.Empty;
+    private string conclusionAndRecommendations = DefaultConclusionAndRecommendations;
 
     public ObservableCollection<ObservationLineInfo> Lines { get; } = new();
     public ObservableCollection<LevelDifferenceRowViewModel> LevelDifferences { get; } = new();
@@ -110,7 +113,9 @@ public partial class ProjectDocumentViewModel : ObservableObject
             ReferencedStandards = workspace.ReportText.ReferencedStandards;
             TechnicalIndicators = workspace.ReportText.TechnicalIndicators;
             FieldWorkSummary = workspace.ReportText.FieldWorkSummary;
-            ConclusionAndRecommendations = workspace.ReportText.ConclusionAndRecommendations;
+            ConclusionAndRecommendations = string.IsNullOrWhiteSpace(workspace.ReportText.ConclusionAndRecommendations)
+                ? DefaultConclusionAndRecommendations
+                : workspace.ReportText.ConclusionAndRecommendations;
 
             ReplaceRowsCore(
                 workspace.LevelDifferences,
@@ -151,7 +156,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             ReferencedStandards = string.Empty;
             TechnicalIndicators = string.Empty;
             FieldWorkSummary = string.Empty;
-            ConclusionAndRecommendations = string.Empty;
+            ConclusionAndRecommendations = DefaultConclusionAndRecommendations;
 
             Lines.Clear();
             ReplaceRowsCore(
