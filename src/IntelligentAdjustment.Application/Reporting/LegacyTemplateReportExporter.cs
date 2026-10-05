@@ -1,6 +1,8 @@
 using System.Globalization;
 using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Domain;
+using NPOI.OpenXmlFormats.Wordprocessing;
+using NPOI.Util;
 using NPOI.XWPF.UserModel;
 
 namespace IntelligentAdjustment.Application.Reporting;
@@ -17,7 +19,8 @@ internal sealed class LegacyTemplateReportExporter
     public void Export(
         ProjectWorkspace workspace,
         CalculationBundle? calculation,
-        string filePath)
+        string filePath,
+        byte[]? networkSketchPng = null)
     {
         ArgumentNullException.ThrowIfNull(workspace);
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
@@ -46,11 +49,16 @@ internal sealed class LegacyTemplateReportExporter
         FillObservedDifferenceTable(document, workspace);
         FillAdjustedDifferenceTable(document, workspace, calculation);
         FillAdjustedHeightTable(document, workspace, calculation);
+        InsertNetworkSketch(document, networkSketchPng);
 
         string conclusion = string.IsNullOrWhiteSpace(workspace.ReportText.ConclusionAndRecommendations)
             ? "请根据项目实际检查、验收和使用要求填写结论与建议。本软件不自动生成无法由计算结果验证的检查、验收结论。"
             : workspace.ReportText.ConclusionAndRecommendations.Trim();
         ReplaceParagraphBeginningWith(document, "本平差成果按照有关测绘产品检查验收", conclusion);
+
+        // Word's TOC in the legacy template is a field with cached display text.
+        // Ask Word to refresh it on open after narrative text / figure insertion changed pagination.
+        document.EnforceUpdateFields();
 
         // Remove any unfilled legacy placeholders instead of leaking template tokens into the report.
         foreach (string token in new[]
@@ -79,38 +87,38 @@ internal sealed class LegacyTemplateReportExporter
         IReadOnlyDictionary<string, string> task = ParseTaggedText(
             text.TaskOverview,
             ["任务来源", "目的", "测区范围"]);
-        SetBodyAfter(document, "(1) 任务来源", GetOrFallback(task, "任务来源", text.TaskOverview));
-        SetBodyAfter(document, "(2) 目的", GetOrEmpty(task, "目的"));
-        SetBodyAfter(document, "(3) 测区范围", GetOrEmpty(task, "测区范围"));
+        SetBodyAfter(document, "任务来源", GetOrFallback(task, "任务来源", text.TaskOverview));
+        SetBodyAfter(document, "目的", GetOrEmpty(task, "目的"));
+        SetBodyAfter(document, "测区范围", GetOrEmpty(task, "测区范围"));
 
         IReadOnlyDictionary<string, string> geography = ParseTaggedText(
             text.NaturalGeography,
             ["测区地理特征", "测区居民情况", "测区交通情况", "测区气候情况", "测区困难类别"]);
-        SetBodyAfter(document, "(1) 测区地理特征", GetOrFallback(geography, "测区地理特征", text.NaturalGeography));
-        SetBodyAfter(document, "(2) 测区居民情况", GetOrEmpty(geography, "测区居民情况"));
-        SetBodyAfter(document, "(3) 测区交通情况", GetOrEmpty(geography, "测区交通情况"));
-        SetBodyAfter(document, "(4) 测区气候情况", GetOrEmpty(geography, "测区气候情况"));
-        SetBodyAfter(document, "(5) 测区困难类别", GetOrEmpty(geography, "测区困难类别"));
+        SetBodyAfter(document, "测区地理特征", GetOrFallback(geography, "测区地理特征", text.NaturalGeography));
+        SetBodyAfter(document, "测区居民情况", GetOrEmpty(geography, "测区居民情况"));
+        SetBodyAfter(document, "测区交通情况", GetOrEmpty(geography, "测区交通情况"));
+        SetBodyAfter(document, "测区气候情况", GetOrEmpty(geography, "测区气候情况"));
+        SetBodyAfter(document, "测区困难类别", GetOrEmpty(geography, "测区困难类别"));
 
         IReadOnlyDictionary<string, string> existing = ParseTaggedText(
             text.ExistingData,
             ["已有资料的数量、形式、施测年代", "采用的高程基准", "已有资料的质量情况及评价", "对已有资料的利用方案"]);
-        SetBodyAfter(document, "(1) 已有资料的数量、形式、施测年代", GetOrFallback(existing, "已有资料的数量、形式、施测年代", text.ExistingData));
-        SetBodyAfter(document, "(2) 采用的高程基准", GetOrEmpty(existing, "采用的高程基准"));
-        SetBodyAfter(document, "(3) 已有资料的质量情况及评价", GetOrEmpty(existing, "已有资料的质量情况及评价"));
-        SetBodyAfter(document, "(4) 对已有资料的利用方案", GetOrEmpty(existing, "对已有资料的利用方案"));
+        SetBodyAfter(document, "已有资料的数量、形式、施测年代", GetOrFallback(existing, "已有资料的数量、形式、施测年代", text.ExistingData));
+        SetBodyAfter(document, "采用的高程基准", GetOrEmpty(existing, "采用的高程基准"));
+        SetBodyAfter(document, "已有资料的质量情况及评价", GetOrEmpty(existing, "已有资料的质量情况及评价"));
+        SetBodyAfter(document, "对已有资料的利用方案", GetOrEmpty(existing, "对已有资料的利用方案"));
 
         // The supplied template already contains the legacy standards list.
         // User-entered references are therefore placed in the "其它文件" slot.
-        SetBodyAfter(document, "(2) 引用的其它文件", text.ReferencedStandards);
+        SetBodyAfter(document, "引用的其它文件", text.ReferencedStandards);
 
         IReadOnlyDictionary<string, string> indicators = ParseTaggedText(
             text.TechnicalIndicators,
             ["测量仪器的类型及精度指标", "施测精度"]);
-        SetBodyAfter(document, "(1) 测量仪器的类型及精度指标", GetOrFallback(indicators, "测量仪器的类型及精度指标", text.TechnicalIndicators));
-        SetBodyAfter(document, "(2) 施测精度", GetOrEmpty(indicators, "施测精度"));
+        SetBodyAfter(document, "测量仪器的类型及精度指标", GetOrFallback(indicators, "测量仪器的类型及精度指标", text.TechnicalIndicators));
+        SetBodyAfter(document, "施测精度", GetOrEmpty(indicators, "施测精度"));
 
-        SetBodyAfter(document, "2.4 外业完成的工作量", text.FieldWorkSummary);
+        SetBodyAfter(document, "外业完成的工作量", text.FieldWorkSummary);
     }
 
     private static IReadOnlyDictionary<string, string> ParseTaggedText(
@@ -228,6 +236,75 @@ internal sealed class LegacyTemplateReportExporter
             ReplaceToken(document, "<Limit/>",
                 workspace.Settings.StationToleranceCoefficientMm.ToString("0.###", CultureInfo.InvariantCulture) + "√n mm");
         }
+    }
+
+    private static void InsertNetworkSketch(
+        XWPFDocument document,
+        byte[]? networkSketchPng)
+    {
+        if (networkSketchPng is null || networkSketchPng.Length == 0)
+        {
+            return;
+        }
+
+        XWPFParagraph? sectionHeading = document.Paragraphs.FirstOrDefault(p =>
+            string.Equals(
+                Normalize(p.Text),
+                Normalize("高程控制网平差"),
+                StringComparison.Ordinal));
+
+        if (sectionHeading is null)
+        {
+            return;
+        }
+
+        CT_Body body = document.Document.body;
+        int bodyIndex = -1;
+        for (int i = 0; i < body.Items.Count; i++)
+        {
+            if (ReferenceEquals(body.Items[i], sectionHeading.GetCTP()))
+            {
+                bodyIndex = i;
+                break;
+            }
+        }
+
+        if (bodyIndex < 0)
+        {
+            return;
+        }
+
+        var pictureCt = new CT_P();
+        body.Items.Insert(bodyIndex + 1, pictureCt);
+        body.ItemsElementName.Insert(bodyIndex + 1, DocumentBodyItemChoiceType.p);
+
+        var pictureParagraph = new XWPFParagraph(pictureCt, document)
+        {
+            Alignment = ParagraphAlignment.CENTER
+        };
+
+        using (var imageStream = new MemoryStream(networkSketchPng, writable: false))
+        {
+            pictureParagraph.CreateRun().AddPicture(
+                imageStream,
+                (int)PictureType.PNG,
+                "network-sketch.png",
+                Units.ToEMU(430),
+                Units.ToEMU(263));
+        }
+
+        var captionCt = new CT_P();
+        body.Items.Insert(bodyIndex + 2, captionCt);
+        body.ItemsElementName.Insert(bodyIndex + 2, DocumentBodyItemChoiceType.p);
+
+        var captionParagraph = new XWPFParagraph(captionCt, document)
+        {
+            Alignment = ParagraphAlignment.CENTER
+        };
+        XWPFRun captionRun = captionParagraph.CreateRun();
+        captionRun.SetText("图 3-1 高程控制网网形图");
+        captionRun.FontFamily = "宋体";
+        captionRun.FontSize = 10;
     }
 
     private static void FillClosureTable(
@@ -571,7 +648,18 @@ internal sealed class LegacyTemplateReportExporter
         }
 
         target ??= paragraph.CreateRun();
-        target.SetText(value ?? string.Empty, 0);
+
+        string normalized = (value ?? string.Empty)
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
+        string[] lines = normalized.Split('\n');
+
+        target.SetText(lines.Length == 0 ? string.Empty : lines[0], 0);
+        for (int i = 1; i < lines.Length; i++)
+        {
+            target.AddBreak();
+            target.SetText(lines[i]);
+        }
     }
 
     private static void ClearRuns(XWPFParagraph paragraph)
