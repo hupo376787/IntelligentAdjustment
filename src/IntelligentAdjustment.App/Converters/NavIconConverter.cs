@@ -39,7 +39,8 @@ public sealed class NavIconConverter : IValueConverter
             ["menu-exit"] = Geometry.Parse("M10,4 L5,4 L5,20 L10,20 M14,8 L19,12 L14,16 M19,12 L9,12"),
             ["menu-undo"] = Geometry.Parse("M10,6 L5,10 L10,14 M6,10 L14,10 C18,10 20,13 20,17"),
             ["menu-redo"] = Geometry.Parse("M14,6 L19,10 L14,14 M18,10 L10,10 C6,10 4,13 4,17"),
-            ["menu-about"] = Geometry.Parse("M12,3 A9,9 0 1 0 12,21 A9,9 0 1 0 12,3 M12,10 L12,17 M12,7 L12,7.1")
+            ["menu-about"] = Geometry.Parse("M12,3 A9,9 0 1 0 12,21 A9,9 0 1 0 12,3 M12,10 L12,17 M12,7 L12,7.1"),
+            ["menu-manual"] = Geometry.Parse("M5,3 L16,3 L21,8 L21,21 L5,21 Z M16,3 L16,8 L21,8 M8,12 L18,12 M8,16 L18,16")
         };
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
