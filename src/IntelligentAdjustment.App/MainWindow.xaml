@@ -60,30 +60,96 @@
             </MenuItem>
         </Menu>
 
-        <ToolBarTray DockPanel.Dock="Top">
-            <ToolBar>
-                <Button Command="{Binding NewProjectCommand}" ToolTip="新建工程">
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="＋" FontSize="16"/><TextBlock Text=" 新建"/></StackPanel>
+        <ToolBarTray DockPanel.Dock="Top"
+                     IsLocked="True">
+            <ToolBar Padding="4,3">
+                <ToolBar.Resources>
+                    <Style x:Key="MainToolBarButtonStyle" TargetType="Button">
+                        <Setter Property="Width" Value="72"/>
+                        <Setter Property="Height" Value="58"/>
+                        <Setter Property="Margin" Value="2,0"/>
+                        <Setter Property="Padding" Value="4,3"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                    <Style x:Key="MainToolBarIconStyle" TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="20"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="TextAlignment" Value="Center"/>
+                        <Setter Property="Margin" Value="0,0,0,2"/>
+                    </Style>
+                    <Style x:Key="MainToolBarTextStyle" TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="TextAlignment" Value="Center"/>
+                    </Style>
+                </ToolBar.Resources>
+
+                <Button Command="{Binding NewProjectCommand}"
+                        ToolTip="新建工程"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="＋" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="新建" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Button Command="{Binding OpenProjectCommand}" ToolTip="打开工程">
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="📂"/><TextBlock Text=" 打开"/></StackPanel>
+
+                <Button Command="{Binding OpenProjectCommand}"
+                        ToolTip="打开工程"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="📂" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="打开" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Button Command="{Binding SaveProjectCommand}" ToolTip="保存工程">
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="💾"/><TextBlock Text=" 保存"/></StackPanel>
+
+                <Button Command="{Binding SaveProjectCommand}"
+                        ToolTip="保存工程"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="💾" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="保存" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Separator/>
-                <Button Command="{Binding UndoCommand}" ToolTip="撤销 (Ctrl+Z)">
-                    <TextBlock Text="撤销"/>
+
+                <Separator Margin="5,6"/>
+
+                <Button Command="{Binding UndoCommand}"
+                        ToolTip="撤销 (Ctrl+Z)"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="↶" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="撤销" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Button Command="{Binding RedoCommand}" ToolTip="重做 (Ctrl+Y)">
-                    <TextBlock Text="重做"/>
+
+                <Button Command="{Binding RedoCommand}"
+                        ToolTip="重做 (Ctrl+Y)"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="↷" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="重做" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Separator/>
-                <Button Command="{Binding OpenInstrumentImportCommand}" ToolTip="按仪器厂商/格式导入数据">
-                    <TextBlock Text="仪器导入"/>
+
+                <Separator Margin="5,6"/>
+
+                <Button Command="{Binding OpenInstrumentImportCommand}"
+                        ToolTip="按仪器厂商/格式导入数据"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="⇩" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="仪器导入" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
-                <Button Command="{Binding ImportOutCommand}" ToolTip="直接导入 OUT 高差数据">
-                    <TextBlock Text="导入 OUT"/>
+
+                <Button Command="{Binding ImportOutCommand}"
+                        ToolTip="直接导入 OUT 高差数据"
+                        Style="{StaticResource MainToolBarButtonStyle}">
+                    <StackPanel>
+                        <TextBlock Text="⇩" Style="{StaticResource MainToolBarIconStyle}"/>
+                        <TextBlock Text="导入 OUT" Style="{StaticResource MainToolBarTextStyle}"/>
+                    </StackPanel>
                 </Button>
             </ToolBar>
         </ToolBarTray>
