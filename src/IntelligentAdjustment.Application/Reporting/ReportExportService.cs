@@ -311,10 +311,10 @@ public sealed class ReportExportService
         CalculationBundle? calculation,
         ICellStyle headerStyle)
     {
-        ISheet sheet = workbook.CreateSheet("工程信息");
+        ISheet sheet = workbook.CreateSheet("项目信息");
         WriteKeyValue(sheet, 0, "项目名称", workspace.Metadata.ProjectName, headerStyle);
         WriteKeyValue(sheet, 1, "项目编号", workspace.Metadata.ProjectNumber, headerStyle);
-        WriteKeyValue(sheet, 2, "工程单位", workspace.Metadata.UnitName, headerStyle);
+        WriteKeyValue(sheet, 2, "项目单位", workspace.Metadata.UnitName, headerStyle);
         WriteKeyValue(sheet, 3, "项目负责人", workspace.Metadata.ProjectLeader, headerStyle);
         WriteKeyValue(sheet, 4, "审核人", workspace.Metadata.Reviewer, headerStyle);
         WriteKeyValue(

@@ -219,6 +219,11 @@ public sealed class ProjectSessionService
                 cancellationToken);
         }
 
+        // A newly created project contains an empty "线路 0" so manual entry works
+        // immediately. Once real instrument/OUT data has been imported, remove only
+        // that untouched default line to avoid other pages selecting an empty line.
+        _ = await _repository!.RemoveEmptyDefaultManualLineAsync(cancellationToken);
+
         ProjectWorkspace workspace = await LoadAsync(cancellationToken);
 
         if (workspace.Settings.AutoMergeTransitionPoints &&

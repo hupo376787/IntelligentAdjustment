@@ -76,6 +76,26 @@ internal static class WordReportPostProcessor
                     tableOfContentsObject = tablesOfContents.Item(index);
                     dynamic tableOfContents = tableOfContentsObject;
                     tableOfContents.Update();
+
+                    // The exported report is a final deliverable. Keep the freshly
+                    // calculated TOC display text/hyperlinks, but lock its fields so
+                    // Word will not show "update table of contents" or field-update
+                    // security prompts when the user opens the file.
+                    object? rangeObject = null;
+                    object? fieldsObject = null;
+                    try
+                    {
+                        rangeObject = tableOfContents.Range;
+                        dynamic range = rangeObject;
+                        fieldsObject = range.Fields;
+                        dynamic fields = fieldsObject;
+                        fields.Locked = true;
+                    }
+                    finally
+                    {
+                        ReleaseComObject(fieldsObject);
+                        ReleaseComObject(rangeObject);
+                    }
                 }
                 finally
                 {

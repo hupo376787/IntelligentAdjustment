@@ -69,6 +69,59 @@ public sealed class ProjectRepository
         return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
     }
 
+    public async Task<bool> RemoveEmptyDefaultManualLineAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        long? lineId = null;
+        await using (var findCommand = connection.CreateCommand())
+        {
+            findCommand.Transaction = transaction;
+            findCommand.CommandText = """
+                SELECT l.Id
+                FROM ObservationLine AS l
+                WHERE l.Name = '线路 0'
+                  AND COALESCE(l.InstrumentType, '') = 'MANUAL'
+                  AND l.SourceFileName IS NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM RawObservation AS r
+                      WHERE r.ObservationLineId = l.Id)
+                  AND NOT EXISTS (
+                      SELECT 1 FROM LevelDifference AS d
+                      WHERE d.ObservationLineId = l.Id)
+                ORDER BY l.DisplayOrder, l.Id
+                LIMIT 1;
+                """;
+
+            object? value = await findCommand.ExecuteScalarAsync(cancellationToken);
+            if (value is not null && value != DBNull.Value)
+            {
+                lineId = Convert.ToInt64(value);
+            }
+        }
+
+        if (lineId is null)
+        {
+            transaction.Commit();
+            return false;
+        }
+
+        await using (var deleteCommand = connection.CreateCommand())
+        {
+            deleteCommand.Transaction = transaction;
+            deleteCommand.CommandText = "DELETE FROM ObservationLine WHERE Id = $id;";
+            deleteCommand.Parameters.AddWithValue("$id", lineId.Value);
+            await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await NormalizeLineOrderAsync(connection, transaction, cancellationToken);
+        transaction.Commit();
+        return true;
+    }
+
     public async Task<long> CreateLineAsync(
         string name,
         string? instrumentType = "MANUAL",

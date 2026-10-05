@@ -1,3 +1,5 @@
+using System.Text;
+using IntelligentAdjustment.Core.Routes;
 using IntelligentAdjustment.Application.Import;
 using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Application.Services;
@@ -64,8 +66,9 @@ public sealed class InstrumentImportRegistryGoldenTests
                 [first, second],
                 cancellationToken);
 
-            // New projects retain the default manual line, then each imported file creates one line.
-            Assert.Equal(3, workspace.Lines.Count);
+            // Once imported data exists, the untouched default manual line is removed.
+            Assert.Equal(2, workspace.Lines.Count);
+            Assert.DoesNotContain(workspace.Lines, x => x.InstrumentType == "MANUAL");
             Assert.Equal(2, workspace.Lines.Count(x => x.InstrumentType == "高差 OUT"));
             Assert.Equal(2, workspace.LevelDifferences.Count);
             Assert.Single(workspace.KnownHeights);
@@ -74,6 +77,78 @@ public sealed class InstrumentImportRegistryGoldenTests
         finally
         {
             foreach (string file in new[] { first, second, projectFile })
+            {
+                if (File.Exists(file))
+                {
+                    File.Delete(file);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GeoMaxImport_CreatesAttachedRoute_AndRemovesEmptyDefaultLine()
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        string projectFile = Path.Combine(Path.GetTempPath(), $"ia-geomax-{Guid.NewGuid():N}.iap");
+        string mdt = Path.Combine(Path.GetTempPath(), $"GeoMax_ZDL-{Guid.NewGuid():N}.mdt");
+
+        try
+        {
+            var source = new StringBuilder();
+            source.AppendLine("PtID Order Height Distance StaffType ReducedLevel Type");
+            source.AppendLine("@0 2 0.0000 0.000 2 0.0000 107");
+
+            for (int station = 1; station <= 10; station++)
+            {
+                double fromHeight = 30.0 + (station - 1) * 0.1;
+                double toHeight = fromHeight + 0.1;
+                string from = station.ToString();
+                string to = (station + 1).ToString();
+
+                source.AppendLine(FormattableString.Invariant(
+                    $"{from} B 1.50000 40.0000 2 {fromHeight:F5} 107"));
+                source.AppendLine(FormattableString.Invariant(
+                    $"{to} F 1.40000 40.0000 2 {toHeight:F5} 107"));
+                source.AppendLine(FormattableString.Invariant(
+                    $"{to} F 1.40000 40.0000 2 {toHeight:F5} 107"));
+                source.AppendLine(FormattableString.Invariant(
+                    $"{from} B 1.50000 40.0000 2 {fromHeight:F5} 107"));
+            }
+
+            await File.WriteAllTextAsync(mdt, source.ToString(), cancellationToken);
+
+            var session = new ProjectSessionService();
+            _ = await session.CreateAsync(projectFile, cancellationToken);
+
+            ProjectWorkspace workspace = await session.ImportInstrumentFilesAsync(
+                InstrumentVendor.GeoMaxZdl,
+                [mdt],
+                cancellationToken);
+
+            ObservationLineInfo line = Assert.Single(workspace.Lines);
+            Assert.Equal("GeoMax ZDL", line.InstrumentType);
+            Assert.Equal(10, workspace.RawObservations.Count);
+            Assert.Equal(10, workspace.LevelDifferences.Count);
+            Assert.DoesNotContain(workspace.Lines, x => x.InstrumentType == "MANUAL");
+
+            Assert.Contains(workspace.KnownHeights, x => x.PointName == "1");
+            Assert.Contains(workspace.KnownHeights, x => x.PointName == "11");
+
+            NetworkRoute route = Assert.Single(
+                new RouteSearchEngine().Search(
+                    workspace.LevelDifferences,
+                    workspace.KnownHeights,
+                    workspace.Settings)
+                .Where(x => x.RouteType == RouteType.Attached));
+
+            Assert.Equal(10, route.EdgeCount);
+            Assert.Equal("1", route.Points[0]);
+            Assert.Equal("11", route.Points[^1]);
+        }
+        finally
+        {
+            foreach (string file in new[] { mdt, projectFile })
             {
                 if (File.Exists(file))
                 {
