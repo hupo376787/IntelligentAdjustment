@@ -103,6 +103,7 @@
             <conv:NumericPrecisionConverter x:Key="NumericPrecisionConverter"/>
             <conv:PointRoleConverter x:Key="PointRoleConverter"/>
             <conv:RouteTypeConverter x:Key="RouteTypeConverter"/>
+            <conv:StringEqualsMultiConverter x:Key="StringEqualsMultiConverter"/>
 
             <DataTemplate DataType="{x:Type vm:DashboardTabViewModel}"><views:DashboardView/></DataTemplate>
             <DataTemplate DataType="{x:Type vm:LineManagementTabViewModel}"><views:LineManagementView/></DataTemplate>

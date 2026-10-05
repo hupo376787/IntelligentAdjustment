@@ -23,8 +23,9 @@
         <Style x:Key="MainToolbarButtonStyle"
                TargetType="Button"
                BasedOn="{StaticResource ButtonDefault}">
-            <Setter Property="Width" Value="80"/>
-            <Setter Property="MinHeight" Value="70"/>
+            <Setter Property="Width" Value="92"/>
+            <Setter Property="MinHeight" Value="72"/>
+            <Setter Property="FontSize" Value="{DynamicResource AppFontSize}"/>
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Padding" Value="4,3"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -33,6 +34,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
         <Style x:Key="MainToolbarLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{DynamicResource AppFontSize}"/>
             <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
@@ -282,6 +284,7 @@
                 <Border.Resources>
                     <Style TargetType="Expander"
                            BasedOn="{StaticResource Expander.Small}">
+                        <Setter Property="FontSize" Value="{DynamicResource AppFontSize}"/>
                         <Setter Property="IsExpanded" Value="True"/>
                         <Setter Property="Margin" Value="0,5,0,5"/>
                         <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
@@ -290,6 +293,7 @@
                     </Style>
                     <Style TargetType="Button"
                            BasedOn="{StaticResource ButtonDefault}">
+                        <Setter Property="FontSize" Value="{DynamicResource AppFontSize}"/>
                         <Setter Property="MinHeight" Value="42"/>
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -297,12 +301,28 @@
                         <Setter Property="Padding" Value="14,6"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
                         <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource AppAccentSoftBrush}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
                             </Trigger>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding Path="DataContext.SelectedTab.Key"
+                                                 RelativeSource="{RelativeSource AncestorType={x:Type Window}}"/>
+                                        <Binding Path="Tag"
+                                                 RelativeSource="{RelativeSource Self}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter Property="Background" Value="{DynamicResource AppAccentSoftBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}"/>
+                                <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Resources>
@@ -311,18 +331,18 @@
                     <StackPanel Margin="12,8">
                         <Expander Header="工程">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Content="工程概览" Command="{Binding OpenDashboardCommand}"/>
+                                <Button Tag="dashboard" Content="工程概览" Command="{Binding OpenDashboardCommand}"/>
                             </StackPanel>
                         </Expander>
 
                         <Expander Header="数据">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Content="线路管理" Command="{Binding OpenLineManagementCommand}"/>
-                                <Button Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}"/>
-                                <Button Content="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
-                                <Button Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
-                                <Button Content="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
-                                <Button Content="网形草图" Command="{Binding OpenMapSketchCommand}"/>
+                                <Button Tag="lines" Content="线路管理" Command="{Binding OpenLineManagementCommand}"/>
+                                <Button Tag="instrument-import" Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}"/>
+                                <Button Tag="raw-observations" Content="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
+                                <Button Tag="differences" Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
+                                <Button Tag="known-heights" Content="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
+                                <Button Tag="map-sketch" Content="网形草图" Command="{Binding OpenMapSketchCommand}"/>
                             </StackPanel>
                         </Expander>
 
@@ -331,23 +351,25 @@
                                 <Button Content="搜索路线"
                                         Command="{Binding SearchRoutesCommand}"
                                         ToolTip="执行闭合/附合路线搜索"/>
-                                <Button Content="闭合/附合路线"
+                                <Button Tag="routes"
+                                        Content="闭合/附合路线"
                                         Command="{Binding OpenRoutesCommand}"
                                         ToolTip="查看最近一次路线搜索结果"/>
                                 <Button Content="执行高程平差"
                                         Command="{Binding CalculateAdjustmentCommand}"
                                         ToolTip="执行计算；完成后不会自动跳转页面"/>
-                                <Button Content="平差结果"
+                                <Button Tag="adjustment-results"
+                                        Content="平差结果"
                                         Command="{Binding OpenAdjustmentResultsCommand}"
                                         ToolTip="查看最近一次平差成果"/>
-                                <Button Content="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
-                                <Button Content="报告与导出" Command="{Binding OpenReportCommand}"/>
+                                <Button Tag="network-graph" Content="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
+                                <Button Tag="report" Content="报告与导出" Command="{Binding OpenReportCommand}"/>
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="项目">
+                        <Expander Header="设置">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Content="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
+                                <Button Tag="settings" Content="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
                             </StackPanel>
                         </Expander>
                     </StackPanel>
