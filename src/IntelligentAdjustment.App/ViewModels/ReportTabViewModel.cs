@@ -1,9 +1,11 @@
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Application.Reporting;
 using IntelligentAdjustment.Application.Services;
+using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -56,7 +58,8 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
             return;
         }
 
-        exporter.ExportDocx(workspace, calculation, path);
+        byte[]? networkSketchPng = BuildNetworkSketchPng(workspace, calculation);
+        exporter.ExportDocx(workspace, calculation, path, networkSketchPng);
         StatusText = LocalizationService.Format("Loc.Report.ExportedDocx", path);
         dialogs.Info(StatusText);
     }
@@ -113,6 +116,52 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
         textExporter.Export(workspace, calculation, path);
         StatusText = LocalizationService.Format("Loc.Report.ExportedTxt", path);
         dialogs.Info(StatusText);
+    }
+
+    private byte[]? BuildNetworkSketchPng(
+        ProjectWorkspace workspace,
+        CalculationBundle? calculation)
+    {
+        if (document.LevelDifferences.Count == 0)
+        {
+            return null;
+        }
+
+        IReadOnlyList<NetworkRoute> routes =
+            calculation?.Routes ?? Array.Empty<NetworkRoute>();
+
+        NetworkDiagramScene scene = NetworkDiagramSceneBuilder.Build(
+            document,
+            routes,
+            workspace.Settings);
+
+        if (scene.Nodes.Count == 0)
+        {
+            return null;
+        }
+
+        string tempFile = Path.Combine(
+            Path.GetTempPath(),
+            $"IntelligentAdjustment-report-network-{Guid.NewGuid():N}.png");
+
+        try
+        {
+            NetworkDiagramExporter.ExportPng(
+                scene,
+                tempFile,
+                width: 1800,
+                height: 1100,
+                settings: workspace.Settings);
+
+            return File.ReadAllBytes(tempFile);
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                File.Delete(tempFile);
+            }
+        }
     }
 
     private bool ConfirmStaleResult(CalculationBundle? calculation)
