@@ -65,7 +65,7 @@
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   IsReadOnly="True"
-                  SelectionMode="Single"
+                  SelectionMode="Extended"
                   SelectionUnit="FullRow">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{DynamicResource Loc.Line.Order}" Binding="{Binding DisplayOrder}" Width="70"/>

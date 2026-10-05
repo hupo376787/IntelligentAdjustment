@@ -78,8 +78,14 @@ public static class LocalizationService
             }
 
             string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json)
+            Dictionary<string, string> loaded =
+                JsonSerializer.Deserialize<Dictionary<string, string>>(json)
                 ?? new Dictionary<string, string>(StringComparer.Ordinal);
+
+            return loaded.ToDictionary(
+                pair => pair.Key,
+                pair => NormalizeEscapedLineBreaks(pair.Value),
+                StringComparer.Ordinal);
         }
         catch (JsonException)
         {
@@ -94,4 +100,10 @@ public static class LocalizationService
             return new Dictionary<string, string>(StringComparer.Ordinal);
         }
     }
+
+    private static string NormalizeEscapedLineBreaks(string value) =>
+        value
+            .Replace("\\r\\n", Environment.NewLine, StringComparison.Ordinal)
+            .Replace("\\n", Environment.NewLine, StringComparison.Ordinal)
+            .Replace("\\r", Environment.NewLine, StringComparison.Ordinal);
 }

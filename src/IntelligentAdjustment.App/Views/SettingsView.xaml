@@ -214,18 +214,22 @@
 
                             <TextBlock Text="{DynamicResource Loc.Settings.Horizontal}" VerticalAlignment="Center"/>
                             <ComboBox Grid.Column="1"
-                                      ItemsSource="{Binding HorizontalAlignmentOptions}"
-                                      DisplayMemberPath="Label"
-                                      SelectedIndex="{Binding PointNameHorizontalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                      SelectedIndex="{Binding PointNameHorizontalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Left}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Center}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Right}"/>
+                            </ComboBox>
 
                             <TextBlock Grid.Row="2"
                                        Text="{DynamicResource Loc.Settings.Vertical}"
                                        VerticalAlignment="Center"/>
                             <ComboBox Grid.Row="2"
                                       Grid.Column="1"
-                                      ItemsSource="{Binding VerticalAlignmentOptions}"
-                                      DisplayMemberPath="Label"
-                                      SelectedIndex="{Binding PointNameVerticalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                      SelectedIndex="{Binding PointNameVerticalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Top}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Center}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Settings.Bottom}"/>
+                            </ComboBox>
                         </Grid>
                     </GroupBox>
 

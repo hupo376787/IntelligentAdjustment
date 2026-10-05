@@ -19,7 +19,8 @@
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserAddRows="False"
-                  MinRowHeight="52"
+                  RowHeight="200"
+                  MinRowHeight="200"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.Resources>
@@ -35,8 +36,8 @@
             </DataGrid.Resources>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
-                    <Setter Property="Height" Value="Auto"/>
-                    <Setter Property="MinHeight" Value="52"/>
+                    <Setter Property="Height" Value="200"/>
+                    <Setter Property="MinHeight" Value="200"/>
                     <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
                     <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
                     <Style.Triggers>
