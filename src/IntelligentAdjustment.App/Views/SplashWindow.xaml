@@ -52,7 +52,7 @@
             <StackPanel Grid.Row="1"
                         VerticalAlignment="Center"
                         Margin="0,12,0,0">
-                <TextBlock Text="让高程平差更清晰、更可靠"
+                <TextBlock Text="From data to certainty."
                            FontSize="20"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource AppAccentBrush}"/>
