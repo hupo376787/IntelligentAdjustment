@@ -3,6 +3,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>IntelligentAdjustment</Product>
+    <Description>高程控制网平差与成果分析工具</Description>
+    <Copyright>© 2026 IntelligentAdjustment</Copyright>
     <ApplicationIcon />
   </PropertyGroup>
   <ItemGroup>

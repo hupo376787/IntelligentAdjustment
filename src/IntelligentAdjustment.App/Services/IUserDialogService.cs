@@ -23,4 +23,5 @@ public interface IUserDialogService
     bool Confirm(string message, string title);
     void Info(string message, string title = "IntelligentAdjustment");
     void Error(string message, string title = "IntelligentAdjustment");
+    void ShowAbout();
 }

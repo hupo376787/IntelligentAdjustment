@@ -10,6 +10,7 @@ using System.Windows.Shapes;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.ViewModels;
 using Microsoft.Win32;
+using HandyMessageBox = HandyControl.Controls.MessageBox;
 
 namespace IntelligentAdjustment.App.Views;
 
@@ -399,11 +400,13 @@ public partial class MapSketchView : UserControl
         };
         clear.Click += (_, _) =>
         {
-            MessageBoxResult result = MessageBox.Show(
+            MessageBoxResult result = HandyMessageBox.Show(
+                Window.GetWindow(this),
                 "确定清空全部草图点位坐标吗？\n\n只删除草图坐标，不会删除网络点和观测数据；此操作可以使用 Ctrl+Z 撤销。",
                 "清空网形草图",
                 MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+                MessageBoxImage.Question,
+                MessageBoxResult.No);
 
             if (result != MessageBoxResult.Yes)
             {

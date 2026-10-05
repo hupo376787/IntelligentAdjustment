@@ -1,7 +1,9 @@
 using System.IO;
 using IntelligentAdjustment.Application.Import;
+using IntelligentAdjustment.App.Views;
 using Microsoft.Win32;
 using System.Windows;
+using HandyMessageBox = HandyControl.Controls.MessageBox;
 
 namespace IntelligentAdjustment.App.Services;
 
@@ -140,11 +142,13 @@ public sealed class UserDialogService : IUserDialogService
 
     public UnsavedChangesChoice AskUnsavedChanges()
     {
-        MessageBoxResult result = MessageBox.Show(
+        MessageBoxResult result = HandyMessageBox.Show(
+            GetOwner(),
             "当前工程有尚未保存的修改。是否保存？",
             "IntelligentAdjustment",
             MessageBoxButton.YesNoCancel,
-            MessageBoxImage.Question);
+            MessageBoxImage.Question,
+            MessageBoxResult.Cancel);
 
         return result switch
         {
@@ -155,11 +159,32 @@ public sealed class UserDialogService : IUserDialogService
     }
 
     public bool Confirm(string message, string title) =>
-        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+        HandyMessageBox.Show(
+            GetOwner(),
+            message,
+            title,
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question,
+            MessageBoxResult.No) == MessageBoxResult.Yes;
 
     public void Info(string message, string title = "IntelligentAdjustment") =>
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+        HandyMessageBox.Info(GetOwner(), message, title);
 
     public void Error(string message, string title = "IntelligentAdjustment") =>
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        HandyMessageBox.Error(GetOwner(), message, title);
+
+    public void ShowAbout()
+    {
+        var window = new AboutWindow
+        {
+            Owner = GetOwner()
+        };
+        _ = window.ShowDialog();
+    }
+
+    private static System.Windows.Window? GetOwner() =>
+        Application.Current?.Windows
+            .OfType<System.Windows.Window>()
+            .FirstOrDefault(x => x.IsActive)
+        ?? Application.Current?.MainWindow;
 }

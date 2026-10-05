@@ -460,10 +460,7 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void About() =>
-        dialogs.Info(
-            "IntelligentAdjustment\n.NET 8 / WPF\n当前版本：WPF 主程序基础链路",
-            "关于");
+    private void About() => dialogs.ShowAbout();
 
     [RelayCommand]
     private async Task CloseProjectAsync()
