@@ -366,11 +366,12 @@ public sealed class ProjectRepository
         await connection.OpenAsync(cancellationToken);
         await using var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT Id, ObservationLineId, Sequence, FromPoint, ToPoint,
-                   HeightDifference, DistanceMeters, StationCount,
-                   ToPointRole, IsRoleManuallySpecified, Comment
-            FROM LevelDifference
-            ORDER BY ObservationLineId, Sequence, Id;
+            SELECT d.Id, d.ObservationLineId, d.Sequence, d.FromPoint, d.ToPoint,
+                   d.HeightDifference, d.DistanceMeters, d.StationCount,
+                   d.ToPointRole, d.IsRoleManuallySpecified, d.Comment
+            FROM LevelDifference AS d
+            INNER JOIN ObservationLine AS l ON l.Id = d.ObservationLineId
+            ORDER BY l.DisplayOrder, d.Sequence, d.Id;
             """;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -407,7 +408,7 @@ public sealed class ProjectRepository
                    r.MeasuredAtUtc, r.TemperatureCelsius, l.SourceFileName, r.Comment
             FROM RawObservation AS r
             INNER JOIN ObservationLine AS l ON l.Id = r.ObservationLineId
-            ORDER BY r.ObservationLineId, r.Sequence, r.Id;
+            ORDER BY l.DisplayOrder, r.Sequence, r.Id;
             """;
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
