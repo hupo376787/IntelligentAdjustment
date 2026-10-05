@@ -21,7 +21,7 @@ public interface IUserDialogService
     string? PickResultTextPath(string projectName);
     UnsavedChangesChoice AskUnsavedChanges();
     bool Confirm(string message, string title);
-    void Info(string message, string title = "IntelligentAdjustment");
-    void Error(string message, string title = "IntelligentAdjustment");
+    void Info(string message, string title = "Intelligent Adjustment");
+    void Error(string message, string title = "Intelligent Adjustment");
     void ShowAbout();
 }

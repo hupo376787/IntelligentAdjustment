@@ -63,6 +63,8 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
             OnPropertyChanged();
             OnPropertyChanged(nameof(HorizontalAlignmentOptions));
             OnPropertyChanged(nameof(VerticalAlignmentOptions));
+            OnPropertyChanged(nameof(PointNameHorizontalAlignmentIndex));
+            OnPropertyChanged(nameof(PointNameVerticalAlignmentIndex));
         }
     }
 
@@ -212,6 +214,61 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         }
     }
 
+    public int PointNameHorizontalAlignmentIndex
+    {
+        get => (int)document.Settings.PointNameHorizontalAlignment;
+        set
+        {
+            if (value is < 0 or > 2)
+            {
+                return;
+            }
+
+            var alignment = (PointNameHorizontalAlignmentMode)value;
+            if (alignment != document.Settings.PointNameHorizontalAlignment)
+            {
+                document.Settings = document.Settings with { PointNameHorizontalAlignment = alignment };
+            }
+
+            OnPropertyChanged();
+        }
+    }
+
+    public int PointNameVerticalAlignmentIndex
+    {
+        get => (int)document.Settings.PointNameVerticalAlignment;
+        set
+        {
+            if (value is < 0 or > 2)
+            {
+                return;
+            }
+
+            var alignment = (PointNameVerticalAlignmentMode)value;
+            if (alignment != document.Settings.PointNameVerticalAlignment)
+            {
+                document.Settings = document.Settings with { PointNameVerticalAlignment = alignment };
+            }
+
+            OnPropertyChanged();
+        }
+    }
+
+    public bool ConfirmUndoRedo
+    {
+        get => preferences.ConfirmUndoRedo;
+        set
+        {
+            if (value == preferences.ConfirmUndoRedo)
+            {
+                return;
+            }
+
+            preferences.SaveConfirmUndoRedo(value);
+            OnPropertyChanged();
+        }
+    }
+
     public bool OpenLastProjectOnStartup
     {
         get => preferences.OpenLastProjectOnStartup;
@@ -286,8 +343,11 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         OnPropertyChanged(nameof(HeightDecimals));
         OnPropertyChanged(nameof(PointNameHorizontalAlignment));
         OnPropertyChanged(nameof(PointNameVerticalAlignment));
+        OnPropertyChanged(nameof(PointNameHorizontalAlignmentIndex));
+        OnPropertyChanged(nameof(PointNameVerticalAlignmentIndex));
         OnPropertyChanged(nameof(OpenLastProjectOnStartup));
         OnPropertyChanged(nameof(UiFontSize));
+        OnPropertyChanged(nameof(ConfirmUndoRedo));
         OnPropertyChanged(nameof(SelectedLanguageCode));
         OnPropertyChanged(nameof(HorizontalAlignmentOptions));
         OnPropertyChanged(nameof(VerticalAlignmentOptions));

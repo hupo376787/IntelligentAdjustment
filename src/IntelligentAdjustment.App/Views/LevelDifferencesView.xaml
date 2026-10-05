@@ -49,6 +49,7 @@
                   SelectionMode="Extended"
                   SelectionUnit="FullRow"
                   GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="{DynamicResource AppBorderBrush}"
                   HeadersVisibility="All"
                   ClipboardCopyMode="ExcludeHeader"
                   PreviewKeyDown="DifferenceGrid_PreviewKeyDown"
@@ -100,7 +101,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{DynamicResource Loc.Diff.Line}" Binding="{Binding LineId}" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Diff.Line}" Binding="{Binding LineName}" Width="140" IsReadOnly="True"/>
                 <DataGridTextColumn Header="{DynamicResource Loc.Common.Remarks}" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>

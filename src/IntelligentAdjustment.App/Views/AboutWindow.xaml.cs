@@ -26,7 +26,7 @@ public partial class AboutWindow
         CopyrightText = assembly
             .GetCustomAttribute<AssemblyCopyrightAttribute>()?
             .Copyright
-            ?? $"© {DateTime.Now.Year} IntelligentAdjustment";
+            ?? $"© {DateTime.Now.Year} Intelligent Adjustment";
 
         DataContext = this;
     }

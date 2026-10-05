@@ -140,9 +140,14 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="{DynamicResource Loc.Settings.Startup}" Padding="18">
+                    <GroupBox Header="{DynamicResource Loc.Settings.Startup}" Padding="18" Margin="0,0,0,14">
                         <CheckBox Content="{DynamicResource Loc.Settings.OpenLast}"
                                   IsChecked="{Binding OpenLastProjectOnStartup}"/>
+                    </GroupBox>
+
+                    <GroupBox Header="{DynamicResource Loc.Settings.OperationConfirmation}" Padding="18">
+                        <CheckBox Content="{DynamicResource Loc.Settings.ConfirmUndoRedo}"
+                                  IsChecked="{Binding ConfirmUndoRedo}"/>
                     </GroupBox>
                 </StackPanel>
 
@@ -211,8 +216,7 @@
                             <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding HorizontalAlignmentOptions}"
                                       DisplayMemberPath="Label"
-                                      SelectedValuePath="Value"
-                                      SelectedValue="{Binding PointNameHorizontalAlignment, Mode=TwoWay}"/>
+                                      SelectedIndex="{Binding PointNameHorizontalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <TextBlock Grid.Row="2"
                                        Text="{DynamicResource Loc.Settings.Vertical}"
@@ -221,8 +225,7 @@
                                       Grid.Column="1"
                                       ItemsSource="{Binding VerticalAlignmentOptions}"
                                       DisplayMemberPath="Label"
-                                      SelectedValuePath="Value"
-                                      SelectedValue="{Binding PointNameVerticalAlignment, Mode=TwoWay}"/>
+                                      SelectedIndex="{Binding PointNameVerticalAlignmentIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                     </GroupBox>
 

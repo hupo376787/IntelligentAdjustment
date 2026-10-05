@@ -145,7 +145,7 @@ public sealed class UserDialogService : IUserDialogService
         MessageBoxResult result = HandyMessageBox.Show(
             GetOwner(),
             LocalizationService.Text("Loc.Dialog.Unsaved"),
-            "IntelligentAdjustment",
+            "Intelligent Adjustment",
             MessageBoxButton.YesNoCancel,
             MessageBoxImage.Question,
             MessageBoxResult.Cancel);
@@ -167,7 +167,7 @@ public sealed class UserDialogService : IUserDialogService
             MessageBoxImage.Question,
             MessageBoxResult.No) == MessageBoxResult.Yes;
 
-    public void Info(string message, string title = "IntelligentAdjustment") =>
+    public void Info(string message, string title = "Intelligent Adjustment") =>
         HandyMessageBox.Show(
             GetOwner(),
             message,
@@ -176,7 +176,7 @@ public sealed class UserDialogService : IUserDialogService
             MessageBoxImage.Information,
             MessageBoxResult.OK);
 
-    public void Error(string message, string title = "IntelligentAdjustment") =>
+    public void Error(string message, string title = "Intelligent Adjustment") =>
         HandyMessageBox.Show(
             GetOwner(),
             message,

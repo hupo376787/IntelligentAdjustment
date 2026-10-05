@@ -14,6 +14,9 @@ public partial class LevelDifferenceRowViewModel : ObservableObject, IDataErrorI
     private int sequence;
 
     [ObservableProperty]
+    private string lineName = string.Empty;
+
+    [ObservableProperty]
     private string fromPoint = string.Empty;
 
     [ObservableProperty]
@@ -50,11 +53,14 @@ public partial class LevelDifferenceRowViewModel : ObservableObject, IDataErrorI
         _ => string.Empty
     };
 
-    public static LevelDifferenceRowViewModel FromDomain(LevelDifference source) => new()
+    public static LevelDifferenceRowViewModel FromDomain(
+        LevelDifference source,
+        string? lineName = null) => new()
     {
         Id = source.Id,
         LineId = source.LineId,
         Sequence = source.Sequence,
+        LineName = lineName ?? source.LineId.ToString(),
         FromPoint = source.FromPoint,
         ToPoint = source.ToPoint,
         HeightDifference = source.HeightDifference,

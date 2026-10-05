@@ -40,7 +40,7 @@
 
         <Expander DockPanel.Dock="Bottom"
                   Header="{DynamicResource Loc.Raw.Profile}"
-                  IsExpanded="False"
+                  IsExpanded="True"
                   Expanded="ProfileExpander_Expanded"
                   Margin="0,8,0,0">
             <Border Height="230"

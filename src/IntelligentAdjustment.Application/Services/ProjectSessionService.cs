@@ -74,7 +74,7 @@ public sealed class ProjectSessionService
 
         if (!ProjectDatabase.HasProjectExtension(filePath))
         {
-            throw new InvalidOperationException("IntelligentAdjustment 项目文件必须使用 .iap 扩展名。");
+            throw new InvalidOperationException("Intelligent Adjustment 项目文件必须使用 .iap 扩展名。");
         }
 
         _database = new ProjectDatabase(filePath);

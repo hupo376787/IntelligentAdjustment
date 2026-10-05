@@ -86,7 +86,7 @@ public partial class MainWindowViewModel : ObservableObject
                     ? fallbackProjectName
                     : Document.ProjectName;
 
-            return $"{project}{(Document.IsDirty ? " *" : string.Empty)} - IntelligentAdjustment";
+            return $"{project}{(Document.IsDirty ? " *" : string.Empty)} - Intelligent Adjustment";
         }
     }
 

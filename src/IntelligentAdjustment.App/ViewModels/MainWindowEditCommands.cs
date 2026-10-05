@@ -11,6 +11,13 @@ public partial class MainWindowViewModel
     {
         if (Document.CanUndo)
         {
+            if (!ConfirmUndoRedo(
+                    LocalizationService.Text("Loc.UndoRedo.UndoAction"),
+                    LocalizationService.Text("Loc.UndoRedo.DocumentEdit")))
+            {
+                return;
+            }
+
             Document.Undo();
             StatusMessage = Document.CanUndo || databaseUndoStack.Count > 0
                 ? LocalizationService.Text("Loc.Status.UndoStep")
@@ -19,6 +26,13 @@ public partial class MainWindowViewModel
         }
 
         if (databaseUndoStack.Count == 0 || string.IsNullOrWhiteSpace(CurrentProjectPath))
+        {
+            return;
+        }
+
+        if (!ConfirmUndoRedo(
+                LocalizationService.Text("Loc.UndoRedo.UndoAction"),
+                LocalizationService.Text("Loc.UndoRedo.LineOperation")))
         {
             return;
         }
@@ -44,12 +58,26 @@ public partial class MainWindowViewModel
     {
         if (Document.CanRedo)
         {
+            if (!ConfirmUndoRedo(
+                    LocalizationService.Text("Loc.UndoRedo.RedoAction"),
+                    LocalizationService.Text("Loc.UndoRedo.DocumentEdit")))
+            {
+                return;
+            }
+
             Document.Redo();
             StatusMessage = LocalizationService.Text("Loc.Status.RedoStep");
             return;
         }
 
         if (databaseRedoStack.Count == 0 || string.IsNullOrWhiteSpace(CurrentProjectPath))
+        {
+            return;
+        }
+
+        if (!ConfirmUndoRedo(
+                LocalizationService.Text("Loc.UndoRedo.RedoAction"),
+                LocalizationService.Text("Loc.UndoRedo.LineOperation")))
         {
             return;
         }
@@ -69,4 +97,16 @@ public partial class MainWindowViewModel
     }
 
     private bool CanRedo() => Document.CanRedo || databaseRedoStack.Count > 0;
+
+    private bool ConfirmUndoRedo(string operation, string action)
+    {
+        if (!preferences.ConfirmUndoRedo)
+        {
+            return true;
+        }
+
+        return dialogs.Confirm(
+            LocalizationService.Format("Loc.UndoRedo.ConfirmMessage", operation, action),
+            LocalizationService.Text("Loc.UndoRedo.ConfirmTitle"));
+    }
 }

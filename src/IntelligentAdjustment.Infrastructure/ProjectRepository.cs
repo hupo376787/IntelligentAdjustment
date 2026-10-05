@@ -565,9 +565,26 @@ public sealed class ProjectRepository
         await connection.OpenAsync(cancellationToken);
         await using var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT PointName, Height, Comment
-            FROM KnownHeight
-            ORDER BY PointName COLLATE NOCASE;
+            SELECT kh.PointName, kh.Height, kh.Comment
+            FROM KnownHeight AS kh
+            ORDER BY
+                COALESCE((
+                    SELECT l.DisplayOrder
+                    FROM LevelDifference AS d
+                    INNER JOIN ObservationLine AS l ON l.Id = d.ObservationLineId
+                    WHERE d.FromPoint = kh.PointName OR d.ToPoint = kh.PointName
+                    ORDER BY l.DisplayOrder, d.Sequence, d.Id
+                    LIMIT 1
+                ), 2147483647),
+                COALESCE((
+                    SELECT d.Sequence
+                    FROM LevelDifference AS d
+                    INNER JOIN ObservationLine AS l ON l.Id = d.ObservationLineId
+                    WHERE d.FromPoint = kh.PointName OR d.ToPoint = kh.PointName
+                    ORDER BY l.DisplayOrder, d.Sequence, d.Id
+                    LIMIT 1
+                ), 2147483647),
+                kh.PointName COLLATE NOCASE;
             """;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -1113,10 +1130,27 @@ public sealed class ProjectRepository
         await using (var command = connection.CreateCommand())
         {
             command.CommandText = """
-                SELECT PointName, Height, StandardError, IsReferencePoint
-                FROM AdjustmentResultHeight
-                WHERE CalculationRunId = $runId
-                ORDER BY PointName COLLATE NOCASE;
+                SELECT arh.PointName, arh.Height, arh.StandardError, arh.IsReferencePoint
+                FROM AdjustmentResultHeight AS arh
+                WHERE arh.CalculationRunId = $runId
+                ORDER BY
+                    COALESCE((
+                        SELECT l.DisplayOrder
+                        FROM LevelDifference AS d
+                        INNER JOIN ObservationLine AS l ON l.Id = d.ObservationLineId
+                        WHERE d.FromPoint = arh.PointName OR d.ToPoint = arh.PointName
+                        ORDER BY l.DisplayOrder, d.Sequence, d.Id
+                        LIMIT 1
+                    ), 2147483647),
+                    COALESCE((
+                        SELECT d.Sequence
+                        FROM LevelDifference AS d
+                        INNER JOIN ObservationLine AS l ON l.Id = d.ObservationLineId
+                        WHERE d.FromPoint = arh.PointName OR d.ToPoint = arh.PointName
+                        ORDER BY l.DisplayOrder, d.Sequence, d.Id
+                        LIMIT 1
+                    ), 2147483647),
+                    arh.Id;
                 """;
             command.Parameters.AddWithValue("$runId", runId);
 

@@ -52,6 +52,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
                 Id = NextTemporaryId(),
                 LineId = lineId,
                 Sequence = sequence,
+                LineName = document.Lines.FirstOrDefault(x => x.Id == lineId)?.Name ?? lineId.ToString(),
                 StationCount = 1,
                 ToPointRole = PointRole.AdjustmentPoint
             });
@@ -215,6 +216,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
                     Id = NextTemporaryId(),
                     LineId = lineId,
                     Sequence = NextSequence(lineId),
+                    LineName = document.Lines.FirstOrDefault(x => x.Id == lineId)?.Name ?? lineId.ToString(),
                     FromPoint = row.FromPoint,
                     ToPoint = row.ToPoint,
                     HeightDifference = row.HeightDifference,

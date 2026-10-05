@@ -3,7 +3,7 @@
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Title="{DynamicResource Loc.About.Title}"
-           Icon="pack://application:,,,/IntelligentAdjustment.App;component/Assets/IntelligentAdjustment.ico"
+           Icon="pack://application:,,,/Assets/IntelligentAdjustment.ico"
            ShowTitle="True"
            ResizeMode="NoResize"
            ShowInTaskbar="False"
@@ -34,7 +34,7 @@
 
             <StackPanel Grid.Column="1"
                         VerticalAlignment="Center">
-                <TextBlock Text="IntelligentAdjustment"
+                <TextBlock Text="Intelligent Adjustment"
                            FontSize="28"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource AppPrimaryTextBrush}"/>

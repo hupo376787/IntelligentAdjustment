@@ -258,7 +258,7 @@ public partial class ProjectDocumentViewModel : ObservableObject
             LevelDifferences.Clear();
             foreach (var item in differences.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
             {
-                LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item));
+                LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item, ResolveLineName(item.LineId)));
             }
         });
     }
@@ -551,13 +551,17 @@ public partial class ProjectDocumentViewModel : ObservableObject
         LevelDifferences.Clear();
         foreach (var item in levelDifferences)
         {
-            LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item));
+            LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item, ResolveLineName(item.LineId)));
         }
 
         KnownHeights.Clear();
-        foreach (var item in knownHeights)
+        Dictionary<string, int> pointOrder = BuildObservationPointOrder(levelDifferences);
+        foreach (var entry in knownHeights
+                     .Select((item, originalIndex) => (item, originalIndex))
+                     .OrderBy(x => pointOrder.TryGetValue(x.item.PointName, out int order) ? order : int.MaxValue)
+                     .ThenBy(x => x.originalIndex))
         {
-            KnownHeights.Add(KnownHeightRowViewModel.FromDomain(item));
+            KnownHeights.Add(KnownHeightRowViewModel.FromDomain(entry.item));
         }
 
         RawObservations.Clear();
@@ -571,6 +575,31 @@ public partial class ProjectDocumentViewModel : ObservableObject
         {
             MapPoints.Add(NetworkMapPointRowViewModel.FromDomain(item));
         }
+    }
+
+    private string ResolveLineName(long lineId) =>
+        Lines.FirstOrDefault(x => x.Id == lineId)?.Name
+        ?? lineId.ToString();
+
+    private static Dictionary<string, int> BuildObservationPointOrder(
+        IReadOnlyList<LevelDifference> differences)
+    {
+        var order = new Dictionary<string, int>(StringComparer.Ordinal);
+        int index = 0;
+        foreach (LevelDifference difference in differences)
+        {
+            if (order.TryAdd(difference.FromPoint, index))
+            {
+                index++;
+            }
+
+            if (order.TryAdd(difference.ToPoint, index))
+            {
+                index++;
+            }
+        }
+
+        return order;
     }
 
     private void UnsubscribeRows<T>(IEnumerable<T> rows)

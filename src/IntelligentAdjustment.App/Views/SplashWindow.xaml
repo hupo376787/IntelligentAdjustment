@@ -38,7 +38,7 @@
                                 HorizontalAlignment="Left"
                                 Template="{StaticResource AppLogoTemplate}"/>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="IntelligentAdjustment"
+                    <TextBlock Text="Intelligent Adjustment"
                                FontSize="29"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource AppPrimaryTextBrush}"/>

@@ -6,9 +6,11 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Product>IntelligentAdjustment</Product>
+    <AssemblyName>Intelligent Adjustment</AssemblyName>
+    <AssemblyTitle>Intelligent Adjustment</AssemblyTitle>
+    <Product>Intelligent Adjustment</Product>
     <Description>高程控制网平差与成果分析工具</Description>
-    <Copyright>© 2026 IntelligentAdjustment</Copyright>
+    <Copyright>© 2026 Intelligent Adjustment</Copyright>
     <ApplicationIcon>Assets\IntelligentAdjustment.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>

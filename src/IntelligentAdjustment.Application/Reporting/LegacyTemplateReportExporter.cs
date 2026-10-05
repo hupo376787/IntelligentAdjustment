@@ -270,13 +270,17 @@ internal sealed class LegacyTemplateReportExporter
         int decimals = Math.Clamp(workspace.Settings.HeightDecimals, 0, 10);
         string format = "F" + decimals.ToString(CultureInfo.InvariantCulture);
 
+        Dictionary<string, int> pointOrder = BuildObservationPointOrder(workspace.LevelDifferences);
+
         List<string[]> rows = workspace.KnownHeights
-            .OrderBy(x => x.PointName, StringComparer.Ordinal)
+            .Select((item, originalIndex) => (item, originalIndex))
+            .OrderBy(x => pointOrder.TryGetValue(x.item.PointName, out int order) ? order : int.MaxValue)
+            .ThenBy(x => x.originalIndex)
             .Select(x => new[]
             {
-                x.PointName,
-                x.Height.ToString(format, CultureInfo.InvariantCulture),
-                x.Comment ?? string.Empty
+                x.item.PointName,
+                x.item.Height.ToString(format, CultureInfo.InvariantCulture),
+                x.item.Comment ?? string.Empty
             })
             .ToList();
 
@@ -353,7 +357,6 @@ internal sealed class LegacyTemplateReportExporter
             .ToDictionary(x => x.PointName, x => x.Comment, StringComparer.Ordinal);
 
         List<string[]> rows = (calculation?.AdjustmentResult.Heights ?? [])
-            .OrderBy(x => x.PointName, StringComparer.Ordinal)
             .Select(x => new[]
             {
                 x.PointName,
@@ -365,6 +368,27 @@ internal sealed class LegacyTemplateReportExporter
             .ToList();
 
         FillMarkerTable(document, "<R_Height/>", rows);
+    }
+
+    private static Dictionary<string, int> BuildObservationPointOrder(
+        IReadOnlyList<LevelDifference> differences)
+    {
+        var result = new Dictionary<string, int>(StringComparer.Ordinal);
+        int index = 0;
+        foreach (LevelDifference difference in differences)
+        {
+            if (result.TryAdd(difference.FromPoint, index))
+            {
+                index++;
+            }
+
+            if (result.TryAdd(difference.ToPoint, index))
+            {
+                index++;
+            }
+        }
+
+        return result;
     }
 
     private static void FillMarkerTable(

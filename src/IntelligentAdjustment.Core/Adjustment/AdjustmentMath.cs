@@ -8,7 +8,6 @@ internal static class AdjustmentMath
         observations
             .SelectMany(x => new[] { x.FromPoint, x.ToPoint })
             .Distinct(StringComparer.Ordinal)
-            .OrderBy(x => x, StringComparer.Ordinal)
             .ToArray();
 
     public static void ValidateObservations(IReadOnlyList<LevelDifference> observations)

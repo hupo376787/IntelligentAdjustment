@@ -20,7 +20,7 @@ public sealed class ResultTextExportService
             append: false,
             new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
 
-        writer.WriteLine("IntelligentAdjustment 高程控制网成果");
+        writer.WriteLine("Intelligent Adjustment 高程控制网成果");
         writer.WriteLine($"项目名称{delimiter}{workspace.Metadata.ProjectName}");
         writer.WriteLine($"项目编号{delimiter}{workspace.Metadata.ProjectNumber}");
         writer.WriteLine($"工程单位{delimiter}{workspace.Metadata.UnitName}");

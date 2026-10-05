@@ -33,6 +33,8 @@ public sealed class ApplicationPreferencesService
 
     public string LanguageCode => LocalizationService.NormalizeLanguageCode(state.LanguageCode);
 
+    public bool ConfirmUndoRedo => state.ConfirmUndoRedo ?? true;
+
     public void SaveDefaultProjectSettings(ProjectSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -98,6 +100,17 @@ public sealed class ApplicationPreferencesService
         Save();
     }
 
+    public void SaveConfirmUndoRedo(bool value)
+    {
+        if (ConfirmUndoRedo == value && state.ConfirmUndoRedo is not null)
+        {
+            return;
+        }
+
+        state = state with { ConfirmUndoRedo = value };
+        Save();
+    }
+
     private static ApplicationPreferences Load(string path)
     {
         try
@@ -154,5 +167,6 @@ public sealed class ApplicationPreferencesService
         string? LastProjectPath = null,
         bool OpenLastProjectOnStartup = false,
         double UiFontSize = 13.0,
-        string LanguageCode = LocalizationService.DefaultLanguageCode);
+        string LanguageCode = LocalizationService.DefaultLanguageCode,
+        bool? ConfirmUndoRedo = null);
 }
