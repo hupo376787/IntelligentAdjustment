@@ -235,26 +235,74 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
 
         document.ExecuteUndoable(() =>
         {
-            for (int i = 0; i < missing.Length; i++)
-            {
-                double angle = Math.PI * 2 * i / missing.Length - Math.PI / 2;
-                (double x, double y) = Snap(
-                    centerX + Math.Cos(angle) * radius,
-                    centerY + Math.Sin(angle) * radius);
-
-                document.MapPoints.Add(new NetworkMapPointRowViewModel
-                {
-                    PointName = missing[i],
-                    X = x,
-                    Y = y,
-                    UpdatedAtUtc = DateTimeOffset.UtcNow
-                });
-            }
+            AddCircularLayout(missing, centerX, centerY, radius);
         });
 
         StatusText = $"已自动布置 {missing.Length} 个未定位点，可继续手工拖动调整。";
         Refresh();
         FitRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void AutoLayoutAllPoints()
+    {
+        string[] names = NetworkPointNames.ToArray();
+        if (names.Length == 0)
+        {
+            StatusText = "当前没有可布局的网络点。";
+            return;
+        }
+
+        double centerX = document.MapPoints.Count == 0 ? 300 : document.MapPoints.Average(x => x.X);
+        double centerY = document.MapPoints.Count == 0 ? 220 : document.MapPoints.Average(x => x.Y);
+        double radius = Math.Max(160, 32 * Math.Max(6, names.Length));
+
+        document.ExecuteUndoable(() =>
+        {
+            document.MapPoints.Clear();
+            AddCircularLayout(names, centerX, centerY, radius);
+        });
+
+        StatusText = $"已按观测顺序重新自动布局全部 {names.Length} 个网络点。";
+        Refresh();
+        FitRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ClearAllCoordinates()
+    {
+        if (document.MapPoints.Count == 0)
+        {
+            StatusText = "当前没有已保存的草图坐标。";
+            return;
+        }
+
+        int count = document.MapPoints.Count;
+        document.ExecuteUndoable(document.MapPoints.Clear);
+        StatusText = $"已清空 {count} 个点的草图坐标；网络点和观测数据未删除。";
+        Refresh();
+        FitRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void AddCircularLayout(
+        IReadOnlyList<string> pointNames,
+        double centerX,
+        double centerY,
+        double radius)
+    {
+        for (int i = 0; i < pointNames.Count; i++)
+        {
+            double angle = Math.PI * 2 * i / pointNames.Count - Math.PI / 2;
+            (double x, double y) = Snap(
+                centerX + Math.Cos(angle) * radius,
+                centerY + Math.Sin(angle) * radius);
+
+            document.MapPoints.Add(new NetworkMapPointRowViewModel
+            {
+                PointName = pointNames[i],
+                X = x,
+                Y = y,
+                UpdatedAtUtc = DateTimeOffset.UtcNow
+            });
+        }
     }
 
     public void BeginRelocate(string pointName)
