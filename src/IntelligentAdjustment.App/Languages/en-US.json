@@ -411,5 +411,11 @@
   "Loc.Status.ExportedOut": "OUT exported: {0}",
   "Loc.Map.ShowRealDistance": "Show measured distance",
   "Loc.Map.DistanceLabel": "{0} m",
-  "Loc.Menu.ExportOut": "Export OUT"
+  "Loc.Menu.ExportOut": "Export OUT",
+  "Loc.Menu.UserManual": "User Manual",
+  "Loc.Help.ManualMissing": "The user manual PDF was not found. Make sure Intelligent_Adjustment_User_Manual.pdf exists in the application's Help folder.",
+  "Loc.Help.ManualOpenFailed": "Unable to open the user manual: {0}",
+  "Loc.Settings.RestoreSystemDefaults": "Restore system defaults",
+  "Loc.Settings.RestoreSystemDefaultsConfirm": "This restores factory defaults for the current project settings, application defaults, font size, language, startup option, and undo/redo confirmation. Continue?",
+  "Loc.Settings.RestoreSystemDefaultsDone": "System defaults were restored."
 }
