@@ -29,7 +29,7 @@
                         Command="{Binding AutoLayoutUnpositionedCommand}"
                         Padding="12,5"
                         Margin="0,0,6,0"/>
-                <Button Content="Fit to View"
+                <Button Content="适应视图"
                         Command="{Binding FitToViewCommand}"
                         Padding="12,5"
                         Margin="0,0,14,0"/>

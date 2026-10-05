@@ -7,7 +7,7 @@
                 Padding="12"
                 Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
-                <Button Content="Fit to View"
+                <Button Content="适应视图"
                         Command="{Binding FitToViewCommand}"
                         Padding="13,6"
                         Margin="0,0,8,0"/>

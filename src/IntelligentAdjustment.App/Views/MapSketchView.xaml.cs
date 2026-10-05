@@ -388,7 +388,7 @@ public partial class MapSketchView : UserControl
 
         var fit = new MenuItem
         {
-            Header = "Fit to View",
+            Header = "适应视图",
             IsEnabled = viewModel.Document.MapPoints.Count > 0
         };
         fit.Click += (_, _) => FitToView();
