@@ -15,10 +15,33 @@
         </Border>
 
         <TextBlock DockPanel.Dock="Top" Text="闭合/附合路线" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
-        <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+        <DataGrid ItemsSource="{Binding Items}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  MinRowHeight="38"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="#111827"/>
+                            <Setter Property="Background" Value="#DCEBFF"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
+                    <Setter Property="Foreground" Value="#111827"/>
+                    <Setter Property="Background" Value="White"/>
                     <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="#111827"/>
+                            <Setter Property="Background" Value="#DCEBFF"/>
+                        </Trigger>
                         <DataTrigger Binding="{Binding IsOverLimit}" Value="True">
                             <Setter Property="Foreground" Value="#C62828"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -29,7 +52,18 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="70"/>
                 <DataGridTextColumn Header="类型" Binding="{Binding RouteType, Converter={StaticResource RouteTypeConverter}}" Width="100"/>
-                <DataGridTextColumn Header="路线" Binding="{Binding PointPath}" Width="*"/>
+                <DataGridTemplateColumn Header="路线" Width="2*" MinWidth="260">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding PointPath}"
+                                       TextWrapping="Wrap"
+                                       TextTrimming="None"
+                                       Margin="4,6"
+                                       VerticalAlignment="Center"
+                                       ToolTip="{Binding PointPath}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="边数" Binding="{Binding EdgeCount}" Width="80"/>
                 <DataGridTextColumn Header="长度 [m]" Width="120">
                     <DataGridTextColumn.Binding>
