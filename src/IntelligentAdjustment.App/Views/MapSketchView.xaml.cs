@@ -422,6 +422,13 @@ public partial class MapSketchView : UserControl
         };
         exportPng.Click += (_, _) => ExportSketchPng();
 
+        var exportSvg = new MenuItem
+        {
+            Header = "导出草图矢量图（SVG）",
+            IsEnabled = viewModel.Document.MapPoints.Count > 0
+        };
+        exportSvg.Click += (_, _) => ExportSketchSvg();
+
         menu.Items.Add(autoMissing);
         menu.Items.Add(autoAll);
         menu.Items.Add(new Separator());
@@ -430,6 +437,7 @@ public partial class MapSketchView : UserControl
         menu.Items.Add(clear);
         menu.Items.Add(new Separator());
         menu.Items.Add(exportPng);
+        menu.Items.Add(exportSvg);
 
         OpenContextMenu(menu);
     }
@@ -493,6 +501,40 @@ public partial class MapSketchView : UserControl
             offset = originalOffset;
             Redraw();
         }
+    }
+
+    private void ExportSketchSvg()
+    {
+        if (viewModel is null)
+        {
+            return;
+        }
+
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出网形草图矢量图",
+            Filter = "SVG 矢量图 (*.svg)|*.svg",
+            DefaultExt = ".svg",
+            AddExtension = true,
+            FileName = "网形草图.svg"
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        NetworkDiagramScene scene = NetworkDiagramSceneBuilder.Build(
+            viewModel.Document,
+            Array.Empty<IntelligentAdjustment.Domain.NetworkRoute>(),
+            viewModel.Document.Settings);
+
+        NetworkDiagramExporter.ExportSvg(
+            scene,
+            dialog.FileName,
+            settings: viewModel.Document.Settings);
+
+        viewModel.StatusText = $"已导出网形草图矢量图：{dialog.FileName}";
     }
 
     private string? HitTestNode(Point screen)
