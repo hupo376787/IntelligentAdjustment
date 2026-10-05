@@ -48,11 +48,17 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     {
         string? selected = SelectedPointName;
 
+        var lineOrder = document.Lines.ToDictionary(
+            x => x.Id,
+            x => x.DisplayOrder);
+
         var names = document.LevelDifferences
+            .OrderBy(x => lineOrder.TryGetValue(x.LineId, out int order) ? order : int.MaxValue)
+            .ThenBy(x => x.Sequence)
+            .ThenBy(x => x.Id)
             .SelectMany(x => new[] { x.FromPoint.Trim(), x.ToPoint.Trim() })
             .Where(x => x.Length > 0)
             .Distinct(StringComparer.Ordinal)
-            .OrderBy(x => x, StringComparer.Ordinal)
             .ToArray();
 
         NetworkPointNames.Clear();
