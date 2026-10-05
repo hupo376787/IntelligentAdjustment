@@ -168,10 +168,22 @@ public sealed class UserDialogService : IUserDialogService
             MessageBoxResult.No) == MessageBoxResult.Yes;
 
     public void Info(string message, string title = "IntelligentAdjustment") =>
-        HandyMessageBox.Info(GetOwner(), message, title);
+        HandyMessageBox.Show(
+            GetOwner(),
+            message,
+            title,
+            MessageBoxButton.OK,
+            MessageBoxImage.Information,
+            MessageBoxResult.OK);
 
     public void Error(string message, string title = "IntelligentAdjustment") =>
-        HandyMessageBox.Error(GetOwner(), message, title);
+        HandyMessageBox.Show(
+            GetOwner(),
+            message,
+            title,
+            MessageBoxButton.OK,
+            MessageBoxImage.Error,
+            MessageBoxResult.OK);
 
     public void ShowAbout()
     {
@@ -183,8 +195,8 @@ public sealed class UserDialogService : IUserDialogService
     }
 
     private static System.Windows.Window? GetOwner() =>
-        Application.Current?.Windows
+        System.Windows.Application.Current?.Windows
             .OfType<System.Windows.Window>()
             .FirstOrDefault(x => x.IsActive)
-        ?? Application.Current?.MainWindow;
+        ?? System.Windows.Application.Current?.MainWindow;
 }
