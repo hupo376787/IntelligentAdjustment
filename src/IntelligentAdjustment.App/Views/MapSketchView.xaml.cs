@@ -1,12 +1,15 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.ViewModels;
+using Microsoft.Win32;
 
 namespace IntelligentAdjustment.App.Views;
 
@@ -328,6 +331,8 @@ public partial class MapSketchView : UserControl
         string? hit = HitTestNode(screen);
         if (hit is null)
         {
+            ShowCanvasContextMenu();
+            e.Handled = true;
             return;
         }
 
@@ -353,9 +358,141 @@ public partial class MapSketchView : UserControl
         menu.Items.Add(relocate);
         menu.Items.Add(new Separator());
         menu.Items.Add(delete);
+        OpenContextMenu(menu);
+        e.Handled = true;
+    }
+
+    private void ShowCanvasContextMenu()
+    {
+        if (viewModel is null)
+        {
+            return;
+        }
+
+        var menu = new ContextMenu();
+
+        var autoMissing = new MenuItem
+        {
+            Header = "自动布局未定位点",
+            IsEnabled = viewModel.UnpositionedPointNames.Count > 0
+        };
+        autoMissing.Click += (_, _) => viewModel.AutoLayoutUnpositionedCommand.Execute(null);
+
+        var autoAll = new MenuItem
+        {
+            Header = "重新自动布局全部点",
+            IsEnabled = viewModel.NetworkPointNames.Count > 0
+        };
+        autoAll.Click += (_, _) => viewModel.AutoLayoutAllPoints();
+
+        var fit = new MenuItem
+        {
+            Header = "Fit to View",
+            IsEnabled = viewModel.Document.MapPoints.Count > 0
+        };
+        fit.Click += (_, _) => FitToView();
+
+        var clear = new MenuItem
+        {
+            Header = "清空全部点位坐标",
+            IsEnabled = viewModel.Document.MapPoints.Count > 0
+        };
+        clear.Click += (_, _) =>
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "确定清空全部草图点位坐标吗？\n\n只删除草图坐标，不会删除网络点和观测数据；此操作可以使用 Ctrl+Z 撤销。",
+                "清空网形草图",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            selectedPoints.Clear();
+            viewModel.ClearAllCoordinates();
+            Redraw();
+        };
+
+        var exportPng = new MenuItem
+        {
+            Header = "导出草图图片（PNG）",
+            IsEnabled = viewModel.Document.MapPoints.Count > 0
+        };
+        exportPng.Click += (_, _) => ExportSketchPng();
+
+        menu.Items.Add(autoMissing);
+        menu.Items.Add(autoAll);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(fit);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(clear);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(exportPng);
+
+        OpenContextMenu(menu);
+    }
+
+    private void OpenContextMenu(ContextMenu menu)
+    {
         menu.PlacementTarget = SketchCanvas;
         menu.IsOpen = true;
-        e.Handled = true;
+    }
+
+    private void ExportSketchPng()
+    {
+        if (viewModel is null ||
+            SketchCanvas.ActualWidth <= 1 ||
+            SketchCanvas.ActualHeight <= 1)
+        {
+            return;
+        }
+
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出网形草图图片",
+            Filter = "PNG 图像 (*.png)|*.png",
+            DefaultExt = ".png",
+            AddExtension = true,
+            FileName = "网形草图.png"
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        double originalScale = scale;
+        Vector originalOffset = offset;
+        try
+        {
+            FitToView();
+            SketchCanvas.UpdateLayout();
+
+            int width = Math.Max(1, (int)Math.Ceiling(SketchCanvas.ActualWidth));
+            int height = Math.Max(1, (int)Math.Ceiling(SketchCanvas.ActualHeight));
+            var bitmap = new RenderTargetBitmap(
+                width,
+                height,
+                96,
+                96,
+                PixelFormats.Pbgra32);
+            bitmap.Render(SketchCanvas);
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+            using FileStream stream = File.Create(dialog.FileName);
+            encoder.Save(stream);
+            viewModel.StatusText = $"已导出网形草图：{dialog.FileName}";
+        }
+        finally
+        {
+            scale = originalScale;
+            offset = originalOffset;
+            Redraw();
+        }
     }
 
     private string? HitTestNode(Point screen)
