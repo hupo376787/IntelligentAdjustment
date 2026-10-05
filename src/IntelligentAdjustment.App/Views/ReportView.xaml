@@ -37,17 +37,6 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="980" HorizontalAlignment="Left">
-                <Border Background="{DynamicResource AppSurfaceAltBrush}"
-                        BorderBrush="{DynamicResource AppBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12"
-                        Margin="0,0,0,12">
-                    <TextBlock TextWrapping="Wrap"
-                               Foreground="{DynamicResource AppSecondaryTextBrush}"
-                               Text="{DynamicResource Loc.Report.Description}"/>
-                </Border>
-
                 <Expander Header="{DynamicResource Loc.Report.Section1}" IsExpanded="True" Margin="0,0,0,8">
                     <StackPanel Margin="14,10,4,12">
                         <TextBlock Text="{DynamicResource Loc.Report.Section11}" FontWeight="SemiBold" Margin="0,0,0,6"/>

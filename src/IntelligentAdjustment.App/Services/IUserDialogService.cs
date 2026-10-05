@@ -14,6 +14,7 @@ public interface IUserDialogService
     string? PickNewProjectPath();
     string? PickProjectToOpen();
     IReadOnlyList<string> PickOutFiles();
+    string? PickOutExportPath(string projectName);
     IReadOnlyList<string> PickInstrumentFiles(InstrumentImporterDescriptor descriptor);
     string? PickSaveAsProjectPath(string? currentProjectPath);
     string? PickReportDocxPath(string projectName);

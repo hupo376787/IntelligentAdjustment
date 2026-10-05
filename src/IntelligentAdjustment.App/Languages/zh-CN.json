@@ -402,5 +402,11 @@
   "Loc.UndoRedo.LineOperation": "最近一次线路数据库操作",
   "Loc.UndoRedo.ConfirmMessage": "即将{0}：{1}。\n\n是否继续？",
   "Loc.Toolbar.Settings": "设置",
-  "Loc.Tooltip.Settings": "打开工程设置"
+  "Loc.Tooltip.Settings": "打开工程设置",
+  "Loc.Toolbar.ExportOut": "导出 OUT",
+  "Loc.Tooltip.ExportOut": "将当前高差观测和已知高程导出为 OUT",
+  "Loc.Dialog.ExportOutTitle": "导出高差 OUT",
+  "Loc.Dialog.OutSaveFilter": "高差 OUT (*.out)|*.out",
+  "Loc.Message.NoDifferencesToExport": "当前工程没有高差观测可导出。",
+  "Loc.Status.ExportedOut": "OUT 已导出：{0}"
 }

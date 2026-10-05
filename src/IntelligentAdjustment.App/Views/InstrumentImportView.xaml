@@ -66,17 +66,6 @@
                 </StackPanel>
             </GroupBox>
 
-            <Border Margin="0,16,0,0"
-                    Padding="12"
-                    CornerRadius="6"
-                    Background="{DynamicResource AppSurfaceAltBrush}"
-                    BorderBrush="{DynamicResource AppBorderBrush}"
-                    BorderThickness="1">
-                <TextBlock TextWrapping="Wrap"
-                           Foreground="{DynamicResource AppSecondaryTextBrush}">
-                    已按原程序随附 Sample 文件与使用手册接入 Leica DNA（GSI/MDT）、GeoMax ZDL（MDT）、Sokkia SDL（CSV）、Topcon DL（DAT）、Trimble DiNi（DAT）、Lev_Net（OUT/MDT）以及通用高差 OUT。多选文件时默认一文件一线路，并保留原始文件字节与 SHA-256。
-                </TextBlock>
-            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -402,5 +402,11 @@
   "Loc.UndoRedo.LineOperation": "the most recent line database operation",
   "Loc.UndoRedo.ConfirmMessage": "About to {0}: {1}.\n\nContinue?",
   "Loc.Toolbar.Settings": "Settings",
-  "Loc.Tooltip.Settings": "Open project settings"
+  "Loc.Tooltip.Settings": "Open project settings",
+  "Loc.Toolbar.ExportOut": "Export OUT",
+  "Loc.Tooltip.ExportOut": "Export current height differences and known elevations as OUT",
+  "Loc.Dialog.ExportOutTitle": "Export height-difference OUT",
+  "Loc.Dialog.OutSaveFilter": "Height-difference OUT (*.out)|*.out",
+  "Loc.Message.NoDifferencesToExport": "The current project has no height-difference observations to export.",
+  "Loc.Status.ExportedOut": "OUT exported: {0}"
 }

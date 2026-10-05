@@ -46,6 +46,20 @@ public sealed class UserDialogService : IUserDialogService
         return dialog.ShowDialog() == true ? dialog.FileNames : Array.Empty<string>();
     }
 
+    public string? PickOutExportPath(string projectName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = LocalizationService.Text("Loc.Dialog.ExportOutTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.OutSaveFilter"),
+            DefaultExt = ".out",
+            AddExtension = true,
+            FileName = $"{SanitizeFileName(projectName)}.out"
+        };
+
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
     public IReadOnlyList<string> PickInstrumentFiles(InstrumentImporterDescriptor descriptor)
     {
         ArgumentNullException.ThrowIfNull(descriptor);

@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.Views;
 using IntelligentAdjustment.Application.Models;
+using IntelligentAdjustment.Application.Export;
 using IntelligentAdjustment.Application.Services;
 using IntelligentAdjustment.Core.Routes;
 using IntelligentAdjustment.Domain;
@@ -276,6 +277,54 @@ public partial class MainWindowViewModel : ObservableObject
             LoadWorkspace(workspace, CurrentProjectPath!, resetTabs: false);
             OpenLevelDifferences();
             StatusMessage = LocalizationService.Format("Loc.Status.ImportedOut", files.Count);
+        });
+    }
+
+    [RelayCommand]
+    private async Task ExportOutAsync()
+    {
+        if (!HasProject)
+        {
+            dialogs.Info(LocalizationService.Text("Loc.Message.ProjectRequired"));
+            return;
+        }
+
+        if (Document.LevelDifferences.Count == 0)
+        {
+            dialogs.Info(LocalizationService.Text("Loc.Message.NoDifferencesToExport"));
+            return;
+        }
+
+        if (!ValidateDocument())
+        {
+            return;
+        }
+
+        string projectName = string.IsNullOrWhiteSpace(Document.ProjectName)
+            ? Path.GetFileNameWithoutExtension(CurrentProjectPath)
+                ?? LocalizationService.Text("Loc.Project.Unnamed")
+            : Document.ProjectName;
+
+        string? target = dialogs.PickOutExportPath(projectName);
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            return;
+        }
+
+        LevelDifference[] differences = Document.LevelDifferences
+            .Select(x => x.ToDomain())
+            .ToArray();
+        KnownHeight[] knownHeights = Document.KnownHeights
+            .Select(x => x.ToDomain())
+            .ToArray();
+
+        await RunBusyAsync(async () =>
+        {
+            var exporter = new OutFileExporter();
+            await exporter.ExportAsync(target, differences, knownHeights);
+            StatusMessage = LocalizationService.Format(
+                "Loc.Status.ExportedOut",
+                Path.GetFileName(target));
         });
     }
 
