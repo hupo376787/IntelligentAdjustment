@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
 using IntelligentAdjustment.App.Services;
@@ -16,6 +17,7 @@ public partial class App : System.Windows.Application
         var preferences = new ApplicationPreferencesService();
         UiAppearanceService.ApplyFontSize(preferences.UiFontSize);
 
+        var splashDuration = Stopwatch.StartNew();
         var splash = new SplashWindow();
         splash.Show();
         splash.UpdateProgress(new StartupProgress(8, "正在加载界面资源…"));
@@ -32,10 +34,19 @@ public partial class App : System.Windows.Application
         splash.UpdateProgress(new StartupProgress(94, "正在完成界面布局…"));
         await Dispatcher.Yield(DispatcherPriority.Loaded);
 
-        mainWindow.Show();
-        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        // Keep the splash visible for at least three seconds. Slow startups are
+        // not delayed further; fast startups only wait for the remaining time.
+        TimeSpan minimumSplashDuration = TimeSpan.FromSeconds(3);
+        TimeSpan remaining = minimumSplashDuration - splashDuration.Elapsed;
+        if (remaining > TimeSpan.Zero)
+        {
+            splash.UpdateProgress(new StartupProgress(98, "正在准备主界面…"));
+            await Task.Delay(remaining);
+        }
 
         splash.UpdateProgress(new StartupProgress(100, "启动完成"));
+        mainWindow.Show();
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
         splash.Close();
     }
 }
