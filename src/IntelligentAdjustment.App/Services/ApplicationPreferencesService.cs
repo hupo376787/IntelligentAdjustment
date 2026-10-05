@@ -52,14 +52,23 @@ public sealed class ApplicationPreferencesService
         Save();
     }
 
-    public void SetOpenLastProjectOnStartup(bool value)
+    public void SetOpenLastProjectOnStartup(bool value, string? currentProjectPath = null)
     {
-        if (state.OpenLastProjectOnStartup == value)
+        string? rememberedPath = string.IsNullOrWhiteSpace(currentProjectPath)
+            ? state.LastProjectPath
+            : Path.GetFullPath(currentProjectPath);
+
+        if (state.OpenLastProjectOnStartup == value
+            && string.Equals(state.LastProjectPath, rememberedPath, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        state = state with { OpenLastProjectOnStartup = value };
+        state = state with
+        {
+            OpenLastProjectOnStartup = value,
+            LastProjectPath = rememberedPath
+        };
         Save();
     }
 

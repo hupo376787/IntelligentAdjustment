@@ -11,16 +11,19 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
     private readonly ProjectDocumentViewModel document;
     private readonly ApplicationPreferencesService preferences;
     private readonly IUserDialogService dialogs;
+    private readonly Func<string?> currentProjectPathProvider;
 
     public SettingsTabViewModel(
         ProjectDocumentViewModel document,
         ApplicationPreferencesService preferences,
-        IUserDialogService dialogs)
+        IUserDialogService dialogs,
+        Func<string?> currentProjectPathProvider)
         : base("settings", "工程设置")
     {
         this.document = document;
         this.preferences = preferences;
         this.dialogs = dialogs;
+        this.currentProjectPathProvider = currentProjectPathProvider;
         document.PropertyChanged += Document_PropertyChanged;
     }
 
@@ -194,7 +197,9 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
                 return;
             }
 
-            preferences.SetOpenLastProjectOnStartup(value);
+            preferences.SetOpenLastProjectOnStartup(
+                value,
+                value ? currentProjectPathProvider() : null);
             OnPropertyChanged();
         }
     }
