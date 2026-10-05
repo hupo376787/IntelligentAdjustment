@@ -19,7 +19,6 @@
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserAddRows="False"
-                  RowHeight="Auto"
                   MinRowHeight="52"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
