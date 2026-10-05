@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.ViewModels;
 
 namespace IntelligentAdjustment.App.Views;
@@ -51,6 +52,7 @@ public partial class MapSketchView : UserControl
         viewModel.RedrawRequested += ViewModel_RedrawRequested;
         viewModel.Document.MapPoints.CollectionChanged += MapPoints_CollectionChanged;
         viewModel.Document.LevelDifferences.CollectionChanged += LevelDifferences_CollectionChanged;
+        viewModel.Document.PropertyChanged += Document_PropertyChanged;
 
         foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
         {
@@ -69,6 +71,7 @@ public partial class MapSketchView : UserControl
         viewModel.RedrawRequested -= ViewModel_RedrawRequested;
         viewModel.Document.MapPoints.CollectionChanged -= MapPoints_CollectionChanged;
         viewModel.Document.LevelDifferences.CollectionChanged -= LevelDifferences_CollectionChanged;
+        viewModel.Document.PropertyChanged -= Document_PropertyChanged;
 
         foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
         {
@@ -98,6 +101,14 @@ public partial class MapSketchView : UserControl
     }
 
     private void LevelDifferences_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => Redraw();
+
+    private void Document_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectDocumentViewModel.Settings))
+        {
+            Redraw();
+        }
+    }
 
     private void MapPoint_PropertyChanged(object? sender, PropertyChangedEventArgs e) => Redraw();
 
@@ -586,8 +597,16 @@ public partial class MapSketchView : UserControl
                 Background = new SolidColorBrush(Color.FromArgb(210, 255, 255, 255)),
                 IsHitTestVisible = false
             };
-            Canvas.SetLeft(label, screen.X + 9);
-            Canvas.SetTop(label, screen.Y - 17);
+            label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Point labelPosition = PointLabelLayout.GetTopLeft(
+                screen,
+                label.DesiredSize.Width,
+                label.DesiredSize.Height,
+                viewModel.Document.Settings.PointNameHorizontalAlignment,
+                viewModel.Document.Settings.PointNameVerticalAlignment,
+                10);
+            Canvas.SetLeft(label, labelPosition.X);
+            Canvas.SetTop(label, labelPosition.Y);
             SketchCanvas.Children.Add(label);
         }
     }

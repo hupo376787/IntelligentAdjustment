@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
 using IntelligentAdjustment.App.ViewModels;
+using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.App.Services;
 
@@ -14,10 +15,12 @@ public static class NetworkDiagramExporter
         NetworkDiagramScene scene,
         string filePath,
         int width = 1800,
-        int height = 1200)
+        int height = 1200,
+        ProjectSettings? settings = null)
     {
         ArgumentNullException.ThrowIfNull(scene);
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        settings ??= new ProjectSettings();
 
         (double scale, Vector offset) = CalculateFit(scene, width, height, 90);
         var visual = new DrawingVisual();
@@ -25,7 +28,7 @@ public static class NetworkDiagramExporter
         using (DrawingContext dc = visual.RenderOpen())
         {
             dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
-            DrawScene(dc, scene, scale, offset, height);
+            DrawScene(dc, scene, scale, offset, height, settings);
         }
 
         var bitmap = new RenderTargetBitmap(
@@ -47,10 +50,12 @@ public static class NetworkDiagramExporter
         NetworkDiagramScene scene,
         string filePath,
         int width = 1800,
-        int height = 1200)
+        int height = 1200,
+        ProjectSettings? settings = null)
     {
         ArgumentNullException.ThrowIfNull(scene);
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        settings ??= new ProjectSettings();
 
         (double scale, Vector offset) = CalculateFit(scene, width, height, 90);
         var positions = scene.Nodes.ToDictionary(
@@ -58,13 +63,13 @@ public static class NetworkDiagramExporter
             x => Transform(x.Position, scale, offset),
             StringComparer.Ordinal);
 
-        var settings = new XmlWriterSettings
+        var xmlSettings = new XmlWriterSettings
         {
             Indent = true,
             Encoding = new System.Text.UTF8Encoding(false)
         };
 
-        using XmlWriter writer = XmlWriter.Create(filePath, settings);
+        using XmlWriter writer = XmlWriter.Create(filePath, xmlSettings);
         writer.WriteStartDocument();
         writer.WriteStartElement("svg", "http://www.w3.org/2000/svg");
         writer.WriteAttributeString("width", width.ToString(CultureInfo.InvariantCulture));
@@ -160,8 +165,12 @@ public static class NetworkDiagramExporter
             }
 
             writer.WriteStartElement("text");
-            WriteDoubleAttribute(writer, "x", p.X + 12);
-            WriteDoubleAttribute(writer, "y", p.Y - 12);
+            WriteSvgLabelPosition(
+                writer,
+                p,
+                settings.PointNameHorizontalAlignment,
+                settings.PointNameVerticalAlignment,
+                12);
             writer.WriteAttributeString("font-family", "Segoe UI,Arial,sans-serif");
             writer.WriteAttributeString("font-size", "16");
             writer.WriteAttributeString("fill", "#111827");
@@ -199,7 +208,8 @@ public static class NetworkDiagramExporter
         NetworkDiagramScene scene,
         double scale,
         Vector offset,
-        double height)
+        double height,
+        ProjectSettings settings)
     {
         var positions = scene.Nodes.ToDictionary(
             x => x.PointName,
@@ -282,7 +292,14 @@ public static class NetworkDiagramExporter
                 Brushes.Black,
                 1.0);
 
-            dc.DrawText(text, new Point(p.X + 12, p.Y - 24));
+            Point labelPosition = PointLabelLayout.GetTopLeft(
+                p,
+                text.Width,
+                text.Height,
+                settings.PointNameHorizontalAlignment,
+                settings.PointNameVerticalAlignment,
+                12);
+            dc.DrawText(text, labelPosition);
         }
 
         var legend = new FormattedText(
@@ -346,6 +363,49 @@ public static class NetworkDiagramExporter
 
     private static Point Transform(Point world, double scale, Vector offset) =>
         new(world.X * scale + offset.X, world.Y * scale + offset.Y);
+
+    private static void WriteSvgLabelPosition(
+        XmlWriter writer,
+        Point point,
+        PointNameHorizontalAlignmentMode horizontal,
+        PointNameVerticalAlignmentMode vertical,
+        double gap)
+    {
+        double x = horizontal switch
+        {
+            PointNameHorizontalAlignmentMode.Left => point.X - gap,
+            PointNameHorizontalAlignmentMode.Center => point.X,
+            PointNameHorizontalAlignmentMode.Right => point.X + gap,
+            _ => point.X
+        };
+        string anchor = horizontal switch
+        {
+            PointNameHorizontalAlignmentMode.Left => "end",
+            PointNameHorizontalAlignmentMode.Center => "middle",
+            PointNameHorizontalAlignmentMode.Right => "start",
+            _ => "middle"
+        };
+
+        double y = vertical switch
+        {
+            PointNameVerticalAlignmentMode.Top => point.Y - gap,
+            PointNameVerticalAlignmentMode.Center => point.Y,
+            PointNameVerticalAlignmentMode.Bottom => point.Y + gap,
+            _ => point.Y - gap
+        };
+        string baseline = vertical switch
+        {
+            PointNameVerticalAlignmentMode.Top => "auto",
+            PointNameVerticalAlignmentMode.Center => "middle",
+            PointNameVerticalAlignmentMode.Bottom => "hanging",
+            _ => "auto"
+        };
+
+        WriteDoubleAttribute(writer, "x", x);
+        WriteDoubleAttribute(writer, "y", y);
+        writer.WriteAttributeString("text-anchor", anchor);
+        writer.WriteAttributeString("dominant-baseline", baseline);
+    }
 
     private static void WriteDoubleAttribute(XmlWriter writer, string name, double value) =>
         writer.WriteAttributeString(name, value.ToString("F3", CultureInfo.InvariantCulture));

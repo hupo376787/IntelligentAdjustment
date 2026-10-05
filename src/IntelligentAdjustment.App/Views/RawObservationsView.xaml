@@ -78,31 +78,87 @@
                                     Binding="{Binding ToPoint, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="105"/>
 
-                <DataGridTextColumn Header="B1"
-                                    Binding="{Binding B1, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="B2"
-                                    Binding="{Binding B2, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="F1"
-                                    Binding="{Binding F1, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="F2"
-                                    Binding="{Binding F2, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
+                <DataGridTextColumn Header="B1" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="B1" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="B2" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="B2" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="F1" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="F1" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="F2" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="F2" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
 
-                <DataGridTextColumn Header="后距1"
-                                    Binding="{Binding DistanceB1, UpdateSourceTrigger=LostFocus, StringFormat=F4, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="后距2"
-                                    Binding="{Binding DistanceB2, UpdateSourceTrigger=LostFocus, StringFormat=F4, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="前距1"
-                                    Binding="{Binding DistanceF1, UpdateSourceTrigger=LostFocus, StringFormat=F4, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
-                <DataGridTextColumn Header="前距2"
-                                    Binding="{Binding DistanceF2, UpdateSourceTrigger=LostFocus, StringFormat=F4, ValidatesOnDataErrors=True}"
-                                    Width="90"/>
+                <DataGridTextColumn Header="后距1" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="DistanceB1" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="后距2" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="DistanceB2" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="前距1" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="DistanceF1" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="前距2" Width="90">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="DistanceF2" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
 
                 <DataGridTemplateColumn Header="测量模式" Width="110">
                     <DataGridTemplateColumn.CellTemplate>

@@ -30,7 +30,10 @@ public sealed class ProjectDatabaseGoldenTests
                            AutoMergeTransitionPoints,
                            AutoUpdateLevelDifferences,
                            DistanceDecimals,
-                           HeightDecimals
+                           HeightDecimals,
+                           PointNameHorizontalAlignment,
+                           PointNameVerticalAlignment,
+                           OpenLastProjectOnStartup
                     FROM ProjectSettings WHERE Id = 1;
                     """;
 
@@ -44,6 +47,9 @@ public sealed class ProjectDatabaseGoldenTests
                 Assert.Equal(1L, reader.GetInt64(5));
                 Assert.Equal(4L, reader.GetInt64(6));
                 Assert.Equal(5L, reader.GetInt64(7));
+                Assert.Equal(1L, reader.GetInt64(8));
+                Assert.Equal(0L, reader.GetInt64(9));
+                Assert.Equal(0L, reader.GetInt64(10));
             }
         }
         finally

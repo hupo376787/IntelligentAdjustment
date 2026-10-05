@@ -4,7 +4,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24" Width="760" HorizontalAlignment="Left">
             <TextBlock Text="工程设置" FontSize="24" FontWeight="SemiBold"/>
-            <TextBlock Text="这些参数跟随当前 .iap 工程保存。" Foreground="#6B7280" Margin="0,4,0,20"/>
+            <TextBlock Text="这些参数跟随当前 .iap 工程保存；也可以保存为应用默认值供新工程使用。" Foreground="#6B7280" Margin="0,4,0,20"/>
 
             <GroupBox Header="闭合差限差" Padding="16" Margin="0,0,0,14">
                 <StackPanel>
@@ -35,7 +35,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="显示精度" Padding="16">
+            <GroupBox Header="显示精度" Padding="16" Margin="0,0,0,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -48,6 +48,52 @@
                     <TextBlock Grid.Column="2" Text="高程小数位" Margin="24,0,0,0" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="3" Text="{Binding HeightDecimals, UpdateSourceTrigger=LostFocus}"/>
                 </Grid>
+            </GroupBox>
+
+            <GroupBox Header="网图点名位置" Padding="16" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="180"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="水平方向" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding HorizontalAlignmentOptions}"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding PointNameHorizontalAlignment, Mode=TwoWay}"/>
+                    <TextBlock Grid.Column="2" Text="垂直方向" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="3"
+                              ItemsSource="{Binding VerticalAlignmentOptions}"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding PointNameVerticalAlignment, Mode=TwoWay}"/>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="启动" Padding="16" Margin="0,0,0,14">
+                <CheckBox Content="启动 IntelligentAdjustment 时自动打开上次工程"
+                          IsChecked="{Binding OpenLastProjectOnStartup}"/>
+            </GroupBox>
+
+            <GroupBox Header="应用默认设置" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="应用默认设置保存在当前 Windows 用户配置中；新建 .iap 工程时自动套用。"
+                               Foreground="#6B7280"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="保存当前设置为应用默认值"
+                                Command="{Binding SaveAsApplicationDefaultsCommand}"
+                                Padding="14,6"
+                                Margin="0,0,8,0"/>
+                        <Button Content="应用默认值到当前工程"
+                                Command="{Binding ApplyApplicationDefaultsCommand}"
+                                Padding="14,6"/>
+                    </StackPanel>
+                </StackPanel>
             </GroupBox>
         </StackPanel>
     </ScrollViewer>

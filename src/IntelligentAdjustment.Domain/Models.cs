@@ -10,6 +10,11 @@ public sealed record ProjectSettings
     public bool AutoUpdateLevelDifferences { get; init; } = true;
     public int DistanceDecimals { get; init; } = 4;
     public int HeightDecimals { get; init; } = 5;
+    public PointNameHorizontalAlignmentMode PointNameHorizontalAlignment { get; init; } =
+        PointNameHorizontalAlignmentMode.Center;
+    public PointNameVerticalAlignmentMode PointNameVerticalAlignment { get; init; } =
+        PointNameVerticalAlignmentMode.Top;
+    public bool OpenLastProjectOnStartup { get; init; }
 }
 
 public sealed record LevelDifference(

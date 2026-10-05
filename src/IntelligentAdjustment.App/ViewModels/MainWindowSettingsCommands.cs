@@ -9,6 +9,6 @@ public partial class MainWindowViewModel
     {
         SelectedTab = GetOrCreateTab(
             "settings",
-            () => new SettingsTabViewModel(Document));
+            () => new SettingsTabViewModel(Document, preferences, dialogs));
     }
 }

@@ -50,6 +50,12 @@
             </WrapPanel>
         </Border>
 
+        <TextBlock DockPanel.Dock="Bottom"
+                   Text="{Binding StatusText}"
+                   Foreground="#6B7280"
+                   Margin="2,8,0,0"
+                   TextWrapping="Wrap"/>
+
         <Border BorderBrush="#D7DCE2"
                 BorderThickness="1"
                 CornerRadius="6"
@@ -68,10 +74,5 @@
                     SizeChanged="SketchCanvas_SizeChanged"/>
         </Border>
 
-        <TextBlock DockPanel.Dock="Bottom"
-                   Text="{Binding StatusText}"
-                   Foreground="#6B7280"
-                   Margin="2,8,0,0"
-                   TextWrapping="Wrap"/>
     </DockPanel>
 </UserControl>

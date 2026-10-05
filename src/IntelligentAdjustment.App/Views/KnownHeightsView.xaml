@@ -25,9 +25,16 @@
                 <DataGridTextColumn Header="点名"
                                     Binding="{Binding PointName, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="180"/>
-                <DataGridTextColumn Header="高程 [m]"
-                                    Binding="{Binding Height, UpdateSourceTrigger=LostFocus, StringFormat=F5, ValidatesOnDataErrors=True}"
-                                    Width="160"/>
+                <DataGridTextColumn Header="高程 [m]" Width="160">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
+                            <Binding Path="Height" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                            <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="备注" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

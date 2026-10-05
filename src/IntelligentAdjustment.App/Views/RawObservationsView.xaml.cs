@@ -288,13 +288,18 @@ public partial class RawObservationsView : UserControl
             }
         }
 
+        int distanceDecimals = viewModel.Document.Settings.DistanceDecimals;
+        int heightDecimals = viewModel.Document.Settings.HeightDecimals;
+        string totalDistanceText = maxX.ToString($"F{distanceDecimals}");
+        string heightRangeText = (maxY - minY).ToString($"F{heightDecimals}");
+
         AddAxisText(
-            $"累计距离 {maxX:F1} m",
+            $"累计距离 {totalDistanceText} m",
             left + width / 2 - 45,
             top + height + 18);
 
         AddAxisText(
-            $"相对高差范围 {(maxY - minY):F4} m",
+            $"相对高差范围 {heightRangeText} m",
             6,
             4);
     }

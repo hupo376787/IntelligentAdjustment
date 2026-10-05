@@ -30,11 +30,15 @@ public sealed class ReportExportService
 
         using IWorkbook workbook = new XSSFWorkbook();
         ICellStyle headerStyle = CreateHeaderStyle(workbook);
-        ICellStyle numberStyle = CreateNumberStyle(workbook, "0.00000");
-        ICellStyle distanceStyle = CreateNumberStyle(workbook, "0.0000");
+        ICellStyle numberStyle = CreateNumberStyle(
+            workbook,
+            BuildNumberFormat(workspace.Settings.HeightDecimals));
+        ICellStyle distanceStyle = CreateNumberStyle(
+            workbook,
+            BuildNumberFormat(workspace.Settings.DistanceDecimals));
 
         WriteProjectInfoSheet(workbook, workspace, calculation, headerStyle);
-        WriteClosureSheet(workbook, workspace, calculation, headerStyle);
+        WriteClosureSheet(workbook, workspace, calculation, headerStyle, distanceStyle);
         WriteKnownHeightSheet(workbook, workspace.KnownHeights, headerStyle, numberStyle);
         WriteObservedDifferenceSheet(workbook, workspace.LevelDifferences, headerStyle, numberStyle, distanceStyle);
         WriteAdjustedDifferenceSheet(
@@ -285,6 +289,14 @@ public sealed class ReportExportService
         return style;
     }
 
+    private static string BuildNumberFormat(int decimals)
+    {
+        int normalized = Math.Clamp(decimals, 0, 10);
+        return normalized == 0
+            ? "0"
+            : "0." + new string('0', normalized);
+    }
+
     private static ICellStyle CreateNumberStyle(IWorkbook workbook, string format)
     {
         ICellStyle style = workbook.CreateCellStyle();
@@ -355,7 +367,8 @@ public sealed class ReportExportService
         IWorkbook workbook,
         ProjectWorkspace workspace,
         CalculationBundle? calculation,
-        ICellStyle headerStyle)
+        ICellStyle headerStyle,
+        ICellStyle distanceStyle)
     {
         ISheet sheet = workbook.CreateSheet("闭合路线");
         string[] headers = ["序号", "类型", "点数", "长度(m)", "测站数", "闭合差(mm)", "当前限差(mm)", "超限", "路线"];
@@ -373,7 +386,7 @@ public sealed class ReportExportService
             row.CreateCell(0).SetCellValue(route.Index);
             row.CreateCell(1).SetCellValue(route.RouteType == RouteType.ClosedLoop ? "闭合" : "附合");
             row.CreateCell(2).SetCellValue(route.Points.Count);
-            row.CreateCell(3).SetCellValue(route.LengthMeters);
+            SetNumeric(row, 3, route.LengthMeters, distanceStyle);
             row.CreateCell(4).SetCellValue(route.StationCount);
             row.CreateCell(5).SetCellValue(route.ClosureMeters * 1000.0);
             row.CreateCell(6).SetCellValue(tolerance * 1000.0);

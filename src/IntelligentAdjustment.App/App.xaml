@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <conv:NumericPrecisionConverter x:Key="NumericPrecisionConverter"/>
             <conv:PointRoleConverter x:Key="PointRoleConverter"/>
             <conv:RouteTypeConverter x:Key="RouteTypeConverter"/>
 

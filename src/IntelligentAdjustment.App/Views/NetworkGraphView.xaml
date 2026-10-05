@@ -68,8 +68,26 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="起点" Binding="{Binding FromPoint}" Width="85"/>
                         <DataGridTextColumn Header="终点" Binding="{Binding ToPoint}" Width="85"/>
-                        <DataGridTextColumn Header="高差 [m]" Binding="{Binding HeightDifference, StringFormat=F5}" Width="90"/>
-                        <DataGridTextColumn Header="距离 [m]" Binding="{Binding DistanceMeters, StringFormat=F1}" Width="90"/>
+                        <DataGridTextColumn Header="高差 [m]" Width="90">
+                            <DataGridTextColumn.Binding>
+                                <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
+                                    <Binding Path="HeightDifference"/>
+                                    <Binding Path="DataContext.Document.Settings.HeightDecimals"
+                                             RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                             Mode="OneWay"/>
+                                </MultiBinding>
+                            </DataGridTextColumn.Binding>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="距离 [m]" Width="90">
+                            <DataGridTextColumn.Binding>
+                                <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
+                                    <Binding Path="DistanceMeters"/>
+                                    <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                             RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                             Mode="OneWay"/>
+                                </MultiBinding>
+                            </DataGridTextColumn.Binding>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>

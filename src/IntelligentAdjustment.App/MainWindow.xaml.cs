@@ -18,12 +18,16 @@ public partial class MainWindow : Window
 
         var dialogs = new UserDialogService();
         var session = new ProjectSessionService();
-        ViewModel = new MainWindowViewModel(session, dialogs);
+        var preferences = new ApplicationPreferencesService();
+        ViewModel = new MainWindowViewModel(session, dialogs, preferences);
         ViewModel.RequestClose += (_, _) => Close();
         DataContext = ViewModel;
     }
 
     public MainWindowViewModel ViewModel { get; }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e) =>
+        await ViewModel.InitializeAsync();
 
     private async void MainWindow_Closing(object? sender, CancelEventArgs e)
     {

@@ -132,6 +132,48 @@ public partial class ProjectDocumentViewModel : ObservableObject
         }
     }
 
+    public void Clear()
+    {
+        suppressDirty = true;
+        suppressUndo = true;
+        try
+        {
+            ProjectName = string.Empty;
+            ProjectNumber = string.Empty;
+            UnitName = string.Empty;
+            ProjectLeader = string.Empty;
+            Reviewer = string.Empty;
+            Settings = new ProjectSettings();
+            Revision = new ProjectRevisionState(0, -1, null);
+            TaskOverview = string.Empty;
+            NaturalGeography = string.Empty;
+            ExistingData = string.Empty;
+            ReferencedStandards = string.Empty;
+            TechnicalIndicators = string.Empty;
+            FieldWorkSummary = string.Empty;
+            ConclusionAndRecommendations = string.Empty;
+
+            Lines.Clear();
+            ReplaceRowsCore(
+                Array.Empty<LevelDifference>(),
+                Array.Empty<KnownHeight>(),
+                Array.Empty<RawObservation>(),
+                Array.Empty<NetworkMapPoint>());
+
+            undoStack.Clear();
+            redoStack.Clear();
+            savedSnapshot = null;
+            CalculationInputsChanged = false;
+            IsDirty = false;
+            RaiseUndoStateChanged();
+        }
+        finally
+        {
+            suppressUndo = false;
+            suppressDirty = false;
+        }
+    }
+
     public ProjectWorkspace ToWorkspace(ProjectWorkspace basis)
     {
         var metadata = basis.Metadata with

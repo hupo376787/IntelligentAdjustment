@@ -15,6 +15,10 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly ProjectSessionService session;
     private readonly IUserDialogService dialogs;
+    private readonly ApplicationPreferencesService preferences;
+    private readonly Stack<DatabaseUndoEntry> databaseUndoStack = new();
+    private readonly Stack<DatabaseUndoEntry> databaseRedoStack = new();
+    private bool initialized;
     private ProjectWorkspace? basisWorkspace;
     private AdjustmentResultsTabViewModel? adjustmentResultsTab;
     private LineManagementTabViewModel? lineManagementTab;
@@ -36,16 +40,23 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool isBusy;
 
-    public MainWindowViewModel(ProjectSessionService session, IUserDialogService dialogs)
+    public MainWindowViewModel(
+        ProjectSessionService session,
+        IUserDialogService dialogs)
+        : this(session, dialogs, new ApplicationPreferencesService())
+    {
+    }
+
+    public MainWindowViewModel(
+        ProjectSessionService session,
+        IUserDialogService dialogs,
+        ApplicationPreferencesService preferences)
     {
         this.session = session;
         this.dialogs = dialogs;
+        this.preferences = preferences;
         Document.PropertyChanged += Document_PropertyChanged;
-        Document.UndoStateChanged += (_, _) =>
-        {
-            UndoCommand.NotifyCanExecuteChanged();
-            RedoCommand.NotifyCanExecuteChanged();
-        };
+        Document.UndoStateChanged += (_, _) => RefreshUndoCommands();
         OpenDashboard();
     }
 
@@ -74,6 +85,42 @@ public partial class MainWindowViewModel : ObservableObject
 
     public bool HasProject => basisWorkspace is not null;
 
+    public async Task InitializeAsync()
+    {
+        if (initialized)
+        {
+            return;
+        }
+
+        initialized = true;
+        if (!preferences.OpenLastProjectOnStartup)
+        {
+            return;
+        }
+
+        string? path = preferences.LastProjectPath;
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return;
+        }
+
+        if (!File.Exists(path))
+        {
+            preferences.ClearMissingLastProject();
+            StatusMessage = "上次打开的工程文件已不存在，已跳过自动打开。";
+            return;
+        }
+
+        await RunBusyAsync(async () =>
+        {
+            ClearDatabaseUndoHistory();
+            ProjectWorkspace workspace = await session.OpenAsync(path);
+            LoadWorkspace(workspace, path);
+            await RestoreLatestCalculationAsync();
+            StatusMessage = $"已自动打开上次工程：{Path.GetFileName(path)}";
+        });
+    }
+
     [RelayCommand]
     private async Task NewProjectAsync()
     {
@@ -90,7 +137,10 @@ public partial class MainWindowViewModel : ObservableObject
 
         await RunBusyAsync(async () =>
         {
-            ProjectWorkspace workspace = await session.CreateAsync(filePath);
+            ClearDatabaseUndoHistory();
+            ProjectWorkspace workspace = await session.CreateAsync(
+                filePath,
+                preferences.DefaultProjectSettings);
             LoadWorkspace(workspace, filePath);
             StatusMessage = $"已新建工程：{Path.GetFileName(filePath)}";
         });
@@ -112,6 +162,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         await RunBusyAsync(async () =>
         {
+            ClearDatabaseUndoHistory();
             ProjectWorkspace workspace = await session.OpenAsync(filePath);
             LoadWorkspace(workspace, filePath);
             await RestoreLatestCalculationAsync();
@@ -158,6 +209,7 @@ public partial class MainWindowViewModel : ObservableObject
                 workspace,
                 target,
                 Document.CalculationInputsChanged);
+            ClearDatabaseUndoHistory();
             LoadWorkspace(saved, target);
             await RestoreLatestCalculationAsync();
             StatusMessage = $"工程已另存为：{Path.GetFileName(target)}";
@@ -190,6 +242,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         await RunBusyAsync(async () =>
         {
+            ClearDatabaseUndoHistory();
             ProjectWorkspace workspace = await session.ImportOutFilesAsync(files);
             LoadWorkspace(workspace, CurrentProjectPath!, resetTabs: false);
             OpenLevelDifferences();
@@ -231,6 +284,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         await RunBusyAsync(async () =>
         {
+            ClearDatabaseUndoHistory();
             CalculationBundle bundle = await session.CalculateAsync(basisWorkspace!);
 
             RoutesTabViewModel routeTab = GetOrCreateRoutesTab();
@@ -242,7 +296,7 @@ public partial class MainWindowViewModel : ObservableObject
                 Tabs.Add(adjustmentResultsTab);
             }
 
-            adjustmentResultsTab.Load(bundle.AdjustmentResult);
+            adjustmentResultsTab.Load(bundle.AdjustmentResult, basisWorkspace.Settings);
             basisWorkspace = basisWorkspace with { Revision = bundle.Revision };
             Document.AcceptChanges(bundle.Revision);
             SelectedTab = adjustmentResultsTab;
@@ -287,6 +341,7 @@ public partial class MainWindowViewModel : ObservableObject
                     return;
                 }
 
+                ClearDatabaseUndoHistory();
                 LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
                 StatusMessage = "仪器数据导入完成。";
             });
@@ -316,7 +371,8 @@ public partial class MainWindowViewModel : ObservableObject
 
                 LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
                 StatusMessage = "线路信息已更新。";
-            });
+            },
+            ExecuteUndoableDatabaseActionAsync);
 
         if (!Tabs.Contains(lineManagementTab))
         {
@@ -410,6 +466,54 @@ public partial class MainWindowViewModel : ObservableObject
             "关于");
 
     [RelayCommand]
+    private async Task CloseProjectAsync()
+    {
+        if (!HasProject)
+        {
+            return;
+        }
+
+        if (!await EnsureCanLeaveCurrentProjectAsync())
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(CurrentProjectPath) && basisWorkspace is not null)
+        {
+            preferences.RememberProject(
+                CurrentProjectPath,
+                basisWorkspace.Settings.OpenLastProjectOnStartup);
+        }
+
+        session.Close();
+        basisWorkspace = null;
+        CurrentProjectPath = null;
+        Document.Clear();
+        ClearDatabaseUndoHistory();
+
+        foreach (WorkspaceTabViewModel tab in Tabs.ToArray())
+        {
+            if (tab.Key is not "dashboard")
+            {
+                Tabs.Remove(tab);
+            }
+        }
+
+        adjustmentResultsTab = null;
+        lineManagementTab = null;
+        rawObservationsTab = null;
+        instrumentImportTab = null;
+        mapSketchTab = null;
+        networkGraphTab = null;
+        reportTab = null;
+        OpenDashboard();
+
+        StatusMessage = "工程已关闭。";
+        OnPropertyChanged(nameof(HasProject));
+        OnPropertyChanged(nameof(WindowTitle));
+    }
+
+    [RelayCommand]
     private void Exit() => RequestClose?.Invoke(this, EventArgs.Empty);
 
     public async Task<bool> CanCloseAsync()
@@ -491,6 +595,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         ProjectWorkspace workspace = Document.ToWorkspace(basisWorkspace);
+        ClearDatabaseUndoHistory();
         ProjectWorkspace saved = await session.SaveAsync(
             workspace,
             Document.CalculationInputsChanged);
@@ -541,6 +646,7 @@ public partial class MainWindowViewModel : ObservableObject
         basisWorkspace = workspace;
         CurrentProjectPath = filePath;
         Document.Load(workspace);
+        preferences.RememberProject(filePath, workspace.Settings.OpenLastProjectOnStartup);
 
         if (resetTabs)
         {
@@ -587,6 +693,34 @@ public partial class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(WindowTitle));
     }
 
+    private async Task<ProjectWorkspace> ExecuteUndoableDatabaseActionAsync(
+        Func<Task<ProjectWorkspace>> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        byte[] before = await session.CaptureProjectSnapshotAsync();
+        ProjectWorkspace workspace = await action();
+        byte[] after = await session.CaptureProjectSnapshotAsync();
+
+        databaseUndoStack.Push(new DatabaseUndoEntry(before, after));
+        databaseRedoStack.Clear();
+        RefreshUndoCommands();
+        return workspace;
+    }
+
+    private void ClearDatabaseUndoHistory()
+    {
+        databaseUndoStack.Clear();
+        databaseRedoStack.Clear();
+        RefreshUndoCommands();
+    }
+
+    private void RefreshUndoCommands()
+    {
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+    }
+
     private async Task RestoreLatestCalculationAsync()
     {
         CalculationBundle? bundle = await session.LoadLatestCalculationAsync();
@@ -606,7 +740,7 @@ public partial class MainWindowViewModel : ObservableObject
             Tabs.Add(adjustmentResultsTab);
         }
 
-        adjustmentResultsTab.Load(bundle.AdjustmentResult, isStale);
+        adjustmentResultsTab.Load(bundle.AdjustmentResult, basisWorkspace.Settings, isStale);
     }
 
     private IReadOnlyList<NetworkRoute> BuildCurrentRoutes()
@@ -678,6 +812,8 @@ public partial class MainWindowViewModel : ObservableObject
             OnPropertyChanged(nameof(WindowTitle));
         }
     }
+
+    private sealed record DatabaseUndoEntry(byte[] Before, byte[] After);
 
     private async Task RunBusyAsync(Func<Task> action)
     {

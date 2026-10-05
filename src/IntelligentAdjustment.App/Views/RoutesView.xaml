@@ -31,7 +31,16 @@
                 <DataGridTextColumn Header="类型" Binding="{Binding RouteType, Converter={StaticResource RouteTypeConverter}}" Width="100"/>
                 <DataGridTextColumn Header="路线" Binding="{Binding PointPath}" Width="*"/>
                 <DataGridTextColumn Header="边数" Binding="{Binding EdgeCount}" Width="80"/>
-                <DataGridTextColumn Header="长度 [m]" Binding="{Binding LengthMeters, StringFormat=F4}" Width="120"/>
+                <DataGridTextColumn Header="长度 [m]" Width="120">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
+                            <Binding Path="LengthMeters"/>
+                            <Binding Path="DataContext.Document.Settings.DistanceDecimals"
+                                     RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
+                                     Mode="OneWay"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="测站数" Binding="{Binding StationCount}" Width="90"/>
                 <DataGridTextColumn Header="闭合差 [mm]" Binding="{Binding ClosureMillimeters, StringFormat=F3}" Width="120"/>
                 <DataGridTextColumn Header="当前限差 [mm]" Binding="{Binding ActiveToleranceMillimeters, StringFormat=F3}" Width="130"/>

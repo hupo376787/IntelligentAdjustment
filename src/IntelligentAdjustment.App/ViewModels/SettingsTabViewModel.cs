@@ -1,17 +1,42 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.Domain;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
-public sealed class SettingsTabViewModel : WorkspaceTabViewModel
+public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
 {
     private readonly ProjectDocumentViewModel document;
+    private readonly ApplicationPreferencesService preferences;
+    private readonly IUserDialogService dialogs;
 
-    public SettingsTabViewModel(ProjectDocumentViewModel document)
+    public SettingsTabViewModel(
+        ProjectDocumentViewModel document,
+        ApplicationPreferencesService preferences,
+        IUserDialogService dialogs)
         : base("settings", "工程设置")
     {
         this.document = document;
+        this.preferences = preferences;
+        this.dialogs = dialogs;
+        document.PropertyChanged += Document_PropertyChanged;
     }
+
+    public IReadOnlyList<HorizontalAlignmentOption> HorizontalAlignmentOptions { get; } =
+    [
+        new(PointNameHorizontalAlignmentMode.Left, "左侧"),
+        new(PointNameHorizontalAlignmentMode.Center, "居中"),
+        new(PointNameHorizontalAlignmentMode.Right, "右侧")
+    ];
+
+    public IReadOnlyList<VerticalAlignmentOption> VerticalAlignmentOptions { get; } =
+    [
+        new(PointNameVerticalAlignmentMode.Top, "上方"),
+        new(PointNameVerticalAlignmentMode.Center, "居中"),
+        new(PointNameVerticalAlignmentMode.Bottom, "下方")
+    ];
 
     public bool IsDistanceTolerance
     {
@@ -21,8 +46,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value && !IsDistanceTolerance)
             {
                 document.Settings = document.Settings with { ToleranceMode = ClosureToleranceMode.Distance };
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsStationTolerance));
             }
         }
     }
@@ -35,8 +58,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value && !IsStationTolerance)
             {
                 document.Settings = document.Settings with { ToleranceMode = ClosureToleranceMode.StationCount };
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsDistanceTolerance));
             }
         }
     }
@@ -49,7 +70,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (Math.Abs(value - document.Settings.DistanceToleranceCoefficientMm) > double.Epsilon)
             {
                 document.Settings = document.Settings with { DistanceToleranceCoefficientMm = value };
-                OnPropertyChanged();
             }
         }
     }
@@ -62,7 +82,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (Math.Abs(value - document.Settings.StationToleranceCoefficientMm) > double.Epsilon)
             {
                 document.Settings = document.Settings with { StationToleranceCoefficientMm = value };
-                OnPropertyChanged();
             }
         }
     }
@@ -75,8 +94,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value && !IsClassical)
             {
                 document.Settings = document.Settings with { AdjustmentMethod = AdjustmentMethod.Classical };
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsQuasiStable));
             }
         }
     }
@@ -89,8 +106,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value && !IsQuasiStable)
             {
                 document.Settings = document.Settings with { AdjustmentMethod = AdjustmentMethod.QuasiStable };
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsClassical));
             }
         }
     }
@@ -103,7 +118,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value != document.Settings.AutoMergeTransitionPoints)
             {
                 document.Settings = document.Settings with { AutoMergeTransitionPoints = value };
-                OnPropertyChanged();
             }
         }
     }
@@ -116,7 +130,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (value != document.Settings.AutoUpdateLevelDifferences)
             {
                 document.Settings = document.Settings with { AutoUpdateLevelDifferences = value };
-                OnPropertyChanged();
             }
         }
     }
@@ -130,7 +143,6 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (normalized != document.Settings.DistanceDecimals)
             {
                 document.Settings = document.Settings with { DistanceDecimals = normalized };
-                OnPropertyChanged();
             }
         }
     }
@@ -144,8 +156,90 @@ public sealed class SettingsTabViewModel : WorkspaceTabViewModel
             if (normalized != document.Settings.HeightDecimals)
             {
                 document.Settings = document.Settings with { HeightDecimals = normalized };
-                OnPropertyChanged();
             }
         }
     }
+
+    public PointNameHorizontalAlignmentMode PointNameHorizontalAlignment
+    {
+        get => document.Settings.PointNameHorizontalAlignment;
+        set
+        {
+            if (value != document.Settings.PointNameHorizontalAlignment)
+            {
+                document.Settings = document.Settings with { PointNameHorizontalAlignment = value };
+            }
+        }
+    }
+
+    public PointNameVerticalAlignmentMode PointNameVerticalAlignment
+    {
+        get => document.Settings.PointNameVerticalAlignment;
+        set
+        {
+            if (value != document.Settings.PointNameVerticalAlignment)
+            {
+                document.Settings = document.Settings with { PointNameVerticalAlignment = value };
+            }
+        }
+    }
+
+    public bool OpenLastProjectOnStartup
+    {
+        get => document.Settings.OpenLastProjectOnStartup;
+        set
+        {
+            if (value != document.Settings.OpenLastProjectOnStartup)
+            {
+                document.Settings = document.Settings with { OpenLastProjectOnStartup = value };
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void SaveAsApplicationDefaults()
+    {
+        preferences.SaveDefaultProjectSettings(document.Settings);
+        dialogs.Info("已将当前工程设置保存为应用默认值。以后新建工程将使用这些设置。", "应用默认设置");
+    }
+
+    [RelayCommand]
+    private void ApplyApplicationDefaults()
+    {
+        document.Settings = preferences.DefaultProjectSettings;
+        dialogs.Info("已将应用默认设置应用到当前工程。保存工程后生效。", "应用默认设置");
+    }
+
+    private void Document_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectDocumentViewModel.Settings))
+        {
+            NotifyAllSettingsChanged();
+        }
+    }
+
+    private void NotifyAllSettingsChanged()
+    {
+        OnPropertyChanged(nameof(IsDistanceTolerance));
+        OnPropertyChanged(nameof(IsStationTolerance));
+        OnPropertyChanged(nameof(DistanceToleranceCoefficientMm));
+        OnPropertyChanged(nameof(StationToleranceCoefficientMm));
+        OnPropertyChanged(nameof(IsClassical));
+        OnPropertyChanged(nameof(IsQuasiStable));
+        OnPropertyChanged(nameof(AutoMergeTransitionPoints));
+        OnPropertyChanged(nameof(AutoUpdateLevelDifferences));
+        OnPropertyChanged(nameof(DistanceDecimals));
+        OnPropertyChanged(nameof(HeightDecimals));
+        OnPropertyChanged(nameof(PointNameHorizontalAlignment));
+        OnPropertyChanged(nameof(PointNameVerticalAlignment));
+        OnPropertyChanged(nameof(OpenLastProjectOnStartup));
+    }
 }
+
+public sealed record HorizontalAlignmentOption(
+    PointNameHorizontalAlignmentMode Value,
+    string Label);
+
+public sealed record VerticalAlignmentOption(
+    PointNameVerticalAlignmentMode Value,
+    string Label);

@@ -22,8 +22,14 @@ public sealed class ProjectSessionService
     public IReadOnlyList<InstrumentImporterDescriptor> InstrumentImportCatalog =>
         instrumentImportRegistry.Catalog;
 
+    public Task<ProjectWorkspace> CreateAsync(
+        string filePath,
+        CancellationToken cancellationToken = default) =>
+        CreateAsync(filePath, initialSettings: null, cancellationToken);
+
     public async Task<ProjectWorkspace> CreateAsync(
         string filePath,
+        ProjectSettings? initialSettings,
         CancellationToken cancellationToken = default)
     {
         if (File.Exists(filePath))
@@ -47,7 +53,7 @@ public sealed class ProjectSessionService
 
         await _repository.SaveProjectInputsAsync(
             metadata,
-            workspace.Settings,
+            initialSettings ?? workspace.Settings,
             workspace.LevelDifferences,
             workspace.KnownHeights,
             workspace.RawObservations,
@@ -284,6 +290,28 @@ public sealed class ProjectSessionService
 
         ProjectRevisionState revision = await _repository.LoadRevisionAsync(cancellationToken);
         return new CalculationBundle(routes, result, revision);
+    }
+
+    public async Task<byte[]> CaptureProjectSnapshotAsync(
+        CancellationToken cancellationToken = default)
+    {
+        EnsureOpen();
+        return await File.ReadAllBytesAsync(CurrentProjectPath!, cancellationToken);
+    }
+
+    public async Task<ProjectWorkspace> RestoreProjectSnapshotAsync(
+        byte[] snapshot,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        EnsureOpen();
+
+        string path = CurrentProjectPath!;
+        await File.WriteAllBytesAsync(path, snapshot, cancellationToken);
+
+        _database = new ProjectDatabase(path);
+        _repository = new ProjectRepository(_database);
+        return await LoadAsync(cancellationToken);
     }
 
     public void Close()

@@ -7,6 +7,7 @@
         MinWidth="1100"
         MinHeight="700"
         WindowStartupLocation="CenterScreen"
+        Loaded="MainWindow_Loaded"
         Closing="MainWindow_Closing">
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewProjectCommand}"/>
@@ -24,6 +25,7 @@
                 <Separator/>
                 <MenuItem Header="保存工程(_S)" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
                 <MenuItem Header="工程另存为..." Command="{Binding SaveProjectAsCommand}"/>
+                <MenuItem Header="关闭工程" Command="{Binding CloseProjectCommand}"/>
                 <Separator/>
                 <MenuItem Header="仪器数据导入..." Command="{Binding OpenInstrumentImportCommand}"/>
                 <MenuItem Header="直接导入高差 OUT..." Command="{Binding ImportOutCommand}"/>

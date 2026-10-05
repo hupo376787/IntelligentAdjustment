@@ -14,6 +14,7 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
     private readonly IUserDialogService dialogs;
     private readonly Func<Task<bool>> ensureSaved;
     private readonly Action<ProjectWorkspace> applyWorkspace;
+    private readonly Func<Func<Task<ProjectWorkspace>>, Task<ProjectWorkspace>> executeUndoableDatabaseAction;
 
     [ObservableProperty]
     private LineDisplayRow? selectedLine;
@@ -29,7 +30,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         ProjectSessionService session,
         IUserDialogService dialogs,
         Func<Task<bool>> ensureSaved,
-        Action<ProjectWorkspace> applyWorkspace)
+        Action<ProjectWorkspace> applyWorkspace,
+        Func<Func<Task<ProjectWorkspace>>, Task<ProjectWorkspace>> executeUndoableDatabaseAction)
         : base("lines", "线路管理")
     {
         this.document = document;
@@ -37,6 +39,7 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         this.dialogs = dialogs;
         this.ensureSaved = ensureSaved;
         this.applyWorkspace = applyWorkspace;
+        this.executeUndoableDatabaseAction = executeUndoableDatabaseAction;
         Refresh();
     }
 
@@ -85,7 +88,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         }
 
         string name = string.IsNullOrWhiteSpace(NewLineName) ? "新线路" : NewLineName.Trim();
-        ProjectWorkspace workspace = await session.CreateLineAsync(name);
+        ProjectWorkspace workspace = await executeUndoableDatabaseAction(
+            () => session.CreateLineAsync(name));
         applyWorkspace(workspace);
         Refresh();
 
@@ -113,7 +117,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
             return;
         }
 
-        ProjectWorkspace workspace = await session.RenameLineAsync(SelectedLine.Id, name);
+        ProjectWorkspace workspace = await executeUndoableDatabaseAction(
+            () => session.RenameLineAsync(SelectedLine.Id, name));
         long id = SelectedLine.Id;
         applyWorkspace(workspace);
         Refresh();
@@ -140,7 +145,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
             return;
         }
 
-        ProjectWorkspace workspace = await session.DeleteLineAsync(SelectedLine.Id);
+        ProjectWorkspace workspace = await executeUndoableDatabaseAction(
+            () => session.DeleteLineAsync(SelectedLine.Id));
         applyWorkspace(workspace);
         Refresh();
     }
@@ -164,7 +170,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         }
 
         long id = SelectedLine.Id;
-        ProjectWorkspace workspace = await session.MoveLineAsync(id, direction);
+        ProjectWorkspace workspace = await executeUndoableDatabaseAction(
+            () => session.MoveLineAsync(id, direction));
         applyWorkspace(workspace);
         Refresh();
         SelectedLine = Items.FirstOrDefault(x => x.Id == id);

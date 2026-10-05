@@ -50,6 +50,7 @@ public partial class NetworkGraphView : UserControl
         viewModel.Document.MapPoints.CollectionChanged += DocumentCollectionChanged;
         viewModel.Document.LevelDifferences.CollectionChanged += DocumentCollectionChanged;
         viewModel.Document.KnownHeights.CollectionChanged += DocumentCollectionChanged;
+        viewModel.Document.PropertyChanged += Document_PropertyChanged;
 
         foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
         {
@@ -71,6 +72,7 @@ public partial class NetworkGraphView : UserControl
         viewModel.Document.MapPoints.CollectionChanged -= DocumentCollectionChanged;
         viewModel.Document.LevelDifferences.CollectionChanged -= DocumentCollectionChanged;
         viewModel.Document.KnownHeights.CollectionChanged -= DocumentCollectionChanged;
+        viewModel.Document.PropertyChanged -= Document_PropertyChanged;
 
         foreach (NetworkMapPointRowViewModel point in viewModel.Document.MapPoints)
         {
@@ -107,6 +109,14 @@ public partial class NetworkGraphView : UserControl
     {
         RebuildScene();
         Redraw();
+    }
+
+    private void Document_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectDocumentViewModel.Settings))
+        {
+            Redraw();
+        }
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -152,11 +162,17 @@ public partial class NetworkGraphView : UserControl
 
         if (format == DiagramExportFormat.Png)
         {
-            NetworkDiagramExporter.ExportPng(exportScene, dialog.FileName);
+            NetworkDiagramExporter.ExportPng(
+                exportScene,
+                dialog.FileName,
+                settings: viewModel.Document.Settings);
         }
         else
         {
-            NetworkDiagramExporter.ExportSvg(exportScene, dialog.FileName);
+            NetworkDiagramExporter.ExportSvg(
+                exportScene,
+                dialog.FileName,
+                settings: viewModel.Document.Settings);
         }
 
         MessageBox.Show(
@@ -390,8 +406,16 @@ public partial class NetworkGraphView : UserControl
                 Background = new SolidColorBrush(Color.FromArgb(215, 255, 255, 255)),
                 IsHitTestVisible = false
             };
-            Canvas.SetLeft(text, p.X + 11);
-            Canvas.SetTop(text, p.Y - 19);
+            text.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Point labelPosition = PointLabelLayout.GetTopLeft(
+                p,
+                text.DesiredSize.Width,
+                text.DesiredSize.Height,
+                viewModel!.Document.Settings.PointNameHorizontalAlignment,
+                viewModel.Document.Settings.PointNameVerticalAlignment,
+                11);
+            Canvas.SetLeft(text, labelPosition.X);
+            Canvas.SetTop(text, labelPosition.Y);
             GraphCanvas.Children.Add(text);
 
             if (!node.HasPersistedCoordinate)

@@ -281,7 +281,10 @@ public sealed class ProjectRepository
                    AutoMergeTransitionPoints,
                    AutoUpdateLevelDifferences,
                    DistanceDecimals,
-                   HeightDecimals
+                   HeightDecimals,
+                   PointNameHorizontalAlignment,
+                   PointNameVerticalAlignment,
+                   OpenLastProjectOnStartup
             FROM ProjectSettings
             WHERE Id = 1;
             """;
@@ -300,7 +303,10 @@ public sealed class ProjectRepository
             AutoMergeTransitionPoints = reader.GetInt32(4) != 0,
             AutoUpdateLevelDifferences = reader.GetInt32(5) != 0,
             DistanceDecimals = reader.GetInt32(6),
-            HeightDecimals = reader.GetInt32(7)
+            HeightDecimals = reader.GetInt32(7),
+            PointNameHorizontalAlignment = (PointNameHorizontalAlignmentMode)reader.GetInt32(8),
+            PointNameVerticalAlignment = (PointNameVerticalAlignmentMode)reader.GetInt32(9),
+            OpenLastProjectOnStartup = reader.GetInt32(10) != 0
         };
     }
 
@@ -1347,7 +1353,10 @@ public sealed class ProjectRepository
                 AutoMergeTransitionPoints = $autoMerge,
                 AutoUpdateLevelDifferences = $autoUpdate,
                 DistanceDecimals = $distanceDecimals,
-                HeightDecimals = $heightDecimals
+                HeightDecimals = $heightDecimals,
+                PointNameHorizontalAlignment = $pointNameHorizontalAlignment,
+                PointNameVerticalAlignment = $pointNameVerticalAlignment,
+                OpenLastProjectOnStartup = $openLastProjectOnStartup
             WHERE Id = 1;
             """;
         command.Parameters.AddWithValue("$toleranceMode", (int)settings.ToleranceMode);
@@ -1358,6 +1367,9 @@ public sealed class ProjectRepository
         command.Parameters.AddWithValue("$autoUpdate", settings.AutoUpdateLevelDifferences ? 1 : 0);
         command.Parameters.AddWithValue("$distanceDecimals", settings.DistanceDecimals);
         command.Parameters.AddWithValue("$heightDecimals", settings.HeightDecimals);
+        command.Parameters.AddWithValue("$pointNameHorizontalAlignment", (int)settings.PointNameHorizontalAlignment);
+        command.Parameters.AddWithValue("$pointNameVerticalAlignment", (int)settings.PointNameVerticalAlignment);
+        command.Parameters.AddWithValue("$openLastProjectOnStartup", settings.OpenLastProjectOnStartup ? 1 : 0);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
