@@ -14,10 +14,11 @@ public sealed class ReportExportService
     public void ExportDocx(
         ProjectWorkspace workspace,
         CalculationBundle? calculation,
-        string filePath)
+        string filePath,
+        byte[]? networkSketchPng = null)
     {
         var exporter = new LegacyTemplateReportExporter();
-        exporter.Export(workspace, calculation, filePath);
+        exporter.Export(workspace, calculation, filePath, networkSketchPng);
     }
 
     public void ExportXlsx(
