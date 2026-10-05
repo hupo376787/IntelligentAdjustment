@@ -27,8 +27,8 @@
                                     Width="180"/>
                 <DataGridTextColumn Header="高程 [m]" Width="160">
                     <DataGridTextColumn.Binding>
-                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
-                            <Binding Path="Height" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                            <Binding Path="Height" Mode="TwoWay" ValidatesOnDataErrors="True"/>
                             <Binding Path="DataContext.Document.Settings.HeightDecimals"
                                      RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
                                      Mode="OneWay"/>
