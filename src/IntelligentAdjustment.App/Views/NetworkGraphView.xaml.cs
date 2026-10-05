@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.App.ViewModels;
 using Microsoft.Win32;
@@ -124,7 +125,33 @@ public partial class NetworkGraphView : UserControl
         if (e.PropertyName == nameof(NetworkGraphTabViewModel.SelectedDifference))
         {
             Redraw();
+            ScrollSelectedDifferenceIntoView();
         }
+    }
+
+
+    private void ScrollSelectedDifferenceIntoView()
+    {
+        LevelDifferenceRowViewModel? selected = viewModel?.SelectedDifference;
+        if (selected is null)
+        {
+            return;
+        }
+
+        _ = Dispatcher.BeginInvoke(
+            DispatcherPriority.Loaded,
+            new Action(() =>
+            {
+                EdgeDataGrid.SelectedItem = selected;
+                EdgeDataGrid.ScrollIntoView(selected);
+                EdgeDataGrid.UpdateLayout();
+
+                if (EdgeDataGrid.ItemContainerGenerator.ContainerFromItem(selected)
+                    is DataGridRow row)
+                {
+                    row.BringIntoView();
+                }
+            }));
     }
 
     private void ViewModel_FitRequested(object? sender, EventArgs e) => FitToView();

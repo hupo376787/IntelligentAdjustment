@@ -72,12 +72,13 @@
                                    FontSize="16"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-                        <TextBlock Text="选择右侧测段可在图中联动高亮"
+                        <TextBlock Text="点击图中测段或右侧列表可双向联动"
                                    Margin="0,3,0,0"
                                    Foreground="{DynamicResource AppMutedTextBrush}"/>
                     </StackPanel>
 
-                    <DataGrid ItemsSource="{Binding Edges}"
+                    <DataGrid x:Name="EdgeDataGrid"
+                              ItemsSource="{Binding Edges}"
                               SelectedItem="{Binding SelectedDifference, Mode=TwoWay}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
