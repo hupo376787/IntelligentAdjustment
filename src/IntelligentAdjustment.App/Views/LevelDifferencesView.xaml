@@ -63,8 +63,8 @@
                                     Width="120"/>
                 <DataGridTextColumn Header="高差 [m]" Width="120">
                     <DataGridTextColumn.Binding>
-                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
-                            <Binding Path="HeightDifference" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                            <Binding Path="HeightDifference" Mode="TwoWay" ValidatesOnDataErrors="True"/>
                             <Binding Path="DataContext.Document.Settings.HeightDecimals"
                                      RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
                                      Mode="OneWay"/>
@@ -73,8 +73,8 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="距离 [m]" Width="120">
                     <DataGridTextColumn.Binding>
-                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay">
-                            <Binding Path="DistanceMeters" Mode="TwoWay" UpdateSourceTrigger="LostFocus" ValidatesOnDataErrors="True"/>
+                        <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                            <Binding Path="DistanceMeters" Mode="TwoWay" ValidatesOnDataErrors="True"/>
                             <Binding Path="DataContext.Document.Settings.DistanceDecimals"
                                      RelativeSource="{RelativeSource AncestorType={x:Type Window}}"
                                      Mode="OneWay"/>
