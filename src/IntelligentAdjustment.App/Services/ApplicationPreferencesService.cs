@@ -111,6 +111,12 @@ public sealed class ApplicationPreferencesService
         Save();
     }
 
+    public void RestoreFactoryDefaults()
+    {
+        state = new ApplicationPreferences();
+        Save();
+    }
+
     private static ApplicationPreferences Load(string path)
     {
         try
