@@ -13,21 +13,22 @@ public partial class MainWindow : Window
     private bool closeCheckInProgress;
 
     public MainWindow()
+        : this(new ApplicationPreferencesService())
+    {
+    }
+
+    public MainWindow(ApplicationPreferencesService preferences)
     {
         InitializeComponent();
 
         var dialogs = new UserDialogService();
         var session = new ProjectSessionService();
-        var preferences = new ApplicationPreferencesService();
         ViewModel = new MainWindowViewModel(session, dialogs, preferences);
         ViewModel.RequestClose += (_, _) => Close();
         DataContext = ViewModel;
     }
 
     public MainWindowViewModel ViewModel { get; }
-
-    private async void MainWindow_Loaded(object sender, RoutedEventArgs e) =>
-        await ViewModel.InitializeAsync();
 
     private async void MainWindow_Closing(object? sender, CancelEventArgs e)
     {
@@ -36,9 +37,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Always cancel this closing pass first. CanCloseAsync can complete synchronously
-        // (for example when the document is not dirty), and calling Close() again from
-        // inside the active Closing event causes WPF to throw InvalidOperationException.
         e.Cancel = true;
 
         if (closeCheckInProgress)
@@ -63,8 +61,6 @@ public partial class MainWindow : Window
         }
 
         closeApproved = true;
-
-        // Queue the real close after the current Closing event has returned.
         _ = Dispatcher.BeginInvoke(
             DispatcherPriority.Normal,
             new Action(Close));

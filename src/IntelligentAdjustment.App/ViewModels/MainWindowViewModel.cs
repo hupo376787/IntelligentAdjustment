@@ -4,6 +4,7 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.App.Services;
+using IntelligentAdjustment.App.Views;
 using IntelligentAdjustment.Application.Models;
 using IntelligentAdjustment.Application.Services;
 using IntelligentAdjustment.Core.Routes;
@@ -85,38 +86,52 @@ public partial class MainWindowViewModel : ObservableObject
 
     public bool HasProject => basisWorkspace is not null;
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(Action<StartupProgress>? reportProgress = null)
     {
         if (initialized)
         {
+            reportProgress?.Invoke(new StartupProgress(90, "工作区已经初始化"));
             return;
         }
 
         initialized = true;
+        reportProgress?.Invoke(new StartupProgress(36, "正在检查启动选项…"));
+
         if (!preferences.OpenLastProjectOnStartup)
         {
+            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
             return;
         }
 
         string? path = preferences.LastProjectPath;
         if (string.IsNullOrWhiteSpace(path))
         {
+            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
             return;
         }
 
+        reportProgress?.Invoke(new StartupProgress(46, "正在检查上次打开的工程…"));
         if (!File.Exists(path))
         {
             preferences.ClearMissingLastProject();
             StatusMessage = "上次打开的工程文件已不存在，已跳过自动打开。";
+            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
             return;
         }
 
         await RunBusyAsync(async () =>
         {
+            reportProgress?.Invoke(new StartupProgress(56, $"正在打开工程：{Path.GetFileName(path)}"));
             ClearDatabaseUndoHistory();
             ProjectWorkspace workspace = await session.OpenAsync(path);
+
+            reportProgress?.Invoke(new StartupProgress(70, "正在载入工程数据与设置…"));
             LoadWorkspace(workspace, path);
+
+            reportProgress?.Invoke(new StartupProgress(80, "正在恢复路线与平差结果…"));
             await RestoreLatestCalculationAsync();
+
+            reportProgress?.Invoke(new StartupProgress(88, "正在同步工作区状态…"));
             StatusMessage = $"已自动打开上次工程：{Path.GetFileName(path)}";
         });
     }
@@ -282,6 +297,8 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
+        WorkspaceTabViewModel? returnToTab = SelectedTab;
+
         await RunBusyAsync(async () =>
         {
             ClearDatabaseUndoHistory();
@@ -299,8 +316,14 @@ public partial class MainWindowViewModel : ObservableObject
             adjustmentResultsTab.Load(bundle.AdjustmentResult, basisWorkspace.Settings);
             basisWorkspace = basisWorkspace with { Revision = bundle.Revision };
             Document.AcceptChanges(bundle.Revision);
-            SelectedTab = adjustmentResultsTab;
-            StatusMessage = "高程平差计算完成。";
+
+            // “执行高程平差”是计算动作；“平差结果”才负责打开成果页面。
+            // 计算结束后保持用户当前页面，避免两个入口表现成同一个功能。
+            SelectedTab = returnToTab ?? GetOrCreateTab(
+                "dashboard",
+                () => new DashboardTabViewModel(Document));
+
+            StatusMessage = "高程平差计算完成，可点击“平差结果”查看成果。";
             OnPropertyChanged(nameof(WindowTitle));
         });
     }

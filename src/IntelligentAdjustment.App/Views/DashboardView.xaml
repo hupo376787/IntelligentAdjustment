@@ -2,46 +2,89 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24" MaxWidth="1100" HorizontalAlignment="Left">
-            <TextBlock Text="工程概览" FontSize="24" FontWeight="SemiBold"/>
-            <TextBlock Text="当前工程信息与数据规模" Foreground="#6B7280" Margin="0,4,0,20"/>
+        <StackPanel Margin="28" MaxWidth="1120" HorizontalAlignment="Left">
+            <TextBlock Text="工程概览" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="项目基本信息、观测规模与当前工作状态"
+                       Style="{StaticResource PageSubtitleStyle}"/>
 
-            <Grid>
+            <Grid Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="260"/>
-                    <ColumnDefinition Width="260"/>
-                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="280"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Padding="18" Margin="0,0,12,12" CornerRadius="8" BorderBrush="#E1E5EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="项目名称" Foreground="#6B7280"/>
-                        <TextBlock Text="{Binding Document.ProjectName, TargetNullValue=未命名}" FontSize="18" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                    </StackPanel>
+                <Border Grid.Column="0"
+                        Style="{StaticResource SurfaceCardStyle}"
+                        Padding="18"
+                        Margin="0,0,14,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource AppAccentBrush}" CornerRadius="3"/>
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <TextBlock Text="项目名称" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{Binding Document.ProjectName, TargetNullValue=未命名}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AppPrimaryTextBrush}"
+                                       Margin="0,8,0,0"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
-                <Border Grid.Column="1" Padding="18" Margin="0,0,12,12" CornerRadius="8" BorderBrush="#E1E5EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="高差观测" Foreground="#6B7280"/>
-                        <TextBlock Text="{Binding Document.LevelDifferences.Count}" FontSize="24" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                    </StackPanel>
+                <Border Grid.Column="1"
+                        Style="{StaticResource SurfaceCardStyle}"
+                        Padding="18"
+                        Margin="0,0,14,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource AppTealBrush}" CornerRadius="3"/>
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <TextBlock Text="高差观测" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{Binding Document.LevelDifferences.Count}"
+                                       FontSize="{DynamicResource AppPageTitleFontSize}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AppTealBrush}"
+                                       Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
-                <Border Grid.Column="2" Padding="18" Margin="0,0,12,12" CornerRadius="8" BorderBrush="#E1E5EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="已知高程点" Foreground="#6B7280"/>
-                        <TextBlock Text="{Binding Document.KnownHeights.Count}" FontSize="24" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                    </StackPanel>
+                <Border Grid.Column="2"
+                        Style="{StaticResource SurfaceCardStyle}"
+                        Padding="18">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource AppPurpleBrush}" CornerRadius="3"/>
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <TextBlock Text="已知高程点" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{Binding Document.KnownHeights.Count}"
+                                       FontSize="{DynamicResource AppPageTitleFontSize}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AppPurpleBrush}"
+                                       Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </Grid>
 
-            <GroupBox Header="工程信息" Margin="0,8,0,0" Padding="16">
-                <Grid Width="760">
+            <GroupBox Header="工程信息" Padding="20">
+                <Grid Width="800">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="270"/>
                         <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="270"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -49,17 +92,17 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="项目名称" Margin="0,6"/>
+                    <TextBlock Text="项目名称" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding Document.ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
-                    <TextBlock Grid.Column="2" Text="项目编号" Margin="12,6,0,6"/>
+                    <TextBlock Grid.Column="2" Text="项目编号" Margin="16,8,0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="3" Text="{Binding Document.ProjectNumber, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
 
-                    <TextBlock Grid.Row="1" Text="工程单位" Margin="0,6"/>
+                    <TextBlock Grid.Row="1" Text="工程单位" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Document.UnitName, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="项目负责人" Margin="12,6,0,6"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="项目负责人" Margin="16,8,0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Document.ProjectLeader, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
 
-                    <TextBlock Grid.Row="2" Text="审核人" Margin="0,6"/>
+                    <TextBlock Grid.Row="2" Text="审核人" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Document.Reviewer, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
                 </Grid>
             </GroupBox>

@@ -6,8 +6,9 @@
         Height="860"
         MinWidth="1100"
         MinHeight="700"
+        FontSize="{DynamicResource AppFontSize}"
+        Background="{DynamicResource AppWindowBackgroundBrush}"
         WindowStartupLocation="CenterScreen"
-        Loaded="MainWindow_Loaded"
         Closing="MainWindow_Closing">
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewProjectCommand}"/>
@@ -17,8 +18,31 @@
         <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}"/>
     </Window.InputBindings>
 
+    <Window.Resources>
+        <Style x:Key="MainToolbarButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ButtonDefault}">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="66"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Padding" Value="4,3"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="MainToolbarLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,3,0,0"/>
+        </Style>
+    </Window.Resources>
+
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu DockPanel.Dock="Top"
+              Background="{DynamicResource AppSurfaceBrush}"
+              Foreground="{DynamicResource AppPrimaryTextBrush}">
             <MenuItem Header="文件(_F)">
                 <MenuItem Header="新建工程(_N)" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="打开工程(_O)" Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl+O"/>
@@ -40,7 +64,7 @@
             </MenuItem>
             <MenuItem Header="计算(_C)">
                 <MenuItem Header="搜索闭合/附合路线" Command="{Binding SearchRoutesCommand}"/>
-                <MenuItem Header="高程平差" Command="{Binding CalculateAdjustmentCommand}"/>
+                <MenuItem Header="执行高程平差" Command="{Binding CalculateAdjustmentCommand}"/>
             </MenuItem>
             <MenuItem Header="视图(_V)">
                 <MenuItem Header="工程概览" Command="{Binding OpenDashboardCommand}"/>
@@ -50,6 +74,7 @@
                 <MenuItem Header="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
                 <MenuItem Header="网形草图" Command="{Binding OpenMapSketchCommand}"/>
                 <MenuItem Header="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
+                <MenuItem Header="平差结果" Command="{Binding OpenAdjustmentResultsCommand}"/>
                 <MenuItem Header="报告与导出" Command="{Binding OpenReportCommand}"/>
             </MenuItem>
             <MenuItem Header="工具(_T)">
@@ -60,101 +85,145 @@
             </MenuItem>
         </Menu>
 
-        <ToolBarTray DockPanel.Dock="Top"
-                     IsLocked="True">
-            <ToolBar Padding="4,3">
-                <ToolBar.Resources>
-                    <Style x:Key="MainToolBarButtonStyle" TargetType="Button">
-                        <Setter Property="Width" Value="72"/>
-                        <Setter Property="Height" Value="58"/>
-                        <Setter Property="Margin" Value="2,0"/>
-                        <Setter Property="Padding" Value="4,3"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    </Style>
-                    <Style x:Key="MainToolBarIconStyle" TargetType="TextBlock">
-                        <Setter Property="FontSize" Value="20"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="TextAlignment" Value="Center"/>
-                        <Setter Property="Margin" Value="0,0,0,2"/>
-                    </Style>
-                    <Style x:Key="MainToolBarTextStyle" TargetType="TextBlock">
-                        <Setter Property="FontSize" Value="12"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="TextAlignment" Value="Center"/>
-                    </Style>
-                </ToolBar.Resources>
-
+        <!-- Plain toolbar surface instead of WPF ToolBar: no grip and no overflow triangle. -->
+        <Border DockPanel.Dock="Top"
+                Background="Transparent"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="8,5,8,6">
+            <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding NewProjectCommand}"
                         ToolTip="新建工程"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="＋" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="新建" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppAccentSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="18" Height="18">
+                                <Path Data="M12,3 L12,21 M3,12 L21,12"
+                                      Stroke="{DynamicResource AppAccentBrush}"
+                                      StrokeThickness="2.5"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="新建" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding OpenProjectCommand}"
                         ToolTip="打开工程"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="📂" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="打开" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppOrangeSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Path Data="M3,7 L9,7 L11,10 L22,10 L20,20 L3,20 Z"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppOrangeBrush}"
+                                      StrokeThickness="2"
+                                      StrokeLineJoin="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="打开" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding SaveProjectCommand}"
                         ToolTip="保存工程"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="💾" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="保存" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppTealSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="18" Height="18">
+                                <Path Data="M4,3 L18,3 L21,6 L21,21 L3,21 L3,3 Z M7,3 L7,9 L17,9 L17,3 M7,14 L17,14 L17,20 L7,20 Z"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppTealBrush}"
+                                      StrokeThickness="1.8"
+                                      StrokeLineJoin="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="保存" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
-                <Separator Margin="5,6"/>
+                <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
 
                 <Button Command="{Binding UndoCommand}"
                         ToolTip="撤销 (Ctrl+Z)"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="↶" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="撤销" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppPurpleSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Path Data="M10,6 L5,10 L10,14 M6,10 L14,10 C18,10 20,13 20,17"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppPurpleBrush}"
+                                      StrokeThickness="2.2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="撤销" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding RedoCommand}"
                         ToolTip="重做 (Ctrl+Y)"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="↷" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="重做" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppPurpleSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Path Data="M14,6 L19,10 L14,14 M18,10 L10,10 C6,10 4,13 4,17"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppPurpleBrush}"
+                                      StrokeThickness="2.2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="重做" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
-                <Separator Margin="5,6"/>
+                <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
 
                 <Button Command="{Binding OpenInstrumentImportCommand}"
                         ToolTip="按仪器厂商/格式导入数据"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="⇩" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="仪器导入" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppSuccessSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Path Data="M12,3 L12,15 M7,10 L12,15 L17,10 M4,19 L20,19"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppSuccessBrush}"
+                                      StrokeThickness="2.2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="仪器导入" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding ImportOutCommand}"
                         ToolTip="直接导入 OUT 高差数据"
-                        Style="{StaticResource MainToolBarButtonStyle}">
+                        Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
-                        <TextBlock Text="⇩" Style="{StaticResource MainToolBarIconStyle}"/>
-                        <TextBlock Text="导入 OUT" Style="{StaticResource MainToolBarTextStyle}"/>
+                        <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppAccentSoftBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Path Data="M12,3 L12,14 M8,10 L12,14 L16,10 M5,18 L19,18 M5,21 L19,21"
+                                      Fill="Transparent"
+                                      Stroke="{DynamicResource AppAccentBrush}"
+                                      StrokeThickness="2.1"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="导入 OUT" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
-            </ToolBar>
-        </ToolBarTray>
+            </StackPanel>
+        </Border>
 
-        <StatusBar DockPanel.Dock="Bottom">
+        <StatusBar DockPanel.Dock="Bottom"
+                   Background="{DynamicResource AppSurfaceBrush}"
+                   Foreground="{DynamicResource AppSecondaryTextBrush}">
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusMessage}"/>
             </StatusBarItem>
@@ -164,84 +233,90 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalAlignment="Right">
-                <ProgressBar Width="90" Height="12" IsIndeterminate="True"
+                <ProgressBar Width="90" Height="10" IsIndeterminate="True"
                              Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StatusBarItem>
         </StatusBar>
 
-        <Grid>
+        <Grid Background="{DynamicResource AppPageBackgroundBrush}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="232"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    BorderBrush="#D7DCE2"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="0,0,1,0"
-                    Background="#F7F8FA">
+                    Background="{DynamicResource AppSidebarBrush}">
                 <Border.Resources>
                     <Style TargetType="Expander"
                            BasedOn="{StaticResource Expander.Small}">
                         <Setter Property="IsExpanded" Value="True"/>
-                        <Setter Property="Margin" Value="0,4,0,4"/>
+                        <Setter Property="Margin" Value="0,5,0,5"/>
+                        <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
                     </Style>
                     <Style TargetType="Button"
                            BasedOn="{StaticResource ButtonDefault}">
+                        <Setter Property="Height" Value="40"/>
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
                         <Setter Property="Margin" Value="0,2"/>
-                        <Setter Property="Padding" Value="12,6"/>
+                        <Setter Property="Padding" Value="14,6"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AppAccentSoftBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </Border.Resources>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="12">
+                    <StackPanel Margin="12,8">
                         <Expander Header="工程">
-                            <StackPanel Margin="12,4,0,4">
-                                <Button Content="工程概览"
-                                        Command="{Binding OpenDashboardCommand}"/>
+                            <StackPanel Margin="8,4,8,8">
+                                <Button Content="工程概览" Command="{Binding OpenDashboardCommand}"/>
                             </StackPanel>
                         </Expander>
 
                         <Expander Header="数据">
-                            <StackPanel Margin="12,4,0,4">
-                                <Button Content="线路管理"
-                                        Command="{Binding OpenLineManagementCommand}"/>
-                                <Button Content="仪器导入"
-                                        Command="{Binding OpenInstrumentImportCommand}"/>
-                                <Button Content="原始观测"
-                                        Command="{Binding OpenRawObservationsCommand}"/>
-                                <Button Content="高差观测"
-                                        Command="{Binding OpenLevelDifferencesCommand}"/>
-                                <Button Content="已知高程"
-                                        Command="{Binding OpenKnownHeightsCommand}"/>
-                                <Button Content="网形草图"
-                                        Command="{Binding OpenMapSketchCommand}"/>
+                            <StackPanel Margin="8,4,8,8">
+                                <Button Content="线路管理" Command="{Binding OpenLineManagementCommand}"/>
+                                <Button Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}"/>
+                                <Button Content="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
+                                <Button Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
+                                <Button Content="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
+                                <Button Content="网形草图" Command="{Binding OpenMapSketchCommand}"/>
                             </StackPanel>
                         </Expander>
 
                         <Expander Header="计算">
-                            <StackPanel Margin="12,4,0,4">
+                            <StackPanel Margin="8,4,8,8">
                                 <Button Content="搜索路线"
                                         Command="{Binding SearchRoutesCommand}"
-                                        ToolTip="搜索闭合/附合路线"/>
+                                        ToolTip="执行闭合/附合路线搜索"/>
                                 <Button Content="闭合/附合路线"
-                                        Command="{Binding OpenRoutesCommand}"/>
-                                <Button Content="高程平差"
+                                        Command="{Binding OpenRoutesCommand}"
+                                        ToolTip="查看最近一次路线搜索结果"/>
+                                <Button Content="执行高程平差"
                                         Command="{Binding CalculateAdjustmentCommand}"
-                                        ToolTip="执行高程平差计算"/>
+                                        ToolTip="执行计算；完成后不会自动跳转页面"/>
                                 <Button Content="平差结果"
-                                        Command="{Binding OpenAdjustmentResultsCommand}"/>
-                                <Button Content="水准网图"
-                                        Command="{Binding OpenNetworkGraphCommand}"/>
-                                <Button Content="报告与导出"
-                                        Command="{Binding OpenReportCommand}"/>
+                                        Command="{Binding OpenAdjustmentResultsCommand}"
+                                        ToolTip="查看最近一次平差成果"/>
+                                <Button Content="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
+                                <Button Content="报告与导出" Command="{Binding OpenReportCommand}"/>
                             </StackPanel>
                         </Expander>
 
                         <Expander Header="项目">
-                            <StackPanel Margin="12,4,0,4">
-                                <Button Content="工程设置"
-                                        Command="{Binding OpenProjectSettingsCommand}"/>
+                            <StackPanel Margin="8,4,8,8">
+                                <Button Content="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
                             </StackPanel>
                         </Expander>
                     </StackPanel>
@@ -249,6 +324,7 @@
             </Border>
 
             <ContentControl Grid.Column="1"
+                            Background="{DynamicResource AppPageBackgroundBrush}"
                             Content="{Binding SelectedTab}"/>
         </Grid>
     </DockPanel>

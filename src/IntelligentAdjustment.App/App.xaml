@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:IntelligentAdjustment.App.ViewModels"
              xmlns:views="clr-namespace:IntelligentAdjustment.App.Views"
-             xmlns:conv="clr-namespace:IntelligentAdjustment.App.Converters"
-             StartupUri="MainWindow.xaml">
+             xmlns:conv="clr-namespace:IntelligentAdjustment.App.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -12,50 +11,112 @@
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- IntelligentAdjustment visual language -->
+            <SolidColorBrush x:Key="AppWindowBackgroundBrush" Color="#F3F6FB"/>
+            <SolidColorBrush x:Key="AppPageBackgroundBrush" Color="#F6F8FC"/>
+            <SolidColorBrush x:Key="AppSidebarBrush" Color="#EEF3F9"/>
+            <SolidColorBrush x:Key="AppSurfaceBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="AppSurfaceAltBrush" Color="#F8FAFD"/>
+            <SolidColorBrush x:Key="AppBorderBrush" Color="#DCE4EE"/>
+            <SolidColorBrush x:Key="AppPrimaryTextBrush" Color="#172033"/>
+            <SolidColorBrush x:Key="AppSecondaryTextBrush" Color="#475569"/>
+            <SolidColorBrush x:Key="AppMutedTextBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="AppAccentBrush" Color="#2563EB"/>
+            <SolidColorBrush x:Key="AppAccentSoftBrush" Color="#E8F1FF"/>
+            <SolidColorBrush x:Key="AppTealBrush" Color="#0F9D8A"/>
+            <SolidColorBrush x:Key="AppTealSoftBrush" Color="#E6F7F4"/>
+            <SolidColorBrush x:Key="AppPurpleBrush" Color="#7C3AED"/>
+            <SolidColorBrush x:Key="AppPurpleSoftBrush" Color="#F1EAFE"/>
+            <SolidColorBrush x:Key="AppOrangeBrush" Color="#E8790C"/>
+            <SolidColorBrush x:Key="AppOrangeSoftBrush" Color="#FFF1E3"/>
+            <SolidColorBrush x:Key="AppSuccessBrush" Color="#16A34A"/>
+            <SolidColorBrush x:Key="AppSuccessSoftBrush" Color="#EAF8EF"/>
+            <SolidColorBrush x:Key="AppDangerBrush" Color="#C62828"/>
+            <SolidColorBrush x:Key="AppSelectionBrush" Color="#DCEBFF"/>
+            <SolidColorBrush x:Key="AppWarningBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="AppWarningSoftBrush" Color="#FFF7E6"/>
+            <SolidColorBrush x:Key="AppWarningTextBrush" Color="#8A4B08"/>
+
+            <ControlTemplate x:Key="AppLogoTemplate" TargetType="ContentControl">
+                <Viewbox Stretch="Uniform">
+                    <Grid Width="80" Height="80">
+                        <Border CornerRadius="20">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#2563EB" Offset="0"/>
+                                    <GradientStop Color="#0EA5A4" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Canvas Width="80" Height="80">
+                            <Line X1="18" Y1="57" X2="36" Y2="24" Stroke="#CCFFFFFF" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Line X1="36" Y1="24" X2="61" Y2="45" Stroke="#CCFFFFFF" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Line X1="18" Y1="57" X2="61" Y2="45" Stroke="#80FFFFFF" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Ellipse Width="16" Height="16" Canvas.Left="10" Canvas.Top="49" Fill="White"/>
+                            <Ellipse Width="16" Height="16" Canvas.Left="28" Canvas.Top="16" Fill="#BFFCF4"/>
+                            <Rectangle Width="16" Height="16" Canvas.Left="53" Canvas.Top="37" RadiusX="3" RadiusY="3" Fill="#FFE5B4"/>
+                        </Canvas>
+                    </Grid>
+                </Viewbox>
+            </ControlTemplate>
+
+            <Style TargetType="UserControl">
+                <Setter Property="Background" Value="{DynamicResource AppPageBackgroundBrush}"/>
+            </Style>
+            <Style TargetType="DataGrid" BasedOn="{StaticResource DataGridBaseStyle}">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+                <Setter Property="AlternatingRowBackground" Value="{DynamicResource AppSurfaceAltBrush}"/>
+                <Setter Property="RowHeight" Value="42"/>
+            </Style>
+            <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxBaseStyle}">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxBaseStyle}">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+            </Style>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+            </Style>
+
+            <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource AppPageTitleFontSize}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+            </Style>
+            <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}"/>
+                <Setter Property="Margin" Value="0,4,0,20"/>
+            </Style>
+            <Style x:Key="SurfaceCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="8"/>
+            </Style>
+
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <conv:NumericPrecisionConverter x:Key="NumericPrecisionConverter"/>
             <conv:PointRoleConverter x:Key="PointRoleConverter"/>
             <conv:RouteTypeConverter x:Key="RouteTypeConverter"/>
 
-            <DataTemplate DataType="{x:Type vm:DashboardTabViewModel}">
-                <views:DashboardView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:LineManagementTabViewModel}">
-                <views:LineManagementView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:InstrumentImportTabViewModel}">
-                <views:InstrumentImportView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:RawObservationsTabViewModel}">
-                <views:RawObservationsView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:MapSketchTabViewModel}">
-                <views:MapSketchView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:NetworkGraphTabViewModel}">
-                <views:NetworkGraphView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:ReportTabViewModel}">
-                <views:ReportView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:LevelDifferencesTabViewModel}">
-                <views:LevelDifferencesView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:KnownHeightsTabViewModel}">
-                <views:KnownHeightsView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:RoutesTabViewModel}">
-                <views:RoutesView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:AdjustmentResultsTabViewModel}">
-                <views:AdjustmentResultsView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:SettingsTabViewModel}">
-                <views:SettingsView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:PlaceholderTabViewModel}">
-                <views:PlaceholderView/>
-            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DashboardTabViewModel}"><views:DashboardView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LineManagementTabViewModel}"><views:LineManagementView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:InstrumentImportTabViewModel}"><views:InstrumentImportView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:RawObservationsTabViewModel}"><views:RawObservationsView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:MapSketchTabViewModel}"><views:MapSketchView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:NetworkGraphTabViewModel}"><views:NetworkGraphView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ReportTabViewModel}"><views:ReportView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LevelDifferencesTabViewModel}"><views:LevelDifferencesView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:KnownHeightsTabViewModel}"><views:KnownHeightsView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:RoutesTabViewModel}"><views:RoutesView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:AdjustmentResultsTabViewModel}"><views:AdjustmentResultsView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsTabViewModel}"><views:SettingsView/></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PlaceholderTabViewModel}"><views:PlaceholderView/></DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

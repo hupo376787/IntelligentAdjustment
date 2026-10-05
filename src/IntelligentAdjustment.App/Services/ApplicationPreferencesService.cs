@@ -29,6 +29,8 @@ public sealed class ApplicationPreferencesService
 
     public bool OpenLastProjectOnStartup => state.OpenLastProjectOnStartup;
 
+    public double UiFontSize => Math.Clamp(state.UiFontSize, 11.0, 18.0);
+
     public void SaveDefaultProjectSettings(ProjectSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -55,6 +57,12 @@ public sealed class ApplicationPreferencesService
     public void ClearMissingLastProject()
     {
         state = state with { LastProjectPath = null };
+        Save();
+    }
+
+    public void SaveUiFontSize(double fontSize)
+    {
+        state = state with { UiFontSize = Math.Clamp(fontSize, 11.0, 18.0) };
         Save();
     }
 
@@ -112,5 +120,6 @@ public sealed class ApplicationPreferencesService
     private sealed record ApplicationPreferences(
         ProjectSettings? DefaultProjectSettings = null,
         string? LastProjectPath = null,
-        bool OpenLastProjectOnStartup = false);
+        bool OpenLastProjectOnStartup = false,
+        double UiFontSize = 13.0);
 }

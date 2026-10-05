@@ -38,7 +38,7 @@
 
         <TextBlock DockPanel.Dock="Bottom"
                    Margin="2,8,0,0"
-                   Foreground="#6B7280"
+                   Foreground="{DynamicResource AppMutedTextBrush}"
                    Text="提示：Ctrl+C 复制选中行；Ctrl+V 可粘贴 5 列“起点、终点、高差、距离、测站数”或本表复制的整行数据。Enter 向下移动，Tab 横向移动。"/>
 
         <DataGrid x:Name="DifferenceGrid"

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:IntelligentAdjustment.App.Behaviors">
     <DockPanel Margin="16">
-        <Border DockPanel.Dock="Top" BorderBrush="#E1E5EA" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="点名" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <TextBox Width="150" Text="{Binding NewPointName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0"/>

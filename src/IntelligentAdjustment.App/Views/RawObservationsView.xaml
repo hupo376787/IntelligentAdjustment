@@ -5,7 +5,8 @@
              xmlns:behaviors="clr-namespace:IntelligentAdjustment.App.Behaviors">
     <DockPanel Margin="16">
         <Border DockPanel.Dock="Top"
-                BorderBrush="#E1E5EA"
+                Background="{DynamicResource AppSurfaceBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
                 Padding="12"
@@ -34,7 +35,7 @@
 
         <TextBlock DockPanel.Dock="Bottom"
                    Margin="2,8,0,0"
-                   Foreground="#6B7280"
+                   Foreground="{DynamicResource AppMutedTextBrush}"
                    Text="原始观测修改后，如工程设置启用了“自动更新高差”，提交影响高差的单元格时会询问是否立即重新计算当前线路。"/>
 
         <Expander DockPanel.Dock="Bottom"
@@ -43,12 +44,12 @@
                   Expanded="ProfileExpander_Expanded"
                   Margin="0,8,0,0">
             <Border Height="230"
-                    BorderBrush="#D7DCE2"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6"
-                    Background="White">
+                    Background="{DynamicResource AppSurfaceBrush}">
                 <Canvas x:Name="ProfileCanvas"
-                        Background="White"
+                        Background="{DynamicResource AppSurfaceBrush}"
                         ClipToBounds="True"
                         SizeChanged="ProfileCanvas_SizeChanged"/>
             </Border>

@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel Margin="16">
         <Border DockPanel.Dock="Top"
+                Background="{DynamicResource AppSurfaceBrush}"
                 Padding="10"
                 Margin="0,0,0,10"
-                BorderBrush="#E1E5EA"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="6">
             <WrapPanel VerticalAlignment="Center">
@@ -46,22 +47,22 @@
 
                 <TextBlock x:Name="ScaleText"
                            VerticalAlignment="Center"
-                           Foreground="#6B7280"/>
+                           Foreground="{DynamicResource AppMutedTextBrush}"/>
             </WrapPanel>
         </Border>
 
         <TextBlock DockPanel.Dock="Bottom"
                    Text="{Binding StatusText}"
-                   Foreground="#6B7280"
+                   Foreground="{DynamicResource AppMutedTextBrush}"
                    Margin="2,8,0,0"
                    TextWrapping="Wrap"/>
 
-        <Border BorderBrush="#D7DCE2"
+        <Border BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
-                Background="White">
+                Background="{DynamicResource AppSurfaceBrush}">
             <Canvas x:Name="SketchCanvas"
-                    Background="White"
+                    Background="{DynamicResource AppSurfaceBrush}"
                     ClipToBounds="True"
                     Focusable="True"
                     MouseWheel="SketchCanvas_MouseWheel"

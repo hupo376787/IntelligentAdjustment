@@ -196,6 +196,23 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         }
     }
 
+    public double UiFontSize
+    {
+        get => preferences.UiFontSize;
+        set
+        {
+            double normalized = Math.Round(Math.Clamp(value, 11.0, 18.0), 1);
+            if (Math.Abs(normalized - preferences.UiFontSize) < 0.01)
+            {
+                return;
+            }
+
+            preferences.SaveUiFontSize(normalized);
+            UiAppearanceService.ApplyFontSize(normalized);
+            OnPropertyChanged();
+        }
+    }
+
     [RelayCommand]
     private void SaveAsApplicationDefaults()
     {
@@ -233,6 +250,7 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         OnPropertyChanged(nameof(PointNameHorizontalAlignment));
         OnPropertyChanged(nameof(PointNameVerticalAlignment));
         OnPropertyChanged(nameof(OpenLastProjectOnStartup));
+        OnPropertyChanged(nameof(UiFontSize));
     }
 }
 

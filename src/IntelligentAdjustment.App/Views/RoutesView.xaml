@@ -3,18 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel Margin="16">
         <Border DockPanel.Dock="Top"
-                Background="#FFF8E1"
-                BorderBrush="#F4B400"
+                Background="{DynamicResource AppWarningSoftBrush}"
+                BorderBrush="{DynamicResource AppWarningBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
                 Padding="10"
                 Margin="0,0,0,10"
                 Visibility="{Binding IsStale, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBlock Text="当前路线结果基于旧数据；工程输入已经修改，请重新搜索路线或执行高程平差。"
-                       Foreground="#7A4B00"/>
+                       Foreground="{DynamicResource AppWarningTextBrush}"/>
         </Border>
 
-        <TextBlock DockPanel.Dock="Top" Text="闭合/附合路线" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <TextBlock DockPanel.Dock="Top" Text="闭合/附合路线" FontSize="{DynamicResource AppSectionTitleFontSize}" FontWeight="SemiBold" Margin="0,0,0,10"/>
         <DataGrid ItemsSource="{Binding Items}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
@@ -23,27 +23,27 @@
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.Resources>
-                <Style TargetType="DataGridCell">
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Foreground" Value="#111827"/>
-                            <Setter Property="Background" Value="#DCEBFF"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource AppSelectionBrush}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.Resources>
             <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="Foreground" Value="#111827"/>
-                    <Setter Property="Background" Value="White"/>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                    <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Foreground" Value="#111827"/>
-                            <Setter Property="Background" Value="#DCEBFF"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource AppSelectionBrush}"/>
                         </Trigger>
                         <DataTrigger Binding="{Binding IsOverLimit}" Value="True">
-                            <Setter Property="Foreground" Value="#C62828"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AppDangerBrush}"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </DataTrigger>
                     </Style.Triggers>
