@@ -190,9 +190,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
 
             if (!TryParseClipboardRow(cells, defaultLineId, out PasteRow? row))
             {
-                dialogs.Error(
-                    "剪贴板数据无法识别。支持 5 列“起点、终点、高差、距离、测站数”，" +
-                    "也支持从本软件高差表整行复制后再粘贴。");
+                dialogs.Error(LocalizationService.Text("Loc.Diff.PasteFormat"));
                 return false;
             }
 
