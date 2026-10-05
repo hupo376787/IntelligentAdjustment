@@ -411,5 +411,11 @@
   "Loc.Status.ExportedOut": "OUT 已导出：{0}",
   "Loc.Map.ShowRealDistance": "显示真实距离",
   "Loc.Map.DistanceLabel": "{0} m",
-  "Loc.Menu.ExportOut": "导出 OUT"
+  "Loc.Menu.ExportOut": "导出 OUT",
+  "Loc.Menu.UserManual": "用户使用手册",
+  "Loc.Help.ManualMissing": "未找到用户使用手册 PDF。请确认程序 Help 目录中存在 Intelligent_Adjustment_User_Manual.pdf。",
+  "Loc.Help.ManualOpenFailed": "无法打开用户使用手册：{0}",
+  "Loc.Settings.RestoreSystemDefaults": "恢复系统设置",
+  "Loc.Settings.RestoreSystemDefaultsConfirm": "将恢复系统默认参数，包括当前工程设置、应用默认工程设置、字体大小、语言、启动选项和撤销/重做确认。是否继续？",
+  "Loc.Settings.RestoreSystemDefaultsDone": "已恢复系统默认设置。"
 }
