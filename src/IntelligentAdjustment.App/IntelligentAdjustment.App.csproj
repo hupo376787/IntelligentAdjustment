@@ -9,7 +9,7 @@
     <Product>IntelligentAdjustment</Product>
     <Description>高程控制网平差与成果分析工具</Description>
     <Copyright>© 2026 IntelligentAdjustment</Copyright>
-    <ApplicationIcon />
+    <ApplicationIcon>Assets\IntelligentAdjustment.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -19,5 +19,8 @@
     <ProjectReference Include="../IntelligentAdjustment.Application/IntelligentAdjustment.Application.csproj" />
     <ProjectReference Include="../IntelligentAdjustment.Domain/IntelligentAdjustment.Domain.csproj" />
     <ProjectReference Include="../IntelligentAdjustment.Core/IntelligentAdjustment.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\IntelligentAdjustment.ico" />
   </ItemGroup>
 </Project>

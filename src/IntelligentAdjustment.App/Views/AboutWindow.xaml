@@ -3,6 +3,7 @@
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Title="关于 IntelligentAdjustment"
+           Icon="pack://application:,,,/IntelligentAdjustment.App;component/Assets/IntelligentAdjustment.ico"
            ShowTitle="True"
            ResizeMode="NoResize"
            ShowInTaskbar="False"
