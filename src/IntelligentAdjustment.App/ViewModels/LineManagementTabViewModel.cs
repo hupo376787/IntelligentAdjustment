@@ -23,7 +23,7 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
     private string editName = string.Empty;
 
     [ObservableProperty]
-    private string newLineName = "新线路";
+    private string newLineName = LocalizationService.Text("Loc.Line.NewLine");
 
     public LineManagementTabViewModel(
         ProjectDocumentViewModel document,
@@ -32,7 +32,7 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         Func<Task<bool>> ensureSaved,
         Action<ProjectWorkspace> applyWorkspace,
         Func<Func<Task<ProjectWorkspace>>, Task<ProjectWorkspace>> executeUndoableDatabaseAction)
-        : base("lines", "线路管理")
+        : base("lines", LocalizationService.Text("Loc.Nav.Lines"))
     {
         this.document = document;
         this.session = session;
@@ -87,14 +87,14 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
             return;
         }
 
-        string name = string.IsNullOrWhiteSpace(NewLineName) ? "新线路" : NewLineName.Trim();
+        string name = string.IsNullOrWhiteSpace(NewLineName) ? LocalizationService.Text("Loc.Line.NewLine") : NewLineName.Trim();
         ProjectWorkspace workspace = await executeUndoableDatabaseAction(
             () => session.CreateLineAsync(name));
         applyWorkspace(workspace);
         Refresh();
 
         SelectedLine = Items.LastOrDefault();
-        NewLineName = "新线路";
+        NewLineName = LocalizationService.Text("Loc.Line.NewLine");
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
@@ -108,7 +108,7 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         string name = EditName.Trim();
         if (name.Length == 0)
         {
-            dialogs.Info("线路名称不能为空。");
+            dialogs.Info(LocalizationService.Text("Loc.Line.NameRequired"));
             return;
         }
 
@@ -134,8 +134,8 @@ public partial class LineManagementTabViewModel : WorkspaceTabViewModel
         }
 
         if (!dialogs.Confirm(
-                $"确定删除线路“{SelectedLine.Name}”吗？\n\n该线路下的原始观测和高差观测也会一起删除。",
-                "删除线路"))
+                LocalizationService.Format("Loc.Line.DeleteConfirm", SelectedLine.Name),
+                LocalizationService.Text("Loc.Line.DeleteTitle")))
         {
             return;
         }

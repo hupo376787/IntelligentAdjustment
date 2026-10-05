@@ -46,45 +46,45 @@
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource AppSurfaceBrush}"
               Foreground="{DynamicResource AppPrimaryTextBrush}">
-            <MenuItem Header="文件(_F)">
-                <MenuItem Header="新建工程(_N)" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl+N"/>
-                <MenuItem Header="打开工程(_O)" Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl+O"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.File}">
+                <MenuItem Header="{DynamicResource Loc.Menu.NewProject}" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.OpenProject}" Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl+O"/>
                 <Separator/>
-                <MenuItem Header="保存工程(_S)" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
-                <MenuItem Header="工程另存为..." Command="{Binding SaveProjectAsCommand}"/>
-                <MenuItem Header="关闭工程" Command="{Binding CloseProjectCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.SaveProject}" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.SaveAs}" Command="{Binding SaveProjectAsCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.CloseProject}" Command="{Binding CloseProjectCommand}"/>
                 <Separator/>
-                <MenuItem Header="仪器数据导入..." Command="{Binding OpenInstrumentImportCommand}"/>
-                <MenuItem Header="直接导入高差 OUT..." Command="{Binding ImportOutCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.InstrumentImport}" Command="{Binding OpenInstrumentImportCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.ImportOut}" Command="{Binding ImportOutCommand}"/>
                 <Separator/>
-                <MenuItem Header="报告与导出..." Command="{Binding OpenReportCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.ReportExport}" Command="{Binding OpenReportCommand}"/>
                 <Separator/>
-                <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.Exit}" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="编辑(_E)">
-                <MenuItem Header="撤销" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
-                <MenuItem Header="重做" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.Edit}">
+                <MenuItem Header="{DynamicResource Loc.Menu.Undo}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.Redo}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
             </MenuItem>
-            <MenuItem Header="计算(_C)">
-                <MenuItem Header="搜索闭合/附合路线" Command="{Binding SearchRoutesCommand}"/>
-                <MenuItem Header="执行高程平差" Command="{Binding CalculateAdjustmentCommand}"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.Calculate}">
+                <MenuItem Header="{DynamicResource Loc.Menu.SearchRoutes}" Command="{Binding SearchRoutesCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Menu.RunAdjustment}" Command="{Binding CalculateAdjustmentCommand}"/>
             </MenuItem>
-            <MenuItem Header="视图(_V)">
-                <MenuItem Header="工程概览" Command="{Binding OpenDashboardCommand}"/>
-                <MenuItem Header="线路管理" Command="{Binding OpenLineManagementCommand}"/>
-                <MenuItem Header="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
-                <MenuItem Header="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
-                <MenuItem Header="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
-                <MenuItem Header="网形草图" Command="{Binding OpenMapSketchCommand}"/>
-                <MenuItem Header="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
-                <MenuItem Header="平差结果" Command="{Binding OpenAdjustmentResultsCommand}"/>
-                <MenuItem Header="报告与导出" Command="{Binding OpenReportCommand}"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.View}">
+                <MenuItem Header="{DynamicResource Loc.Nav.Dashboard}" Command="{Binding OpenDashboardCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.Lines}" Command="{Binding OpenLineManagementCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.RawObservations}" Command="{Binding OpenRawObservationsCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.Differences}" Command="{Binding OpenLevelDifferencesCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.KnownHeights}" Command="{Binding OpenKnownHeightsCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.MapSketch}" Command="{Binding OpenMapSketchCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.NetworkGraph}" Command="{Binding OpenNetworkGraphCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.AdjustmentResults}" Command="{Binding OpenAdjustmentResultsCommand}"/>
+                <MenuItem Header="{DynamicResource Loc.Nav.Report}" Command="{Binding OpenReportCommand}"/>
             </MenuItem>
-            <MenuItem Header="工具(_T)">
-                <MenuItem Header="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.Tools}">
+                <MenuItem Header="{DynamicResource Loc.Nav.ProjectSettings}" Command="{Binding OpenProjectSettingsCommand}"/>
             </MenuItem>
-            <MenuItem Header="帮助(_H)">
-                <MenuItem Header="关于 IntelligentAdjustment" Command="{Binding AboutCommand}"/>
+            <MenuItem Header="{DynamicResource Loc.Menu.Help}">
+                <MenuItem Header="{DynamicResource Loc.Menu.About}" Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
 
@@ -96,7 +96,7 @@
                 Padding="8,5,8,6">
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding NewProjectCommand}"
-                        ToolTip="新建工程"
+                        ToolTip="{DynamicResource Loc.Tooltip.NewProject}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppAccentSoftBrush}" HorizontalAlignment="Center">
@@ -108,12 +108,12 @@
                                       StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="新建" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.New}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding OpenProjectCommand}"
-                        ToolTip="打开工程"
+                        ToolTip="{DynamicResource Loc.Tooltip.OpenProject}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppOrangeSoftBrush}" HorizontalAlignment="Center">
@@ -125,12 +125,12 @@
                                       StrokeLineJoin="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="打开" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.Open}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding SaveProjectCommand}"
-                        ToolTip="保存工程"
+                        ToolTip="{DynamicResource Loc.Tooltip.SaveProject}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppTealSoftBrush}" HorizontalAlignment="Center">
@@ -142,14 +142,14 @@
                                       StrokeLineJoin="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="保存" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.Save}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
 
                 <Button Command="{Binding UndoCommand}"
-                        ToolTip="撤销 (Ctrl+Z)"
+                        ToolTip="{DynamicResource Loc.Tooltip.Undo}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppPurpleSoftBrush}" HorizontalAlignment="Center">
@@ -162,12 +162,12 @@
                                       StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="撤销" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.Undo}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding RedoCommand}"
-                        ToolTip="重做 (Ctrl+Y)"
+                        ToolTip="{DynamicResource Loc.Tooltip.Redo}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppPurpleSoftBrush}" HorizontalAlignment="Center">
@@ -180,14 +180,14 @@
                                       StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="重做" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.Redo}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
 
                 <Button Command="{Binding OpenInstrumentImportCommand}"
-                        ToolTip="按仪器厂商/格式导入数据"
+                        ToolTip="{DynamicResource Loc.Tooltip.InstrumentImport}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppSuccessSoftBrush}" HorizontalAlignment="Center">
@@ -200,12 +200,12 @@
                                       StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="仪器导入" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.InstrumentImport}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Button Command="{Binding ImportOutCommand}"
-                        ToolTip="直接导入 OUT 高差数据"
+                        ToolTip="{DynamicResource Loc.Tooltip.ImportOut}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AppAccentSoftBrush}" HorizontalAlignment="Center">
@@ -218,14 +218,14 @@
                                       StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="导入 OUT" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.ImportOut}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
 
                 <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
 
                 <Button Command="{Binding AboutCommand}"
-                        ToolTip="关于 IntelligentAdjustment"
+                        ToolTip="{DynamicResource Loc.Tooltip.About}"
                         Style="{StaticResource MainToolbarButtonStyle}">
                     <StackPanel>
                         <Border Width="32"
@@ -248,7 +248,7 @@
                                 </Grid>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="关于" Style="{StaticResource MainToolbarLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Loc.Toolbar.About}" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -262,7 +262,7 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Text="{Binding CurrentProjectPath, TargetNullValue=未打开工程}"/>
+                <TextBlock Text="{Binding CurrentProjectPathDisplay}"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalAlignment="Right">
@@ -329,47 +329,47 @@
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="12,8">
-                        <Expander Header="工程">
+                        <Expander Header="{DynamicResource Loc.Nav.Project}">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Tag="dashboard" Content="工程概览" Command="{Binding OpenDashboardCommand}"/>
+                                <Button Tag="dashboard" Content="{DynamicResource Loc.Nav.Dashboard}" Command="{Binding OpenDashboardCommand}"/>
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="数据">
+                        <Expander Header="{DynamicResource Loc.Nav.Data}">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Tag="lines" Content="线路管理" Command="{Binding OpenLineManagementCommand}"/>
-                                <Button Tag="instrument-import" Content="仪器导入" Command="{Binding OpenInstrumentImportCommand}"/>
-                                <Button Tag="raw-observations" Content="原始观测" Command="{Binding OpenRawObservationsCommand}"/>
-                                <Button Tag="differences" Content="高差观测" Command="{Binding OpenLevelDifferencesCommand}"/>
-                                <Button Tag="known-heights" Content="已知高程" Command="{Binding OpenKnownHeightsCommand}"/>
-                                <Button Tag="map-sketch" Content="网形草图" Command="{Binding OpenMapSketchCommand}"/>
+                                <Button Tag="lines" Content="{DynamicResource Loc.Nav.Lines}" Command="{Binding OpenLineManagementCommand}"/>
+                                <Button Tag="instrument-import" Content="{DynamicResource Loc.Nav.InstrumentImport}" Command="{Binding OpenInstrumentImportCommand}"/>
+                                <Button Tag="raw-observations" Content="{DynamicResource Loc.Nav.RawObservations}" Command="{Binding OpenRawObservationsCommand}"/>
+                                <Button Tag="differences" Content="{DynamicResource Loc.Nav.Differences}" Command="{Binding OpenLevelDifferencesCommand}"/>
+                                <Button Tag="known-heights" Content="{DynamicResource Loc.Nav.KnownHeights}" Command="{Binding OpenKnownHeightsCommand}"/>
+                                <Button Tag="map-sketch" Content="{DynamicResource Loc.Nav.MapSketch}" Command="{Binding OpenMapSketchCommand}"/>
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="计算">
+                        <Expander Header="{DynamicResource Loc.Nav.Calculation}">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Content="搜索路线"
+                                <Button Content="{DynamicResource Loc.Nav.SearchRoutes}"
                                         Command="{Binding SearchRoutesCommand}"
-                                        ToolTip="执行闭合/附合路线搜索"/>
+                                        ToolTip="{DynamicResource Loc.Tooltip.SearchRoutes}"/>
                                 <Button Tag="routes"
-                                        Content="闭合/附合路线"
+                                        Content="{DynamicResource Loc.Nav.Routes}"
                                         Command="{Binding OpenRoutesCommand}"
-                                        ToolTip="查看最近一次路线搜索结果"/>
-                                <Button Content="执行高程平差"
+                                        ToolTip="{DynamicResource Loc.Tooltip.ViewRoutes}"/>
+                                <Button Content="{DynamicResource Loc.Nav.RunAdjustment}"
                                         Command="{Binding CalculateAdjustmentCommand}"
-                                        ToolTip="执行计算；完成后不会自动跳转页面"/>
+                                        ToolTip="{DynamicResource Loc.Tooltip.RunAdjustment}"/>
                                 <Button Tag="adjustment-results"
-                                        Content="平差结果"
+                                        Content="{DynamicResource Loc.Nav.AdjustmentResults}"
                                         Command="{Binding OpenAdjustmentResultsCommand}"
-                                        ToolTip="查看最近一次平差成果"/>
-                                <Button Tag="network-graph" Content="水准网图" Command="{Binding OpenNetworkGraphCommand}"/>
-                                <Button Tag="report" Content="报告与导出" Command="{Binding OpenReportCommand}"/>
+                                        ToolTip="{DynamicResource Loc.Tooltip.ViewAdjustment}"/>
+                                <Button Tag="network-graph" Content="{DynamicResource Loc.Nav.NetworkGraph}" Command="{Binding OpenNetworkGraphCommand}"/>
+                                <Button Tag="report" Content="{DynamicResource Loc.Nav.Report}" Command="{Binding OpenReportCommand}"/>
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="设置">
+                        <Expander Header="{DynamicResource Loc.Nav.Settings}">
                             <StackPanel Margin="8,4,8,8">
-                                <Button Tag="settings" Content="工程设置" Command="{Binding OpenProjectSettingsCommand}"/>
+                                <Button Tag="settings" Content="{DynamicResource Loc.Nav.ProjectSettings}" Command="{Binding OpenProjectSettingsCommand}"/>
                             </StackPanel>
                         </Expander>
                     </StackPanel>

@@ -16,7 +16,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
     public LevelDifferencesTabViewModel(
         ProjectDocumentViewModel document,
         IUserDialogService dialogs)
-        : base("differences", "高差观测")
+        : base("differences", LocalizationService.Text("Loc.Nav.Differences"))
     {
         this.document = document;
         this.dialogs = dialogs;
@@ -40,7 +40,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
         long lineId = SelectedRows.FirstOrDefault()?.LineId ?? document.Lines.FirstOrDefault()?.Id ?? 0;
         if (lineId <= 0)
         {
-            dialogs.Info("当前工程还没有可编辑的线路。请先导入 OUT 文件或新建线路。");
+            dialogs.Info(LocalizationService.Text("Loc.Diff.NoEditableLineImport"));
             return;
         }
 
@@ -125,7 +125,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
         long[] selectedIds = SelectedRows.Select(x => x.Id).ToArray();
         if (selectedIds.Distinct().Count() != selectedIds.Length)
         {
-            dialogs.Error("选中行存在未保存的重复内部编号，请先保存工程后再执行“合并后删除”。");
+            dialogs.Error(LocalizationService.Text("Loc.Diff.DuplicateInternalId"));
             return;
         }
 
@@ -142,13 +142,13 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
     {
         if (!Items.Any(x => x.ToPointRole == PointRole.TransitionPoint))
         {
-            dialogs.Info("当前没有已标记的过渡点。");
+            dialogs.Info(LocalizationService.Text("Loc.Diff.NoTransitionPoints"));
             return;
         }
 
         if (!dialogs.Confirm(
-                "将把当前工程中已标记的过渡点压缩到相邻平差测段，并删除中间过渡点记录。是否继续？",
-                "删除过渡点"))
+                LocalizationService.Text("Loc.Diff.DeleteTransitionConfirm"),
+                LocalizationService.Text("Loc.Diff.DeleteTransition")))
         {
             return;
         }
@@ -170,7 +170,7 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
         long defaultLineId = SelectedRows.FirstOrDefault()?.LineId ?? document.Lines.FirstOrDefault()?.Id ?? 0;
         if (defaultLineId <= 0)
         {
-            dialogs.Info("当前工程还没有可编辑的线路。");
+            dialogs.Info(LocalizationService.Text("Loc.Diff.NoEditableLine"));
             return false;
         }
 
@@ -336,14 +336,18 @@ public partial class LevelDifferencesTabViewModel : WorkspaceTabViewModel
     private static PointRole ParseRole(string? text, out bool specified)
     {
         string normalized = text?.Trim() ?? string.Empty;
-        if (normalized.Equals("过渡点", StringComparison.OrdinalIgnoreCase)
+        if (normalized.Equals(LocalizationService.Text("Loc.Role.Transition"), StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("过渡点", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Transition point", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(nameof(PointRole.TransitionPoint), StringComparison.OrdinalIgnoreCase))
         {
             specified = true;
             return PointRole.TransitionPoint;
         }
 
-        if (normalized.Equals("平差点", StringComparison.OrdinalIgnoreCase)
+        if (normalized.Equals(LocalizationService.Text("Loc.Role.Adjustment"), StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("平差点", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("Adjustment point", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(nameof(PointRole.AdjustmentPoint), StringComparison.OrdinalIgnoreCase))
         {
             specified = true;

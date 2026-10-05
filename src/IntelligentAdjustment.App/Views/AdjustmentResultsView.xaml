@@ -11,8 +11,8 @@
                 Margin="0,0,0,10"
                 Visibility="{Binding IsStale, Converter={StaticResource BooleanToVisibilityConverter}}">
             <DockPanel>
-                <Button DockPanel.Dock="Right" Content="立即更新" Command="{Binding RecalculateCommand}" Padding="12,4"/>
-                <TextBlock Text="当前结果基于旧数据，工程数据已发生修改，是否更新？"
+                <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.Adjust.UpdateNow}" Command="{Binding RecalculateCommand}" Padding="12,4"/>
+                <TextBlock Text="{DynamicResource Loc.Adjust.Stale}"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource AppWarningTextBrush}"/>
             </DockPanel>
@@ -21,11 +21,11 @@
         <TextBlock DockPanel.Dock="Top" Text="{Binding Summary}" FontSize="14" Margin="0,0,0,10"/>
 
         <TabControl>
-            <TabItem Header="高程成果">
+            <TabItem Header="{DynamicResource Loc.Adjust.Heights}">
                 <DataGrid ItemsSource="{Binding Heights}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="点名" Binding="{Binding PointName}" Width="180"/>
-                        <DataGridTextColumn Header="高程 [m]" Width="160">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Known.PointName}" Binding="{Binding PointName}" Width="180"/>
+                        <DataGridTextColumn Header="{DynamicResource Loc.Common.HeightM}" Width="160">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="Height"/>
@@ -35,7 +35,7 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="中误差 [m]" Width="160">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Adjust.MeanError}" Width="160">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="StandardError"/>
@@ -45,16 +45,16 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridCheckBoxColumn Header="基准/已知点" Binding="{Binding IsReferencePoint}" Width="110"/>
+                        <DataGridCheckBoxColumn Header="{DynamicResource Loc.Adjust.Reference}" Binding="{Binding IsReferencePoint}" Width="110"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
-            <TabItem Header="高差与残差">
+            <TabItem Header="{DynamicResource Loc.Adjust.Differences}">
                 <DataGrid ItemsSource="{Binding Differences}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="起点" Binding="{Binding FromPoint}" Width="120"/>
-                        <DataGridTextColumn Header="终点" Binding="{Binding ToPoint}" Width="120"/>
-                        <DataGridTextColumn Header="观测高差 [m]" Width="140">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Common.From}" Binding="{Binding FromPoint}" Width="120"/>
+                        <DataGridTextColumn Header="{DynamicResource Loc.Common.To}" Binding="{Binding ToPoint}" Width="120"/>
+                        <DataGridTextColumn Header="{DynamicResource Loc.Adjust.Observed}" Width="140">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="ObservedDifference"/>
@@ -64,7 +64,7 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="平差高差 [m]" Width="140">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Adjust.Adjusted}" Width="140">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="AdjustedDifferenceValue"/>
@@ -74,7 +74,7 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="残差 [m]" Width="120">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Adjust.Residual}" Width="120">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="Residual"/>
@@ -84,7 +84,7 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="距离 [m]" Width="120">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Common.DistanceM}" Width="120">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="DistanceMeters"/>
@@ -94,8 +94,8 @@
                                 </MultiBinding>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="测站数" Binding="{Binding StationCount}" Width="90"/>
-                        <DataGridTextColumn Header="中误差 [m]" Width="120">
+                        <DataGridTextColumn Header="{DynamicResource Loc.Common.StationCount}" Binding="{Binding StationCount}" Width="90"/>
+                        <DataGridTextColumn Header="{DynamicResource Loc.Adjust.MeanError}" Width="120">
                             <DataGridTextColumn.Binding>
                                 <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                     <Binding Path="StandardError"/>

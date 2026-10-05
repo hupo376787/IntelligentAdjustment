@@ -186,7 +186,7 @@ public static class NetworkDiagramExporter
         writer.WriteStartElement("text");
         writer.WriteAttributeString("x", "28");
         writer.WriteAttributeString("y", "34");
-        writer.WriteString("■ 已知点　○ 平差点　◇ 过渡点　红色虚线：超限闭合/附合路线");
+        writer.WriteString(LocalizationService.Text("Loc.Graph.ExportLegend"));
         writer.WriteEndElement();
 
         if (scene.MissingCoordinateCount > 0)
@@ -194,7 +194,7 @@ public static class NetworkDiagramExporter
             writer.WriteStartElement("text");
             writer.WriteAttributeString("x", "28");
             writer.WriteAttributeString("y", "58");
-            writer.WriteString($"注：{scene.MissingCoordinateCount} 个点未保存草图坐标，本图使用临时布局。");
+            writer.WriteString(LocalizationService.Format("Loc.Graph.ExportMissingNote", scene.MissingCoordinateCount));
             writer.WriteEndElement();
         }
 
@@ -303,7 +303,7 @@ public static class NetworkDiagramExporter
         }
 
         var legend = new FormattedText(
-            "■ 已知点   ○ 平差点   ◇ 过渡点   红色虚线：超限闭合/附合路线",
+            LocalizationService.Text("Loc.Graph.ExportLegend"),
             CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight,
             labelTypeface,
@@ -315,7 +315,7 @@ public static class NetworkDiagramExporter
         if (scene.MissingCoordinateCount > 0)
         {
             var warning = new FormattedText(
-                $"注：{scene.MissingCoordinateCount} 个点未保存草图坐标，本图使用临时布局。",
+                LocalizationService.Format("Loc.Graph.ExportMissingNote", scene.MissingCoordinateCount),
                 CultureInfo.CurrentUICulture,
                 FlowDirection.LeftToRight,
                 labelTypeface,

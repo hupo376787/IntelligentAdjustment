@@ -173,13 +173,15 @@ public partial class NetworkGraphView : UserControl
         string extension = format == DiagramExportFormat.Png ? ".png" : ".svg";
         var dialog = new SaveFileDialog
         {
-            Title = format == DiagramExportFormat.Png ? "导出水准网图 PNG" : "导出水准网图 SVG",
+            Title = format == DiagramExportFormat.Png
+                ? LocalizationService.Text("Loc.Graph.ExportPngTitle")
+                : LocalizationService.Text("Loc.Graph.ExportSvgTitle"),
             Filter = format == DiagramExportFormat.Png
-                ? "PNG 图像 (*.png)|*.png"
-                : "SVG 矢量图 (*.svg)|*.svg",
+                ? LocalizationService.Text("Loc.Dialog.PngFilter")
+                : LocalizationService.Text("Loc.Dialog.SvgFilter"),
             DefaultExt = extension,
             AddExtension = true,
-            FileName = $"水准网图{extension}"
+            FileName = $"{LocalizationService.Text("Loc.Graph.FileName")}{extension}"
         };
 
         if (dialog.ShowDialog() != true)
@@ -203,7 +205,7 @@ public partial class NetworkGraphView : UserControl
         }
 
         MessageBox.Show(
-            $"已导出：{dialog.FileName}",
+            LocalizationService.Format("Loc.Graph.Exported", dialog.FileName),
             "IntelligentAdjustment",
             MessageBoxButton.OK,
             MessageBoxImage.Information);
@@ -511,7 +513,7 @@ public partial class NetworkGraphView : UserControl
     {
         var legend = new TextBlock
         {
-            Text = "■ 已知点   ○ 平差点   ◇ 过渡点   红色虚线：超限路线   灰色虚环：临时坐标",
+            Text = LocalizationService.Text("Loc.Graph.Legend"),
             Foreground = Brushes.DimGray,
             FontSize = 12,
             Background = new SolidColorBrush(Color.FromArgb(220, 255, 255, 255)),

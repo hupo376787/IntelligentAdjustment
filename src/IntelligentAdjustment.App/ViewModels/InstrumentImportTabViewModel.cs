@@ -19,14 +19,14 @@ public partial class InstrumentImportTabViewModel : WorkspaceTabViewModel
     private InstrumentImporterDescriptor? selectedImporter;
 
     [ObservableProperty]
-    private string fileSummary = "尚未选择文件";
+    private string fileSummary = LocalizationService.Text("Loc.Import.NoFiles");
 
     public InstrumentImportTabViewModel(
         ProjectSessionService session,
         IUserDialogService dialogs,
         Func<Task<bool>> ensureSaved,
         Action<ProjectWorkspace> applyWorkspace)
-        : base("instrument-import", "仪器导入")
+        : base("instrument-import", LocalizationService.Text("Loc.Nav.InstrumentImport"))
     {
         this.session = session;
         this.dialogs = dialogs;
@@ -45,13 +45,13 @@ public partial class InstrumentImportTabViewModel : WorkspaceTabViewModel
         SelectedImporter is null
             ? string.Empty
             : SelectedImporter.IsImplemented
-                ? "当前解析器已可用。多选文件时默认“一文件一线路”导入。"
-                : "该厂商解析器框架已预留；需要结合对应样本格式完成解析器后才能导入。";
+                ? LocalizationService.Text("Loc.Import.ParserReady")
+                : LocalizationService.Text("Loc.Import.ParserPending");
 
     partial void OnSelectedImporterChanged(InstrumentImporterDescriptor? value)
     {
         SelectedFiles.Clear();
-        FileSummary = "尚未选择文件";
+        FileSummary = LocalizationService.Text("Loc.Import.NoFiles");
         OnPropertyChanged(nameof(SupportText));
         ChooseFilesCommand.NotifyCanExecuteChanged();
         ImportCommand.NotifyCanExecuteChanged();
@@ -73,8 +73,8 @@ public partial class InstrumentImportTabViewModel : WorkspaceTabViewModel
         }
 
         FileSummary = files.Count == 0
-            ? "尚未选择文件"
-            : $"已选择 {files.Count} 个文件";
+            ? LocalizationService.Text("Loc.Import.NoFiles")
+            : LocalizationService.Format("Loc.Import.SelectedFiles", files.Count);
 
         ImportCommand.NotifyCanExecuteChanged();
     }
@@ -102,10 +102,13 @@ public partial class InstrumentImportTabViewModel : WorkspaceTabViewModel
 
         applyWorkspace(workspace);
         dialogs.Info(
-            $"已导入 {SelectedFiles.Count} 个 {SelectedImporter.DisplayName} 文件。\n每个文件建立一条线路。");
+            LocalizationService.Format(
+                "Loc.Import.ImportedFiles",
+                SelectedFiles.Count,
+                SelectedImporter.DisplayName));
 
         SelectedFiles.Clear();
-        FileSummary = "尚未选择文件";
+        FileSummary = LocalizationService.Text("Loc.Import.NoFiles");
         ImportCommand.NotifyCanExecuteChanged();
     }
 

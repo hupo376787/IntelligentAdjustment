@@ -18,7 +18,7 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         ApplicationPreferencesService preferences,
         IUserDialogService dialogs,
         Func<string?> currentProjectPathProvider)
-        : base("settings", "工程设置")
+        : base("settings", LocalizationService.Text("Loc.Settings.Title"))
     {
         this.document = document;
         this.preferences = preferences;
@@ -27,19 +27,44 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         document.PropertyChanged += Document_PropertyChanged;
     }
 
-    public IReadOnlyList<HorizontalAlignmentOption> HorizontalAlignmentOptions { get; } =
+    public IReadOnlyList<LanguageOption> LanguageOptions { get; } =
     [
-        new(PointNameHorizontalAlignmentMode.Left, "左侧"),
-        new(PointNameHorizontalAlignmentMode.Center, "居中"),
-        new(PointNameHorizontalAlignmentMode.Right, "右侧")
+        new(LocalizationService.DefaultLanguageCode, "简体中文"),
+        new(LocalizationService.EnglishLanguageCode, "English")
     ];
 
-    public IReadOnlyList<VerticalAlignmentOption> VerticalAlignmentOptions { get; } =
+    public IReadOnlyList<HorizontalAlignmentOption> HorizontalAlignmentOptions =>
     [
-        new(PointNameVerticalAlignmentMode.Top, "上方"),
-        new(PointNameVerticalAlignmentMode.Center, "居中"),
-        new(PointNameVerticalAlignmentMode.Bottom, "下方")
+        new(PointNameHorizontalAlignmentMode.Left, LocalizationService.Text("Loc.Settings.Left")),
+        new(PointNameHorizontalAlignmentMode.Center, LocalizationService.Text("Loc.Settings.Center")),
+        new(PointNameHorizontalAlignmentMode.Right, LocalizationService.Text("Loc.Settings.Right"))
     ];
+
+    public IReadOnlyList<VerticalAlignmentOption> VerticalAlignmentOptions =>
+    [
+        new(PointNameVerticalAlignmentMode.Top, LocalizationService.Text("Loc.Settings.Top")),
+        new(PointNameVerticalAlignmentMode.Center, LocalizationService.Text("Loc.Settings.Center")),
+        new(PointNameVerticalAlignmentMode.Bottom, LocalizationService.Text("Loc.Settings.Bottom"))
+    ];
+
+    public string SelectedLanguageCode
+    {
+        get => preferences.LanguageCode;
+        set
+        {
+            string normalized = LocalizationService.NormalizeLanguageCode(value);
+            if (string.Equals(normalized, preferences.LanguageCode, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            preferences.SaveLanguageCode(normalized);
+            LocalizationService.ApplyLanguage(normalized);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HorizontalAlignmentOptions));
+            OnPropertyChanged(nameof(VerticalAlignmentOptions));
+        }
+    }
 
     public bool IsDistanceTolerance
     {
@@ -225,14 +250,18 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
     private void SaveAsApplicationDefaults()
     {
         preferences.SaveDefaultProjectSettings(document.Settings);
-        dialogs.Info("已将当前工程设置保存为应用默认值。以后新建工程将使用这些设置。", "应用默认设置");
+        dialogs.Info(
+            LocalizationService.Text("Loc.Settings.DefaultsSavedMessage"),
+            LocalizationService.Text("Loc.Settings.AppDefaults"));
     }
 
     [RelayCommand]
     private void ApplyApplicationDefaults()
     {
         document.Settings = preferences.DefaultProjectSettings;
-        dialogs.Info("已将应用默认设置应用到当前工程。保存工程后生效。", "应用默认设置");
+        dialogs.Info(
+            LocalizationService.Text("Loc.Settings.DefaultsAppliedMessage"),
+            LocalizationService.Text("Loc.Settings.AppDefaults"));
     }
 
     private void Document_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -259,6 +288,9 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
         OnPropertyChanged(nameof(PointNameVerticalAlignment));
         OnPropertyChanged(nameof(OpenLastProjectOnStartup));
         OnPropertyChanged(nameof(UiFontSize));
+        OnPropertyChanged(nameof(SelectedLanguageCode));
+        OnPropertyChanged(nameof(HorizontalAlignmentOptions));
+        OnPropertyChanged(nameof(VerticalAlignmentOptions));
     }
 }
 
@@ -269,3 +301,7 @@ public sealed record HorizontalAlignmentOption(
 public sealed record VerticalAlignmentOption(
     PointNameVerticalAlignmentMode Value,
     string Label);
+
+public sealed record LanguageOption(
+    string Code,
+    string DisplayName);

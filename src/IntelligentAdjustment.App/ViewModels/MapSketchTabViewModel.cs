@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using IntelligentAdjustment.App.Services;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -28,10 +29,10 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     private bool isPlacementMode;
 
     [ObservableProperty]
-    private string statusText = "左键框选；拖动节点移动；鼠标中键或 Space+左键平移；滚轮缩放。";
+    private string statusText = LocalizationService.Text("Loc.Map.StatusHelp");
 
     public MapSketchTabViewModel(ProjectDocumentViewModel document)
-        : base("map-sketch", "网形草图")
+        : base("map-sketch", LocalizationService.Text("Loc.Nav.MapSketch"))
     {
         this.document = document;
         Refresh();
@@ -142,7 +143,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
         });
 
         IsPlacementMode = false;
-        StatusText = $"已定位点 {normalized}：({x:F1}, {y:F1})";
+        StatusText = LocalizationService.Format("Loc.Map.Positioned", normalized, x, y);
         Refresh();
     }
 
@@ -192,7 +193,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
             }
         });
 
-        StatusText = $"已删除 {selected.Count} 个点的草图坐标；网络点本身未删除。";
+        StatusText = LocalizationService.Format("Loc.Map.DeletedCoordinates", selected.Count);
         Refresh();
     }
 
@@ -201,19 +202,19 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     {
         if (string.IsNullOrWhiteSpace(SelectedPointName))
         {
-            StatusText = "请先选择要放置的网络点。";
+            StatusText = LocalizationService.Text("Loc.Map.SelectPointFirst");
             return;
         }
 
         IsPlacementMode = true;
-        StatusText = $"请在画布上单击放置“{SelectedPointName}”。";
+        StatusText = LocalizationService.Format("Loc.Map.ClickToPlace", SelectedPointName);
     }
 
     [RelayCommand]
     private void CancelPlacement()
     {
         IsPlacementMode = false;
-        StatusText = "已取消节点放置。";
+        StatusText = LocalizationService.Text("Loc.Map.PlacementCancelled");
     }
 
     [RelayCommand]
@@ -225,7 +226,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
         string[] missing = UnpositionedPointNames.ToArray();
         if (missing.Length == 0)
         {
-            StatusText = "所有网络点都已经具有草图坐标。";
+            StatusText = LocalizationService.Text("Loc.Map.AllPositioned");
             return;
         }
 
@@ -238,7 +239,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
             AddCircularLayout(missing, centerX, centerY, radius);
         });
 
-        StatusText = $"已自动布置 {missing.Length} 个未定位点，可继续手工拖动调整。";
+        StatusText = LocalizationService.Format("Loc.Map.AutoLaidOut", missing.Length);
         Refresh();
         FitRequested?.Invoke(this, EventArgs.Empty);
     }
@@ -248,7 +249,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
         string[] names = NetworkPointNames.ToArray();
         if (names.Length == 0)
         {
-            StatusText = "当前没有可布局的网络点。";
+            StatusText = LocalizationService.Text("Loc.Map.NoPointsToLayout");
             return;
         }
 
@@ -262,7 +263,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
             AddCircularLayout(names, centerX, centerY, radius);
         });
 
-        StatusText = $"已按观测顺序重新自动布局全部 {names.Length} 个网络点。";
+        StatusText = LocalizationService.Format("Loc.Map.RelayoutAll", names.Length);
         Refresh();
         FitRequested?.Invoke(this, EventArgs.Empty);
     }
@@ -271,13 +272,13 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     {
         if (document.MapPoints.Count == 0)
         {
-            StatusText = "当前没有已保存的草图坐标。";
+            StatusText = LocalizationService.Text("Loc.Map.NoSavedCoordinates");
             return;
         }
 
         int count = document.MapPoints.Count;
         document.ExecuteUndoable(document.MapPoints.Clear);
-        StatusText = $"已清空 {count} 个点的草图坐标；网络点和观测数据未删除。";
+        StatusText = LocalizationService.Format("Loc.Map.ClearedCoordinates", count);
         Refresh();
         FitRequested?.Invoke(this, EventArgs.Empty);
     }
@@ -309,7 +310,7 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     {
         SelectedPointName = pointName;
         IsPlacementMode = true;
-        StatusText = $"重新定位“{pointName}”：请单击新的位置。";
+        StatusText = LocalizationService.Format("Loc.Map.RelocatePrompt", pointName);
     }
 
     public (double X, double Y) Snap(double x, double y)

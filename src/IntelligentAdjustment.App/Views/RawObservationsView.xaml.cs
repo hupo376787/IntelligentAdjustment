@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using IntelligentAdjustment.App.ViewModels;
+using IntelligentAdjustment.App.Services;
 using IntelligentAdjustment.Application.Observations;
 
 namespace IntelligentAdjustment.App.Views;
@@ -201,7 +202,7 @@ public partial class RawObservationsView : UserControl
 
         if (points.Count < 2)
         {
-            AddProfileMessage("当前线路没有足够的有效原始观测用于绘制剖面。");
+            AddProfileMessage(LocalizationService.Text("Loc.Raw.ProfileInsufficient"));
             return;
         }
 
@@ -294,12 +295,12 @@ public partial class RawObservationsView : UserControl
         string heightRangeText = (maxY - minY).ToString($"F{heightDecimals}");
 
         AddAxisText(
-            $"累计距离 {totalDistanceText} m",
+            LocalizationService.Format("Loc.Raw.CumulativeDistance", totalDistanceText),
             left + width / 2 - 45,
             top + height + 18);
 
         AddAxisText(
-            $"相对高差范围 {heightRangeText} m",
+            LocalizationService.Format("Loc.Raw.RelativeRange", heightRangeText),
             6,
             4);
     }

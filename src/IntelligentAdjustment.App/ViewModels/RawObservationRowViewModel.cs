@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IntelligentAdjustment.Domain;
+using IntelligentAdjustment.App.Services;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -72,18 +73,18 @@ public partial class RawObservationRowViewModel : ObservableObject, IDataErrorIn
 
     public string this[string columnName] => columnName switch
     {
-        nameof(FromPoint) when string.IsNullOrWhiteSpace(FromPoint) => "起点点名不能为空。",
-        nameof(ToPoint) when string.IsNullOrWhiteSpace(ToPoint) => "终点点名不能为空。",
-        nameof(ToPoint) when string.Equals(FromPoint.Trim(), ToPoint.Trim(), StringComparison.Ordinal) => "起点和终点不能相同。",
-        nameof(B1) when B1 is not null && !double.IsFinite(B1.Value) => "B1 必须是有效数值。",
-        nameof(B2) when B2 is not null && !double.IsFinite(B2.Value) => "B2 必须是有效数值。",
-        nameof(F1) when F1 is not null && !double.IsFinite(F1.Value) => "F1 必须是有效数值。",
-        nameof(F2) when F2 is not null && !double.IsFinite(F2.Value) => "F2 必须是有效数值。",
-        nameof(DistanceB1) when DistanceB1 is not null && DistanceB1 <= 0 => "后视距离必须大于 0。",
-        nameof(DistanceB2) when DistanceB2 is not null && DistanceB2 <= 0 => "后视距离必须大于 0。",
-        nameof(DistanceF1) when DistanceF1 is not null && DistanceF1 <= 0 => "前视距离必须大于 0。",
-        nameof(DistanceF2) when DistanceF2 is not null && DistanceF2 <= 0 => "前视距离必须大于 0。",
-        nameof(TemperatureCelsius) when TemperatureCelsius is not null && !double.IsFinite(TemperatureCelsius.Value) => "温度必须是有效数值。",
+        nameof(FromPoint) when string.IsNullOrWhiteSpace(FromPoint) => LocalizationService.Text("Loc.Validation.FromRequired"),
+        nameof(ToPoint) when string.IsNullOrWhiteSpace(ToPoint) => LocalizationService.Text("Loc.Validation.ToRequired"),
+        nameof(ToPoint) when string.Equals(FromPoint.Trim(), ToPoint.Trim(), StringComparison.Ordinal) => LocalizationService.Text("Loc.Validation.EndpointsDifferent"),
+        nameof(B1) when B1 is not null && !double.IsFinite(B1.Value) => LocalizationService.Text("Loc.Validation.B1Finite"),
+        nameof(B2) when B2 is not null && !double.IsFinite(B2.Value) => LocalizationService.Text("Loc.Validation.B2Finite"),
+        nameof(F1) when F1 is not null && !double.IsFinite(F1.Value) => LocalizationService.Text("Loc.Validation.F1Finite"),
+        nameof(F2) when F2 is not null && !double.IsFinite(F2.Value) => LocalizationService.Text("Loc.Validation.F2Finite"),
+        nameof(DistanceB1) when DistanceB1 is not null && DistanceB1 <= 0 => LocalizationService.Text("Loc.Validation.BackDistancePositive"),
+        nameof(DistanceB2) when DistanceB2 is not null && DistanceB2 <= 0 => LocalizationService.Text("Loc.Validation.BackDistancePositive"),
+        nameof(DistanceF1) when DistanceF1 is not null && DistanceF1 <= 0 => LocalizationService.Text("Loc.Validation.ForeDistancePositive"),
+        nameof(DistanceF2) when DistanceF2 is not null && DistanceF2 <= 0 => LocalizationService.Text("Loc.Validation.ForeDistancePositive"),
+        nameof(TemperatureCelsius) when TemperatureCelsius is not null && !double.IsFinite(TemperatureCelsius.Value) => LocalizationService.Text("Loc.Validation.TemperatureFinite"),
         _ => string.Empty
     };
 

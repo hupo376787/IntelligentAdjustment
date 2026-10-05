@@ -13,8 +13,8 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "新建 IntelligentAdjustment 工程",
-            Filter = "IntelligentAdjustment 工程 (*.iap)|*.iap",
+            Title = LocalizationService.Text("Loc.Dialog.NewProjectTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.ProjectFilter"),
             DefaultExt = ".iap",
             AddExtension = true,
             OverwritePrompt = false
@@ -26,8 +26,8 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new OpenFileDialog
         {
-            Title = "打开 IntelligentAdjustment 工程",
-            Filter = "IntelligentAdjustment 工程 (*.iap)|*.iap",
+            Title = LocalizationService.Text("Loc.Dialog.OpenProjectTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.ProjectFilter"),
             Multiselect = false,
             CheckFileExists = true
         };
@@ -38,8 +38,8 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new OpenFileDialog
         {
-            Title = "导入高差观测数据",
-            Filter = "高差观测数据 (*.out)|*.out|所有文件 (*.*)|*.*",
+            Title = LocalizationService.Text("Loc.Dialog.ImportOutTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.OutFilter"),
             Multiselect = true,
             CheckFileExists = true
         };
@@ -55,12 +55,12 @@ public sealed class UserDialogService : IUserDialogService
             descriptor.Extensions.Select(x => $"*{x}"));
 
         string filter = descriptor.Extensions.Count == 0
-            ? "所有文件 (*.*)|*.*"
-            : $"{descriptor.DisplayName} ({patterns})|{patterns}|所有文件 (*.*)|*.*";
+            ? LocalizationService.Text("Loc.Dialog.AllFiles")
+            : $"{descriptor.DisplayName} ({patterns})|{patterns}|{LocalizationService.Text("Loc.Dialog.AllFiles")}";
 
         var dialog = new OpenFileDialog
         {
-            Title = $"导入 {descriptor.DisplayName} 数据",
+            Title = LocalizationService.Format("Loc.Dialog.ImportInstrumentTitle", descriptor.DisplayName),
             Filter = filter,
             Multiselect = true,
             CheckFileExists = true
@@ -75,8 +75,8 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "工程另存为",
-            Filter = "IntelligentAdjustment 工程 (*.iap)|*.iap",
+            Title = LocalizationService.Text("Loc.Dialog.SaveAsTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.ProjectFilter"),
             DefaultExt = ".iap",
             AddExtension = true,
             OverwritePrompt = false,
@@ -91,11 +91,11 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "导出高程控制网平差报告",
-            Filter = "Word 文档 (*.docx)|*.docx",
+            Title = LocalizationService.Text("Loc.Dialog.ExportReportTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.WordFilter"),
             DefaultExt = ".docx",
             AddExtension = true,
-            FileName = $"{SanitizeFileName(projectName)}-高程控制网平差报告.docx"
+            FileName = $"{SanitizeFileName(projectName)}-{LocalizationService.Text("Loc.Dialog.ReportFileSuffix")}.docx"
         };
 
         return dialog.ShowDialog() == true ? dialog.FileName : null;
@@ -105,11 +105,11 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "导出平差成果 Excel",
-            Filter = "Excel 工作簿 (*.xlsx)|*.xlsx",
+            Title = LocalizationService.Text("Loc.Dialog.ExportExcelTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.ExcelFilter"),
             DefaultExt = ".xlsx",
             AddExtension = true,
-            FileName = $"{SanitizeFileName(projectName)}-平差成果.xlsx"
+            FileName = $"{SanitizeFileName(projectName)}-{LocalizationService.Text("Loc.Dialog.ResultFileSuffix")}.xlsx"
         };
 
         return dialog.ShowDialog() == true ? dialog.FileName : null;
@@ -119,11 +119,11 @@ public sealed class UserDialogService : IUserDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "导出文本成果",
-            Filter = "文本文件 (*.txt)|*.txt",
+            Title = LocalizationService.Text("Loc.Dialog.ExportTextTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.TextFilter"),
             DefaultExt = ".txt",
             AddExtension = true,
-            FileName = $"{SanitizeFileName(projectName)}-平差成果.txt"
+            FileName = $"{SanitizeFileName(projectName)}-{LocalizationService.Text("Loc.Dialog.ResultFileSuffix")}.txt"
         };
 
         return dialog.ShowDialog() == true ? dialog.FileName : null;
@@ -131,7 +131,7 @@ public sealed class UserDialogService : IUserDialogService
 
     private static string SanitizeFileName(string? value)
     {
-        string source = string.IsNullOrWhiteSpace(value) ? "未命名工程" : value.Trim();
+        string source = string.IsNullOrWhiteSpace(value) ? LocalizationService.Text("Loc.Project.Unnamed") : value.Trim();
         foreach (char invalid in Path.GetInvalidFileNameChars())
         {
             source = source.Replace(invalid, '_');
@@ -144,7 +144,7 @@ public sealed class UserDialogService : IUserDialogService
     {
         MessageBoxResult result = HandyMessageBox.Show(
             GetOwner(),
-            "当前工程有尚未保存的修改。是否保存？",
+            LocalizationService.Text("Loc.Dialog.Unsaved"),
             "IntelligentAdjustment",
             MessageBoxButton.YesNoCancel,
             MessageBoxImage.Question,

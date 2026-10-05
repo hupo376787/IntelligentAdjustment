@@ -18,7 +18,7 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
     private double newHeight;
 
     public KnownHeightsTabViewModel(ProjectDocumentViewModel document, IUserDialogService dialogs)
-        : base("known-heights", "已知高程")
+        : base("known-heights", LocalizationService.Text("Loc.Nav.KnownHeights"))
     {
         this.document = document;
         this.dialogs = dialogs;
@@ -34,19 +34,19 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
         string name = NewPointName.Trim();
         if (name.Length == 0)
         {
-            dialogs.Info("请输入点名。");
+            dialogs.Info(LocalizationService.Text("Loc.Known.EnterPointName"));
             return;
         }
 
         if (!double.IsFinite(NewHeight))
         {
-            dialogs.Info("请输入有效的高程数值。");
+            dialogs.Info(LocalizationService.Text("Loc.Known.EnterValidHeight"));
             return;
         }
 
         if (Items.Any(x => string.Equals(x.PointName.Trim(), name, StringComparison.Ordinal)))
         {
-            dialogs.Info($"点名“{name}”已经存在，重复输入无效。");
+            dialogs.Info(LocalizationService.Format("Loc.Known.DuplicatePoint", name));
             return;
         }
 
@@ -99,7 +99,7 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
             string[] cells = line.Split('\t');
             if (cells.Length < 2)
             {
-                dialogs.Error("已知高程粘贴格式应为：点名<Tab>高程[<Tab>备注]。");
+                dialogs.Error(LocalizationService.Text("Loc.Known.PasteFormat"));
                 return false;
             }
 
@@ -108,13 +108,13 @@ public partial class KnownHeightsTabViewModel : WorkspaceTabViewModel
                 !TryDouble(cells[1], out double height) ||
                 !double.IsFinite(height))
             {
-                dialogs.Error($"无法识别已知高程行：{line}");
+                dialogs.Error(LocalizationService.Format("Loc.Known.UnrecognizedRow", line));
                 return false;
             }
 
             if (!names.Add(name))
             {
-                dialogs.Error($"点名“{name}”已经存在，整批粘贴已取消。");
+                dialogs.Error(LocalizationService.Format("Loc.Known.DuplicateBatch", name));
                 return false;
             }
 

@@ -5,12 +5,12 @@
     <DockPanel Margin="16">
         <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="点名" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock Text="{DynamicResource Loc.Known.PointName}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <TextBox Width="150" Text="{Binding NewPointName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0"/>
-                <TextBlock Text="高程 [m]" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock Text="{DynamicResource Loc.Common.HeightM}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <TextBox Width="150" Text="{Binding NewHeight, UpdateSourceTrigger=LostFocus}" Margin="0,0,12,0"/>
-                <Button Content="添加已知点" Command="{Binding AddKnownHeightCommand}" Padding="12,5" Margin="0,0,6,0"/>
-                <Button Content="删除选中" Command="{Binding DeleteSelectedCommand}" Padding="12,5"/>
+                <Button Content="{DynamicResource Loc.Known.Add}" Command="{Binding AddKnownHeightCommand}" Padding="12,5" Margin="0,0,6,0"/>
+                <Button Content="{DynamicResource Loc.Common.DeleteSelected}" Command="{Binding DeleteSelectedCommand}" Padding="12,5"/>
             </StackPanel>
         </Border>
 
@@ -22,10 +22,10 @@
                   SelectionUnit="FullRow"
                   behaviors:DataGridSelectionBehavior.SelectedItems="{Binding SelectedRows}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="点名"
+                <DataGridTextColumn Header="{DynamicResource Loc.Known.PointName}"
                                     Binding="{Binding PointName, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="180"/>
-                <DataGridTextColumn Header="高程 [m]" Width="160">
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.HeightM}" Width="160">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="Height" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -35,7 +35,7 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="备注" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Remarks}" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

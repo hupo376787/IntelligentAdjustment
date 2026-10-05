@@ -15,23 +15,24 @@ public partial class App : System.Windows.Application
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         var preferences = new ApplicationPreferencesService();
+        LocalizationService.ApplyLanguage(preferences.LanguageCode);
         UiAppearanceService.ApplyFontSize(preferences.UiFontSize);
 
         var splashDuration = Stopwatch.StartNew();
         var splash = new SplashWindow();
         splash.Show();
-        splash.UpdateProgress(new StartupProgress(8, "正在加载界面资源…"));
+        splash.UpdateProgress(new StartupProgress(8, LocalizationService.Text("Loc.Splash.LoadingResources")));
         await Dispatcher.Yield(DispatcherPriority.Loaded);
 
-        splash.UpdateProgress(new StartupProgress(18, "正在读取应用设置…"));
+        splash.UpdateProgress(new StartupProgress(18, LocalizationService.Text("Loc.Splash.ReadingSettings")));
         var mainWindow = new MainWindow(preferences);
         MainWindow = mainWindow;
         await Dispatcher.Yield(DispatcherPriority.Background);
 
-        splash.UpdateProgress(new StartupProgress(28, "正在初始化工作区…"));
+        splash.UpdateProgress(new StartupProgress(28, LocalizationService.Text("Loc.Splash.InitializingWorkspace")));
         await mainWindow.ViewModel.InitializeAsync(splash.UpdateProgress);
 
-        splash.UpdateProgress(new StartupProgress(94, "正在完成界面布局…"));
+        splash.UpdateProgress(new StartupProgress(94, LocalizationService.Text("Loc.Splash.FinishingLayout")));
         await Dispatcher.Yield(DispatcherPriority.Loaded);
 
         // Keep the splash visible for at least three seconds. Slow startups are
@@ -40,11 +41,11 @@ public partial class App : System.Windows.Application
         TimeSpan remaining = minimumSplashDuration - splashDuration.Elapsed;
         if (remaining > TimeSpan.Zero)
         {
-            splash.UpdateProgress(new StartupProgress(98, "正在准备主界面…"));
+            splash.UpdateProgress(new StartupProgress(98, LocalizationService.Text("Loc.Splash.PreparingMainWindow")));
             await Task.Delay(remaining);
         }
 
-        splash.UpdateProgress(new StartupProgress(100, "启动完成"));
+        splash.UpdateProgress(new StartupProgress(100, LocalizationService.Text("Loc.Splash.Done")));
         mainWindow.Show();
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         splash.Close();

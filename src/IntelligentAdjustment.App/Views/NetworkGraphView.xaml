@@ -7,15 +7,15 @@
                 Padding="12"
                 Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
-                <Button Content="适应视图"
+                <Button Content="{DynamicResource Loc.Graph.Fit}"
                         Command="{Binding FitToViewCommand}"
                         Padding="13,6"
                         Margin="0,0,8,0"/>
-                <Button Content="导出 PNG"
+                <Button Content="{DynamicResource Loc.Graph.ExportPng}"
                         Command="{Binding ExportPngCommand}"
                         Padding="13,6"
                         Margin="0,0,6,0"/>
-                <Button Content="导出 SVG"
+                <Button Content="{DynamicResource Loc.Graph.ExportSvg}"
                         Command="{Binding ExportSvgCommand}"
                         Padding="13,6"
                         Margin="0,0,16,0"/>
@@ -61,18 +61,18 @@
                           ResizeBehavior="PreviousAndNext"
                           ShowsPreview="True"
                           Background="{DynamicResource AppBorderBrush}"
-                          ToolTip="左右拖动调整图形与测段列表宽度"/>
+                          ToolTip="{DynamicResource Loc.Graph.SplitterTip}"/>
 
             <Border Grid.Column="2"
                     Style="{StaticResource SurfaceCardStyle}"
                     Padding="10">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="2,2,2,10">
-                        <TextBlock Text="测段联动"
+                        <TextBlock Text="{DynamicResource Loc.Graph.EdgeSync}"
                                    FontSize="16"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-                        <TextBlock Text="点击图中测段或右侧列表可双向联动"
+                        <TextBlock Text="{DynamicResource Loc.Graph.EdgeSyncHint}"
                                    Margin="0,3,0,0"
                                    Foreground="{DynamicResource AppMutedTextBrush}"/>
                     </StackPanel>
@@ -86,9 +86,9 @@
                               SelectionMode="Single"
                               SelectionUnit="FullRow">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="起点" Binding="{Binding FromPoint}" Width="85"/>
-                            <DataGridTextColumn Header="终点" Binding="{Binding ToPoint}" Width="85"/>
-                            <DataGridTextColumn Header="高差 [m]" Width="95">
+                            <DataGridTextColumn Header="{DynamicResource Loc.Common.From}" Binding="{Binding FromPoint}" Width="85"/>
+                            <DataGridTextColumn Header="{DynamicResource Loc.Common.To}" Binding="{Binding ToPoint}" Width="85"/>
+                            <DataGridTextColumn Header="{DynamicResource Loc.Common.HeightDifferenceM}" Width="95">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                         <Binding Path="HeightDifference"/>
@@ -98,7 +98,7 @@
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="距离 [m]" Width="95">
+                            <DataGridTextColumn Header="{DynamicResource Loc.Common.DistanceM}" Width="95">
                                 <DataGridTextColumn.Binding>
                                     <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                                         <Binding Path="DistanceMeters"/>

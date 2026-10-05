@@ -11,21 +11,21 @@
                 Margin="0,0,0,10">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="导出 DOCX"
+                    <Button Content="{DynamicResource Loc.Report.ExportDocx}"
                             Command="{Binding ExportDocxCommand}"
                             Padding="14,5"
                             Margin="0,0,6,0"/>
-                    <Button Content="导出 XLSX"
+                    <Button Content="{DynamicResource Loc.Report.ExportXlsx}"
                             Command="{Binding ExportXlsxCommand}"
                             Padding="14,5"
                             Margin="0,0,6,0"/>
-                    <Button Content="导出 TXT"
+                    <Button Content="{DynamicResource Loc.Report.ExportTxt}"
                             Command="{Binding ExportTextCommand}"
                             Padding="14,5"/>
                 </StackPanel>
 
                 <StackPanel>
-                    <TextBlock Text="报告与成果导出"
+                    <TextBlock Text="{DynamicResource Loc.Report.Title}"
                                FontSize="{DynamicResource AppSectionTitleFontSize}"
                                FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding StatusText}"
@@ -45,12 +45,12 @@
                         Margin="0,0,0,12">
                     <TextBlock TextWrapping="Wrap"
                                Foreground="{DynamicResource AppSecondaryTextBrush}"
-                               Text="报告章节沿用原软件 Report.doc 的专业结构：项目概述、高程控制测量、高程控制网平差、结论和建议。引用标准与结论由用户按项目实际填写；软件不会自动生成无法由计算结果验证的检查验收结论。"/>
+                               Text="{DynamicResource Loc.Report.Description}"/>
                 </Border>
 
-                <Expander Header="1 项目概述" IsExpanded="True" Margin="0,0,0,8">
+                <Expander Header="{DynamicResource Loc.Report.Section1}" IsExpanded="True" Margin="0,0,0,8">
                     <StackPanel Margin="14,10,4,12">
-                        <TextBlock Text="1.1 任务概述" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section11}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.TaskOverview, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
@@ -58,7 +58,7 @@
                                  MinHeight="120"
                                  Margin="0,0,0,14"/>
 
-                        <TextBlock Text="1.2 测区自然地理情况" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section12}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.NaturalGeography, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
@@ -67,30 +67,30 @@
                     </StackPanel>
                 </Expander>
 
-                <Expander Header="2 高程控制测量" IsExpanded="True" Margin="0,0,0,8">
+                <Expander Header="{DynamicResource Loc.Report.Section2}" IsExpanded="True" Margin="0,0,0,8">
                     <StackPanel Margin="14,10,4,12">
-                        <TextBlock Text="2.1 已有资料情况" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section21}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.ExistingData, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  MinHeight="100"
                                  Margin="0,0,0,14"/>
 
-                        <TextBlock Text="2.2 引用文件 / 标准规范" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section22}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.ReferencedStandards, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  MinHeight="120"
                                  Margin="0,0,0,14"/>
 
-                        <TextBlock Text="2.3 主要技术指标" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section23}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.TechnicalIndicators, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  MinHeight="100"
                                  Margin="0,0,0,14"/>
 
-                        <TextBlock Text="2.4 外业完成的工作量" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Loc.Report.Section24}" FontWeight="SemiBold" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding Document.FieldWorkSummary, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
@@ -98,7 +98,7 @@
                     </StackPanel>
                 </Expander>
 
-                <Expander Header="3 高程控制网平差（自动生成）" IsExpanded="True" Margin="0,0,0,8">
+                <Expander Header="{DynamicResource Loc.Report.Section3}" IsExpanded="True" Margin="0,0,0,8">
                     <StackPanel Margin="14,10,4,12">
                         <TextBlock TextWrapping="Wrap"
                                    Foreground="{DynamicResource AppSecondaryTextBrush}">
@@ -107,7 +107,7 @@
                     </StackPanel>
                 </Expander>
 
-                <Expander Header="4 结论和建议" IsExpanded="True" Margin="0,0,0,8">
+                <Expander Header="{DynamicResource Loc.Report.Section4}" IsExpanded="True" Margin="0,0,0,8">
                     <StackPanel Margin="14,10,4,12">
                         <TextBox Text="{Binding Document.ConclusionAndRecommendations, UpdateSourceTrigger=LostFocus}"
                                  AcceptsReturn="True"

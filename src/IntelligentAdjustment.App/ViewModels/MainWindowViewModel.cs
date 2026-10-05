@@ -36,7 +36,7 @@ public partial class MainWindowViewModel : ObservableObject
     private string? currentProjectPath;
 
     [ObservableProperty]
-    private string statusMessage = "就绪";
+    private string statusMessage = LocalizationService.Text("Loc.Status.Ready");
 
     [ObservableProperty]
     private bool isBusy;
@@ -58,6 +58,11 @@ public partial class MainWindowViewModel : ObservableObject
         this.preferences = preferences;
         Document.PropertyChanged += Document_PropertyChanged;
         Document.UndoStateChanged += (_, _) => RefreshUndoCommands();
+        LocalizationService.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(WindowTitle));
+            OnPropertyChanged(nameof(CurrentProjectPathDisplay));
+        };
         OpenDashboard();
     }
 
@@ -71,11 +76,12 @@ public partial class MainWindowViewModel : ObservableObject
         get
         {
             string fallbackProjectName = string.IsNullOrWhiteSpace(CurrentProjectPath)
-                ? "未命名工程"
-                : Path.GetFileNameWithoutExtension(CurrentProjectPath) ?? "未命名工程";
+                ? LocalizationService.Text("Loc.Project.Unnamed")
+                : Path.GetFileNameWithoutExtension(CurrentProjectPath)
+                    ?? LocalizationService.Text("Loc.Project.Unnamed");
 
             string project = basisWorkspace is null
-                ? "未打开工程"
+                ? LocalizationService.Text("Loc.Status.NotOpened")
                 : string.IsNullOrWhiteSpace(Document.ProjectName)
                     ? fallbackProjectName
                     : Document.ProjectName;
@@ -86,53 +92,61 @@ public partial class MainWindowViewModel : ObservableObject
 
     public bool HasProject => basisWorkspace is not null;
 
+    public string CurrentProjectPathDisplay =>
+        string.IsNullOrWhiteSpace(CurrentProjectPath)
+            ? LocalizationService.Text("Loc.Status.NotOpened")
+            : CurrentProjectPath;
+
+    partial void OnCurrentProjectPathChanged(string? value) =>
+        OnPropertyChanged(nameof(CurrentProjectPathDisplay));
+
     public async Task InitializeAsync(Action<StartupProgress>? reportProgress = null)
     {
         if (initialized)
         {
-            reportProgress?.Invoke(new StartupProgress(90, "工作区已经初始化"));
+            reportProgress?.Invoke(new StartupProgress(90, LocalizationService.Text("Loc.Startup.AlreadyInitialized")));
             return;
         }
 
         initialized = true;
-        reportProgress?.Invoke(new StartupProgress(36, "正在检查启动选项…"));
+        reportProgress?.Invoke(new StartupProgress(36, LocalizationService.Text("Loc.Startup.CheckingOptions")));
 
         if (!preferences.OpenLastProjectOnStartup)
         {
-            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
+            reportProgress?.Invoke(new StartupProgress(82, LocalizationService.Text("Loc.Startup.BlankWorkspace")));
             return;
         }
 
         string? path = preferences.LastProjectPath;
         if (string.IsNullOrWhiteSpace(path))
         {
-            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
+            reportProgress?.Invoke(new StartupProgress(82, LocalizationService.Text("Loc.Startup.BlankWorkspace")));
             return;
         }
 
-        reportProgress?.Invoke(new StartupProgress(46, "正在检查上次打开的工程…"));
+        reportProgress?.Invoke(new StartupProgress(46, LocalizationService.Text("Loc.Startup.CheckingLastProject")));
         if (!File.Exists(path))
         {
             preferences.ClearMissingLastProject();
-            StatusMessage = "上次打开的工程文件已不存在，已跳过自动打开。";
-            reportProgress?.Invoke(new StartupProgress(82, "正在准备空白工作区…"));
+            StatusMessage = LocalizationService.Text("Loc.Status.ProjectMissing");
+            reportProgress?.Invoke(new StartupProgress(82, LocalizationService.Text("Loc.Startup.BlankWorkspace")));
             return;
         }
 
         await RunBusyAsync(async () =>
         {
-            reportProgress?.Invoke(new StartupProgress(56, $"正在打开工程：{Path.GetFileName(path)}"));
+            reportProgress?.Invoke(new StartupProgress(56, LocalizationService.Format("Loc.Startup.OpeningProject", Path.GetFileName(path))));
             ClearDatabaseUndoHistory();
             ProjectWorkspace workspace = await session.OpenAsync(path);
 
-            reportProgress?.Invoke(new StartupProgress(70, "正在载入工程数据与设置…"));
+            reportProgress?.Invoke(new StartupProgress(70, LocalizationService.Text("Loc.Startup.LoadingProject")));
             LoadWorkspace(workspace, path);
 
-            reportProgress?.Invoke(new StartupProgress(80, "正在恢复路线与平差结果…"));
+            reportProgress?.Invoke(new StartupProgress(80, LocalizationService.Text("Loc.Startup.RestoringResults")));
             await RestoreLatestCalculationAsync();
 
-            reportProgress?.Invoke(new StartupProgress(88, "正在同步工作区状态…"));
-            StatusMessage = $"已自动打开上次工程：{Path.GetFileName(path)}";
+            reportProgress?.Invoke(new StartupProgress(88, LocalizationService.Text("Loc.Startup.SyncingWorkspace")));
+            StatusMessage = LocalizationService.Format("Loc.Status.AutoOpened", Path.GetFileName(path));
         });
     }
 
@@ -157,7 +171,7 @@ public partial class MainWindowViewModel : ObservableObject
                 filePath,
                 preferences.DefaultProjectSettings);
             LoadWorkspace(workspace, filePath);
-            StatusMessage = $"已新建工程：{Path.GetFileName(filePath)}";
+            StatusMessage = LocalizationService.Format("Loc.Status.Created", Path.GetFileName(filePath));
         });
     }
 
@@ -181,7 +195,7 @@ public partial class MainWindowViewModel : ObservableObject
             ProjectWorkspace workspace = await session.OpenAsync(filePath);
             LoadWorkspace(workspace, filePath);
             await RestoreLatestCalculationAsync();
-            StatusMessage = $"已打开工程：{Path.GetFileName(filePath)}";
+            StatusMessage = LocalizationService.Format("Loc.Status.Opened", Path.GetFileName(filePath));
         });
     }
 
@@ -190,7 +204,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!HasProject)
         {
-            dialogs.Info("请先新建或打开工程。");
+            dialogs.Info(LocalizationService.Text("Loc.Message.ProjectRequired"));
             return;
         }
 
@@ -202,7 +216,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!HasProject || basisWorkspace is null)
         {
-            dialogs.Info("请先新建或打开工程。");
+            dialogs.Info(LocalizationService.Text("Loc.Message.ProjectRequired"));
             return;
         }
 
@@ -227,7 +241,7 @@ public partial class MainWindowViewModel : ObservableObject
             ClearDatabaseUndoHistory();
             LoadWorkspace(saved, target);
             await RestoreLatestCalculationAsync();
-            StatusMessage = $"工程已另存为：{Path.GetFileName(target)}";
+            StatusMessage = LocalizationService.Format("Loc.Status.SavedAs", Path.GetFileName(target));
         });
     }
 
@@ -236,7 +250,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!HasProject)
         {
-            dialogs.Info("请先新建或打开工程，再导入观测数据。");
+            dialogs.Info(LocalizationService.Text("Loc.Message.ProjectRequiredImport"));
             return;
         }
 
@@ -261,7 +275,7 @@ public partial class MainWindowViewModel : ObservableObject
             ProjectWorkspace workspace = await session.ImportOutFilesAsync(files);
             LoadWorkspace(workspace, CurrentProjectPath!, resetTabs: false);
             OpenLevelDifferences();
-            StatusMessage = $"已导入 {files.Count} 个 OUT 文件；每个文件建立一条线路。";
+            StatusMessage = LocalizationService.Format("Loc.Status.ImportedOut", files.Count);
         });
     }
 
@@ -288,7 +302,7 @@ public partial class MainWindowViewModel : ObservableObject
             RoutesTabViewModel tab = GetOrCreateRoutesTab();
             tab.Load(routes, basisWorkspace.Settings);
             SelectedTab = tab;
-            StatusMessage = $"线路搜索完成，共 {routeCount} 条闭合/附合路线。";
+            StatusMessage = LocalizationService.Format("Loc.Status.RoutesDone", routeCount);
             completed = true;
             return Task.CompletedTask;
         });
@@ -296,8 +310,8 @@ public partial class MainWindowViewModel : ObservableObject
         if (completed)
         {
             dialogs.Info(
-                $"路线搜索完成，共找到 {routeCount} 条闭合/附合路线。",
-                "搜索路线");
+                LocalizationService.Format("Loc.Message.SearchRoutesDone", routeCount),
+                LocalizationService.Text("Loc.Message.SearchRoutesTitle"));
         }
     }
 
@@ -336,7 +350,7 @@ public partial class MainWindowViewModel : ObservableObject
                 "dashboard",
                 () => new DashboardTabViewModel(Document));
 
-            StatusMessage = "高程平差计算完成，可点击“平差结果”查看成果。";
+            StatusMessage = LocalizationService.Text("Loc.Status.AdjustmentDone");
             OnPropertyChanged(nameof(WindowTitle));
             completed = true;
         });
@@ -344,8 +358,8 @@ public partial class MainWindowViewModel : ObservableObject
         if (completed)
         {
             dialogs.Info(
-                "高程平差计算完成。\n\n结果已生成，可点击左侧“平差结果”查看成果。",
-                "高程平差");
+                LocalizationService.Text("Loc.Message.AdjustmentDone"),
+                LocalizationService.Text("Loc.Message.AdjustmentTitle"));
         }
     }
 
@@ -387,7 +401,7 @@ public partial class MainWindowViewModel : ObservableObject
 
                 ClearDatabaseUndoHistory();
                 LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
-                StatusMessage = "仪器数据导入完成。";
+                StatusMessage = LocalizationService.Text("Loc.Status.ImportDone");
             });
 
         if (!Tabs.Contains(instrumentImportTab))
@@ -414,7 +428,7 @@ public partial class MainWindowViewModel : ObservableObject
                 }
 
                 LoadWorkspace(workspace, CurrentProjectPath, resetTabs: false);
-                StatusMessage = "线路信息已更新。";
+                StatusMessage = LocalizationService.Text("Loc.Status.LineUpdated");
             },
             ExecuteUndoableDatabaseActionAsync);
 
@@ -547,7 +561,7 @@ public partial class MainWindowViewModel : ObservableObject
         reportTab = null;
         OpenDashboard();
 
-        StatusMessage = "工程已关闭。";
+        StatusMessage = LocalizationService.Text("Loc.Status.ProjectClosed");
         OnPropertyChanged(nameof(HasProject));
         OnPropertyChanged(nameof(WindowTitle));
     }
@@ -603,7 +617,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!HasProject)
         {
-            dialogs.Info("请先新建或打开工程。");
+            dialogs.Info(LocalizationService.Text("Loc.Message.ProjectRequired"));
             return false;
         }
 
@@ -624,7 +638,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (!Document.IsDirty)
         {
-            StatusMessage = "工程没有需要保存的修改。";
+            StatusMessage = LocalizationService.Text("Loc.Status.NothingToSave");
             return;
         }
 
@@ -639,7 +653,7 @@ public partial class MainWindowViewModel : ObservableObject
             workspace,
             Document.CalculationInputsChanged);
         LoadWorkspace(saved, CurrentProjectPath!, resetTabs: false);
-        StatusMessage = "工程已保存。";
+        StatusMessage = LocalizationService.Text("Loc.Status.Saved");
     }
 
     private bool ValidateDocument()
@@ -649,7 +663,7 @@ public partial class MainWindowViewModel : ObservableObject
             .FirstOrDefault(x => x.Key.Length > 0 && x.Count() > 1);
         if (duplicateKnown is not null)
         {
-            dialogs.Error($"已知高程点“{duplicateKnown.Key}”重复输入，请先修正。");
+            dialogs.Error(LocalizationService.Format("Loc.Validation.DuplicateKnown", duplicateKnown.Key));
             return false;
         }
 
@@ -657,19 +671,19 @@ public partial class MainWindowViewModel : ObservableObject
         {
             if (string.IsNullOrWhiteSpace(item.FromPoint) || string.IsNullOrWhiteSpace(item.ToPoint))
             {
-                dialogs.Error("高差观测的起点名和终点名不能为空。");
+                dialogs.Error(LocalizationService.Text("Loc.Validation.EmptyDifferenceEndpoints"));
                 return false;
             }
 
             if (item.DistanceMeters <= 0)
             {
-                dialogs.Error($"测段 {item.FromPoint} → {item.ToPoint} 的距离必须大于 0。");
+                dialogs.Error(LocalizationService.Format("Loc.Validation.DistancePositive", item.FromPoint, item.ToPoint));
                 return false;
             }
 
             if (item.StationCount <= 0)
             {
-                dialogs.Error($"测段 {item.FromPoint} → {item.ToPoint} 的测站数必须大于 0。");
+                dialogs.Error(LocalizationService.Format("Loc.Validation.StationsPositive", item.FromPoint, item.ToPoint));
                 return false;
             }
         }
@@ -869,7 +883,7 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             dialogs.Error(ex.Message);
-            StatusMessage = "操作失败。";
+            StatusMessage = LocalizationService.Text("Loc.Message.OperationFailed");
         }
         finally
         {

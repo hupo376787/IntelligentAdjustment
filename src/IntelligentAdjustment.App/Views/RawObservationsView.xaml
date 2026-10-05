@@ -12,22 +12,22 @@
                 Padding="12"
                 Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="线路" VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource Loc.Raw.Line}" VerticalAlignment="Center"/>
                 <ComboBox Width="220"
                           Margin="8,0,12,0"
                           ItemsSource="{Binding Lines}"
                           SelectedItem="{Binding SelectedLine, Mode=TwoWay}"
                           DisplayMemberPath="Name"/>
-                <Button Content="新增测站"
+                <Button Content="{DynamicResource Loc.Raw.AddStation}"
                         Command="{Binding AddCommand}"
                         Padding="12,5"
                         Margin="0,0,6,0"/>
-                <Button Content="删除选中"
+                <Button Content="{DynamicResource Loc.Common.DeleteSelected}"
                         Command="{Binding DeleteSelectedCommand}"
                         Padding="12,5"
                         Margin="0,0,12,0"/>
                 <Separator Width="10"/>
-                <Button Content="生成/更新高差"
+                <Button Content="{DynamicResource Loc.Raw.Generate}"
                         Command="{Binding GenerateDifferencesCommand}"
                         Padding="14,5"/>
             </StackPanel>
@@ -36,10 +36,10 @@
         <TextBlock DockPanel.Dock="Bottom"
                    Margin="2,8,0,0"
                    Foreground="{DynamicResource AppMutedTextBrush}"
-                   Text="原始观测修改后，如工程设置启用了“自动更新高差”，提交影响高差的单元格时会询问是否立即重新计算当前线路。"/>
+                   Text="{DynamicResource Loc.Raw.AutoUpdateHint}"/>
 
         <Expander DockPanel.Dock="Bottom"
-                  Header="观测剖面（由当前线路原始读数实时计算）"
+                  Header="{DynamicResource Loc.Raw.Profile}"
                   IsExpanded="False"
                   Expanded="ProfileExpander_Expanded"
                   Margin="0,8,0,0">
@@ -68,14 +68,14 @@
                   PreviewKeyDown="RawGrid_PreviewKeyDown"
                   behaviors:DataGridSelectionBehavior.SelectedItems="{Binding SelectedRows}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Sequence}"
                                     Binding="{Binding Sequence}"
                                     IsReadOnly="True"
                                     Width="60"/>
-                <DataGridTextColumn Header="起点"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.From}"
                                     Binding="{Binding FromPoint, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="105"/>
-                <DataGridTextColumn Header="终点"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.To}"
                                     Binding="{Binding ToPoint, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="105"/>
 
@@ -120,7 +120,7 @@
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
 
-                <DataGridTextColumn Header="后距1" Width="90">
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.Back1}" Width="90">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="DistanceB1" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -130,7 +130,7 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="后距2" Width="90">
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.Back2}" Width="90">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="DistanceB2" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -140,7 +140,7 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="前距1" Width="90">
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.Fore1}" Width="90">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="DistanceF1" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -150,7 +150,7 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="前距2" Width="90">
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.Fore2}" Width="90">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="DistanceF2" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -161,7 +161,7 @@
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
 
-                <DataGridTemplateColumn Header="测量模式" Width="110">
+                <DataGridTemplateColumn Header="{DynamicResource Loc.Raw.MeasureMode}" Width="110">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding MeasurementMode}" VerticalAlignment="Center"/>
@@ -181,7 +181,7 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="观测顺序" Width="105">
+                <DataGridTemplateColumn Header="{DynamicResource Loc.Raw.ObservationOrder}" Width="105">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ObservationOrder}" VerticalAlignment="Center"/>
@@ -204,23 +204,23 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridCheckBoxColumn Header="有效"
+                <DataGridCheckBoxColumn Header="{DynamicResource Loc.Raw.Valid}"
                                         Binding="{Binding IsValid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         Width="65"/>
-                <DataGridTextColumn Header="无效原因"
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.InvalidReason}"
                                     Binding="{Binding InvalidReason, UpdateSourceTrigger=LostFocus}"
                                     Width="150"/>
-                <DataGridTextColumn Header="测量时间"
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.MeasureTime}"
                                     Binding="{Binding MeasuredAt, UpdateSourceTrigger=LostFocus, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
                                     Width="155"/>
-                <DataGridTextColumn Header="温度 [℃]"
+                <DataGridTextColumn Header="{DynamicResource Loc.Raw.Temperature}"
                                     Binding="{Binding TemperatureCelsius, UpdateSourceTrigger=LostFocus, StringFormat=F1, ValidatesOnDataErrors=True}"
                                     Width="90"/>
-                <DataGridTextColumn Header="源文件"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.SourceFile}"
                                     Binding="{Binding SourceFileName}"
                                     IsReadOnly="True"
                                     Width="160"/>
-                <DataGridTextColumn Header="备注"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Remarks}"
                                     Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}"
                                     Width="180"/>
             </DataGrid.Columns>

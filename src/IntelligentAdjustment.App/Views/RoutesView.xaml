@@ -10,11 +10,11 @@
                 Padding="10"
                 Margin="0,0,0,10"
                 Visibility="{Binding IsStale, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <TextBlock Text="当前路线结果基于旧数据；工程输入已经修改，请重新搜索路线或执行高程平差。"
+            <TextBlock Text="{DynamicResource Loc.Routes.Stale}"
                        Foreground="{DynamicResource AppWarningTextBrush}"/>
         </Border>
 
-        <TextBlock DockPanel.Dock="Top" Text="闭合/附合路线" FontSize="{DynamicResource AppSectionTitleFontSize}" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Loc.Routes.Title}" FontSize="{DynamicResource AppSectionTitleFontSize}" FontWeight="SemiBold" Margin="0,0,0,10"/>
         <DataGrid ItemsSource="{Binding Items}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
@@ -52,9 +52,9 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="70"/>
-                <DataGridTextColumn Header="类型" Binding="{Binding RouteType, Converter={StaticResource RouteTypeConverter}}" Width="100"/>
-                <DataGridTemplateColumn Header="路线" Width="2*" MinWidth="260">
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Sequence}" Binding="{Binding Index}" Width="70"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Routes.Type}" Binding="{Binding RouteType, Converter={StaticResource RouteTypeConverter}}" Width="100"/>
+                <DataGridTemplateColumn Header="{DynamicResource Loc.Routes.Route}" Width="2*" MinWidth="260">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding PointPath}"
@@ -66,8 +66,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="边数" Binding="{Binding EdgeCount}" Width="80"/>
-                <DataGridTextColumn Header="长度 [m]" Width="120">
+                <DataGridTextColumn Header="{DynamicResource Loc.Routes.EdgeCount}" Binding="{Binding EdgeCount}" Width="80"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.DistanceM}" Width="120">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="OneWay">
                             <Binding Path="LengthMeters"/>
@@ -77,10 +77,10 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="测站数" Binding="{Binding StationCount}" Width="90"/>
-                <DataGridTextColumn Header="闭合差 [mm]" Binding="{Binding ClosureMillimeters, StringFormat=F3}" Width="120"/>
-                <DataGridTextColumn Header="当前限差 [mm]" Binding="{Binding ActiveToleranceMillimeters, StringFormat=F3}" Width="130"/>
-                <DataGridCheckBoxColumn Header="超限" Binding="{Binding IsOverLimit}" Width="80"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.StationCount}" Binding="{Binding StationCount}" Width="90"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Routes.Closure}" Binding="{Binding ClosureMillimeters, StringFormat=F3}" Width="120"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Routes.Tolerance}" Binding="{Binding ActiveToleranceMillimeters, StringFormat=F3}" Width="130"/>
+                <DataGridCheckBoxColumn Header="{DynamicResource Loc.Routes.OverLimit}" Binding="{Binding IsOverLimit}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

@@ -345,10 +345,10 @@ public partial class MapSketchView : UserControl
         }
 
         var menu = new ContextMenu();
-        var relocate = new MenuItem { Header = $"重新定位“{hit}”" };
+        var relocate = new MenuItem { Header = LocalizationService.Format("Loc.Map.RelocateMenu", hit) };
         relocate.Click += (_, _) => viewModel.BeginRelocate(hit);
 
-        var delete = new MenuItem { Header = "删除所选点的草图坐标" };
+        var delete = new MenuItem { Header = LocalizationService.Text("Loc.Map.DeleteSelectedCoordinates") };
         delete.Click += (_, _) =>
         {
             viewModel.DeleteCoordinates(selectedPoints.ToArray());
@@ -374,36 +374,36 @@ public partial class MapSketchView : UserControl
 
         var autoMissing = new MenuItem
         {
-            Header = "自动布局未定位点",
+            Header = LocalizationService.Text("Loc.Map.AutoMissing"),
             IsEnabled = viewModel.UnpositionedPointNames.Count > 0
         };
         autoMissing.Click += (_, _) => viewModel.AutoLayoutUnpositionedCommand.Execute(null);
 
         var autoAll = new MenuItem
         {
-            Header = "重新自动布局全部点",
+            Header = LocalizationService.Text("Loc.Map.RelayoutAllMenu"),
             IsEnabled = viewModel.NetworkPointNames.Count > 0
         };
         autoAll.Click += (_, _) => viewModel.AutoLayoutAllPoints();
 
         var fit = new MenuItem
         {
-            Header = "适应视图",
+            Header = LocalizationService.Text("Loc.Map.Fit"),
             IsEnabled = viewModel.Document.MapPoints.Count > 0
         };
         fit.Click += (_, _) => FitToView();
 
         var clear = new MenuItem
         {
-            Header = "清空全部点位坐标",
+            Header = LocalizationService.Text("Loc.Map.ClearAllCoordinates"),
             IsEnabled = viewModel.Document.MapPoints.Count > 0
         };
         clear.Click += (_, _) =>
         {
             MessageBoxResult result = HandyMessageBox.Show(
                 Window.GetWindow(this),
-                "确定清空全部草图点位坐标吗？\n\n只删除草图坐标，不会删除网络点和观测数据；此操作可以使用 Ctrl+Z 撤销。",
-                "清空网形草图",
+                LocalizationService.Text("Loc.Map.ClearConfirm"),
+                LocalizationService.Text("Loc.Map.ClearTitle"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question,
                 MessageBoxResult.No);
@@ -420,14 +420,14 @@ public partial class MapSketchView : UserControl
 
         var exportPng = new MenuItem
         {
-            Header = "导出草图图片（PNG）",
+            Header = LocalizationService.Text("Loc.Map.ExportPng"),
             IsEnabled = viewModel.Document.MapPoints.Count > 0
         };
         exportPng.Click += (_, _) => ExportSketchPng();
 
         var exportSvg = new MenuItem
         {
-            Header = "导出草图矢量图（SVG）",
+            Header = LocalizationService.Text("Loc.Map.ExportSvg"),
             IsEnabled = viewModel.Document.MapPoints.Count > 0
         };
         exportSvg.Click += (_, _) => ExportSketchSvg();
@@ -462,11 +462,11 @@ public partial class MapSketchView : UserControl
 
         var dialog = new SaveFileDialog
         {
-            Title = "导出网形草图图片",
-            Filter = "PNG 图像 (*.png)|*.png",
+            Title = LocalizationService.Text("Loc.Map.ExportPngTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.PngFilter"),
             DefaultExt = ".png",
             AddExtension = true,
-            FileName = "网形草图.png"
+            FileName = LocalizationService.Text("Loc.Map.PngFileName")
         };
 
         if (dialog.ShowDialog() != true)
@@ -496,7 +496,7 @@ public partial class MapSketchView : UserControl
 
             using FileStream stream = File.Create(dialog.FileName);
             encoder.Save(stream);
-            viewModel.StatusText = $"已导出网形草图：{dialog.FileName}";
+            viewModel.StatusText = LocalizationService.Format("Loc.Map.ExportedPng", dialog.FileName);
         }
         finally
         {
@@ -515,11 +515,11 @@ public partial class MapSketchView : UserControl
 
         var dialog = new SaveFileDialog
         {
-            Title = "导出网形草图矢量图",
-            Filter = "SVG 矢量图 (*.svg)|*.svg",
+            Title = LocalizationService.Text("Loc.Map.ExportSvgTitle"),
+            Filter = LocalizationService.Text("Loc.Dialog.SvgFilter"),
             DefaultExt = ".svg",
             AddExtension = true,
-            FileName = "网形草图.svg"
+            FileName = LocalizationService.Text("Loc.Map.SvgFileName")
         };
 
         if (dialog.ShowDialog() != true)
@@ -537,7 +537,7 @@ public partial class MapSketchView : UserControl
             dialog.FileName,
             settings: viewModel.Document.Settings);
 
-        viewModel.StatusText = $"已导出网形草图矢量图：{dialog.FileName}";
+        viewModel.StatusText = LocalizationService.Format("Loc.Map.ExportedSvg", dialog.FileName);
     }
 
     private string? HitTestNode(Point screen)
@@ -813,7 +813,7 @@ public partial class MapSketchView : UserControl
 
         var label = new TextBlock
         {
-            Text = $"{worldLength:0.###} 图形单位",
+            Text = LocalizationService.Format("Loc.Map.GraphUnits", worldLength),
             FontSize = 11,
             Foreground = Brushes.DimGray,
             IsHitTestVisible = false
@@ -822,7 +822,7 @@ public partial class MapSketchView : UserControl
         Canvas.SetTop(label, y - 24);
         SketchCanvas.Children.Add(label);
 
-        ScaleText.Text = $"缩放 {scale:0.###}×";
+        ScaleText.Text = LocalizationService.Format("Loc.Map.Scale", scale);
     }
 
     private static double NiceNumber(double value)

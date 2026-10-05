@@ -23,7 +23,7 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
     public RawObservationsTabViewModel(
         ProjectDocumentViewModel document,
         IUserDialogService dialogs)
-        : base("raw-observations", "原始观测")
+        : base("raw-observations", LocalizationService.Text("Loc.Nav.RawObservations"))
     {
         this.document = document;
         this.dialogs = dialogs;
@@ -136,7 +136,7 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
 
         if (rawRows.Length == 0)
         {
-            dialogs.Info("当前线路没有原始观测。");
+            dialogs.Info(LocalizationService.Text("Loc.Raw.NoObservations"));
             return;
         }
 
@@ -161,7 +161,7 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
                     out LevelDifference? difference,
                     out string? error))
             {
-                failures.Add($"第 {row.Sequence + 1} 站：{error}");
+                failures.Add(LocalizationService.Format("Loc.Raw.StationError", row.Sequence + 1, error));
                 continue;
             }
 
@@ -199,18 +199,22 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
 
         if (failures.Count == 0)
         {
-            dialogs.Info($"已从线路“{SelectedLine.Name}”生成 {generated.Count} 条高差观测。");
+            dialogs.Info(LocalizationService.Format("Loc.Raw.Generated", SelectedLine.Name, generated.Count));
         }
         else
         {
             string preview = string.Join(Environment.NewLine, failures.Take(8));
             if (failures.Count > 8)
             {
-                preview += $"{Environment.NewLine}……另有 {failures.Count - 8} 条";
+                preview += Environment.NewLine + LocalizationService.Format("Loc.Raw.MoreFailures", failures.Count - 8);
             }
 
             dialogs.Info(
-                $"成功生成 {generated.Count} 条高差观测，{failures.Count} 条原始观测未生成：{Environment.NewLine}{Environment.NewLine}{preview}");
+                LocalizationService.Format(
+                    "Loc.Raw.GeneratedWithFailures",
+                    generated.Count,
+                    failures.Count,
+                    Environment.NewLine + Environment.NewLine + preview));
         }
     }
 
@@ -250,7 +254,7 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
                     out RawObservationRowViewModel? row))
             {
                 dialogs.Error(
-                    "剪贴板原始观测无法识别。支持 10 列：起点、终点、B1、B2、F1、F2、后距1、后距2、前距1、前距2；也支持从本表整行复制后粘贴。");
+                    LocalizationService.Text("Loc.Raw.PasteFormat"));
                 return false;
             }
 
@@ -274,8 +278,8 @@ public partial class RawObservationsTabViewModel : WorkspaceTabViewModel
 
         if (document.Settings.AutoUpdateLevelDifferences &&
             dialogs.Confirm(
-                $"已粘贴 {parsed.Count} 个测站。是否立即重新计算当前线路高差？",
-                "更新高差"))
+                LocalizationService.Format("Loc.Raw.PasteRecalculate", parsed.Count),
+                LocalizationService.Text("Loc.Raw.UpdateDifferences")))
         {
             GenerateDifferences();
         }

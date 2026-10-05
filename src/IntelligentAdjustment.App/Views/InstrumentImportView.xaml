@@ -5,14 +5,14 @@
         <StackPanel Margin="24"
                     Width="760"
                     HorizontalAlignment="Left">
-            <TextBlock Text="仪器数据导入"
+            <TextBlock Text="{DynamicResource Loc.Import.Title}"
                        FontSize="{DynamicResource AppPageTitleFontSize}"
                        FontWeight="SemiBold"/>
-            <TextBlock Text="按仪器厂商/格式选择解析器；多文件默认一文件一线路。"
+            <TextBlock Text="{DynamicResource Loc.Import.Subtitle}"
                        Foreground="{DynamicResource AppMutedTextBrush}"
                        Margin="0,4,0,20"/>
 
-            <GroupBox Header="解析器"
+            <GroupBox Header="{DynamicResource Loc.Import.Parser}"
                       Padding="16"
                       Margin="0,0,0,14">
                 <Grid>
@@ -26,7 +26,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="仪器厂商 / 格式"
+                    <TextBlock Text="{DynamicResource Loc.Import.ManufacturerFormat}"
                                VerticalAlignment="Center"/>
                     <ComboBox Grid.Column="1"
                               ItemsSource="{Binding Catalog}"
@@ -43,15 +43,15 @@
                 </Grid>
             </GroupBox>
 
-            <GroupBox Header="文件"
+            <GroupBox Header="{DynamicResource Loc.Import.Files}"
                       Padding="16">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="选择文件..."
+                        <Button Content="{DynamicResource Loc.Import.SelectFiles}"
                                 Command="{Binding ChooseFilesCommand}"
                                 Padding="14,5"
                                 Margin="0,0,12,0"/>
-                        <Button Content="开始导入"
+                        <Button Content="{DynamicResource Loc.Import.Start}"
                                 Command="{Binding ImportCommand}"
                                 Padding="18,5"/>
                         <TextBlock Text="{Binding FileSummary}"

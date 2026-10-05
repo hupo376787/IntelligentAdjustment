@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.Application.Models;
+using IntelligentAdjustment.App.Services;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -12,8 +13,8 @@ public partial class MainWindowViewModel
         {
             Document.Undo();
             StatusMessage = Document.CanUndo || databaseUndoStack.Count > 0
-                ? "已撤销一步。"
-                : "已撤销到最近保存状态。";
+                ? LocalizationService.Text("Loc.Status.UndoStep")
+                : LocalizationService.Text("Loc.Status.UndoSaved");
             return;
         }
 
@@ -31,7 +32,7 @@ public partial class MainWindowViewModel
             _ = databaseUndoStack.Pop();
             databaseRedoStack.Push(entry);
             LoadWorkspace(workspace, projectPath, resetTabs: false);
-            StatusMessage = "已撤销线路操作。";
+            StatusMessage = LocalizationService.Text("Loc.Status.UndoLine");
             RefreshUndoCommands();
         });
     }
@@ -44,7 +45,7 @@ public partial class MainWindowViewModel
         if (Document.CanRedo)
         {
             Document.Redo();
-            StatusMessage = "已重做一步。";
+            StatusMessage = LocalizationService.Text("Loc.Status.RedoStep");
             return;
         }
 
@@ -62,7 +63,7 @@ public partial class MainWindowViewModel
             _ = databaseRedoStack.Pop();
             databaseUndoStack.Push(entry);
             LoadWorkspace(workspace, projectPath, resetTabs: false);
-            StatusMessage = "已重做线路操作。";
+            StatusMessage = LocalizationService.Text("Loc.Status.RedoLine");
             RefreshUndoCommands();
         });
     }

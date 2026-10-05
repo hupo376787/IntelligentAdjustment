@@ -23,10 +23,10 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
-                       Text="工程设置"
+                       Text="{DynamicResource Loc.Settings.Title}"
                        Style="{StaticResource PageTitleStyle}"/>
             <TextBlock Grid.Row="1"
-                       Text="工程参数随 .iap 保存；界面字体属于应用级设置，并立即生效。"
+                       Text="{DynamicResource Loc.Settings.Subtitle}"
                        Style="{StaticResource PageSubtitleStyle}"/>
 
             <Grid Grid.Row="2">
@@ -37,15 +37,32 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <GroupBox Header="界面显示" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.Interface}" Padding="18" Margin="0,0,0,14">
                         <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{DynamicResource Loc.Settings.Language}"
+                                           VerticalAlignment="Center"/>
+                                <ComboBox Grid.Column="1"
+                                          ItemsSource="{Binding LanguageOptions}"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="Code"
+                                          SelectedValue="{Binding SelectedLanguageCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <TextBlock Text="{DynamicResource Loc.Settings.LanguageHint}"
+                                       Margin="0,0,0,14"
+                                       Foreground="{DynamicResource AppMutedTextBrush}"
+                                       TextWrapping="Wrap"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="110"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="82"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="全局字体大小"
+                                <TextBlock Text="{DynamicResource Loc.Settings.FontSize}"
                                            VerticalAlignment="Center"/>
                                 <Slider Grid.Column="1"
                                         Minimum="11"
@@ -65,14 +82,14 @@
                                                FontWeight="SemiBold"/>
                                 </Border>
                             </Grid>
-                            <TextBlock Text="拖动后立即应用到主界面、菜单、导航和主要页面。"
+                            <TextBlock Text="{DynamicResource Loc.Settings.FontHint}"
                                        Margin="0,10,0,0"
                                        Foreground="{DynamicResource AppMutedTextBrush}"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="闭合差限差" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.Tolerance}" Padding="18" Margin="0,0,0,14">
                         <StackPanel>
                             <Grid Margin="0,2,0,8">
                                 <Grid.ColumnDefinitions>
@@ -80,14 +97,14 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton Content="限差按距离"
+                                <RadioButton Content="{DynamicResource Loc.Settings.ByDistance}"
                                              IsChecked="{Binding IsDistanceTolerance}"
                                              VerticalAlignment="Center"/>
                                 <TextBox Grid.Column="1"
                                          Margin="6,0"
                                          Text="{Binding DistanceToleranceCoefficientMm, UpdateSourceTrigger=LostFocus}"/>
                                 <TextBlock Grid.Column="2"
-                                           Text="mm · √L (L 为 km)"
+                                           Text="{DynamicResource Loc.Settings.DistanceFormula}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource AppMutedTextBrush}"/>
                             </Grid>
@@ -98,7 +115,7 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton Content="限差按测站"
+                                <RadioButton Content="{DynamicResource Loc.Settings.ByStations}"
                                              IsChecked="{Binding IsStationTolerance}"
                                              VerticalAlignment="Center"/>
                                 <TextBox Grid.Column="1"
@@ -112,36 +129,36 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="数据设置" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.Data}" Padding="18" Margin="0,0,0,14">
                         <StackPanel>
-                            <CheckBox Content="自动识别/合并过渡点"
+                            <CheckBox Content="{DynamicResource Loc.Settings.AutoMerge}"
                                       IsChecked="{Binding AutoMergeTransitionPoints}"
                                       Margin="0,3"/>
-                            <CheckBox Content="更改原始观测值时提示更新高差值"
+                            <CheckBox Content="{DynamicResource Loc.Settings.PromptUpdate}"
                                       IsChecked="{Binding AutoUpdateLevelDifferences}"
                                       Margin="0,8,0,3"/>
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="启动" Padding="18">
-                        <CheckBox Content="启动 IntelligentAdjustment 时自动打开上次工程"
+                    <GroupBox Header="{DynamicResource Loc.Settings.Startup}" Padding="18">
+                        <CheckBox Content="{DynamicResource Loc.Settings.OpenLast}"
                                   IsChecked="{Binding OpenLastProjectOnStartup}"/>
                     </GroupBox>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <GroupBox Header="平差方式" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.AdjustmentMethod}" Padding="18" Margin="0,0,0,14">
                         <StackPanel>
-                            <RadioButton Content="经典平差方式"
+                            <RadioButton Content="{DynamicResource Loc.Settings.Classical}"
                                          IsChecked="{Binding IsClassical}"
                                          Margin="0,3,0,10"/>
-                            <RadioButton Content="拟稳平差方式"
+                            <RadioButton Content="{DynamicResource Loc.Settings.QuasiStable}"
                                          IsChecked="{Binding IsQuasiStable}"
                                          Margin="0,0,0,3"/>
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="显示精度" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.Precision}" Padding="18" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
@@ -154,31 +171,31 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="距离小数位" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Loc.Settings.DistanceDecimals}" VerticalAlignment="Center"/>
                             <TextBox Grid.Column="1"
                                      Text="{Binding DistanceDecimals, UpdateSourceTrigger=LostFocus}"/>
                             <TextBlock Grid.Column="2"
-                                       Text="用于距离显示与导出"
+                                       Text="{DynamicResource Loc.Settings.DistanceDecimalsHint}"
                                        Margin="14,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource AppMutedTextBrush}"/>
 
                             <TextBlock Grid.Row="2"
-                                       Text="高程小数位"
+                                       Text="{DynamicResource Loc.Settings.HeightDecimals}"
                                        VerticalAlignment="Center"/>
                             <TextBox Grid.Row="2"
                                      Grid.Column="1"
                                      Text="{Binding HeightDecimals, UpdateSourceTrigger=LostFocus}"/>
                             <TextBlock Grid.Row="2"
                                        Grid.Column="2"
-                                       Text="用于高差、高程与成果显示"
+                                       Text="{DynamicResource Loc.Settings.HeightDecimalsHint}"
                                        Margin="14,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource AppMutedTextBrush}"/>
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="网图点名位置" Padding="18" Margin="0,0,0,14">
+                    <GroupBox Header="{DynamicResource Loc.Settings.LabelPosition}" Padding="18" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
@@ -190,7 +207,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="水平方向" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Loc.Settings.Horizontal}" VerticalAlignment="Center"/>
                             <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding HorizontalAlignmentOptions}"
                                       DisplayMemberPath="Label"
@@ -198,7 +215,7 @@
                                       SelectedValue="{Binding PointNameHorizontalAlignment, Mode=TwoWay}"/>
 
                             <TextBlock Grid.Row="2"
-                                       Text="垂直方向"
+                                       Text="{DynamicResource Loc.Settings.Vertical}"
                                        VerticalAlignment="Center"/>
                             <ComboBox Grid.Row="2"
                                       Grid.Column="1"
@@ -209,17 +226,17 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="应用默认设置" Padding="18">
+                    <GroupBox Header="{DynamicResource Loc.Settings.AppDefaults}" Padding="18">
                         <StackPanel>
-                            <TextBlock Text="新建工程会套用应用默认设置；当前工程仍保留自己的 .iap 配置。"
+                            <TextBlock Text="{DynamicResource Loc.Settings.AppDefaultsHint}"
                                        Foreground="{DynamicResource AppMutedTextBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,0,0,12"/>
-                            <Button Content="保存当前设置为应用默认值"
+                            <Button Content="{DynamicResource Loc.Settings.SaveDefaults}"
                                     Command="{Binding SaveAsApplicationDefaultsCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
                                     Margin="0,0,0,8"/>
-                            <Button Content="应用默认值到当前工程"
+                            <Button Content="{DynamicResource Loc.Settings.ApplyDefaults}"
                                     Command="{Binding ApplyApplicationDefaultsCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"/>
                         </StackPanel>

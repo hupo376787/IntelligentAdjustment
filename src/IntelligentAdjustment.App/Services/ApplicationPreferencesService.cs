@@ -31,6 +31,8 @@ public sealed class ApplicationPreferencesService
 
     public double UiFontSize => Math.Clamp(state.UiFontSize, 11.0, 18.0);
 
+    public string LanguageCode => LocalizationService.NormalizeLanguageCode(state.LanguageCode);
+
     public void SaveDefaultProjectSettings(ProjectSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -81,6 +83,18 @@ public sealed class ApplicationPreferencesService
     public void SaveUiFontSize(double fontSize)
     {
         state = state with { UiFontSize = Math.Clamp(fontSize, 11.0, 18.0) };
+        Save();
+    }
+
+    public void SaveLanguageCode(string? languageCode)
+    {
+        string normalized = LocalizationService.NormalizeLanguageCode(languageCode);
+        if (string.Equals(state.LanguageCode, normalized, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        state = state with { LanguageCode = normalized };
         Save();
     }
 
@@ -139,5 +153,6 @@ public sealed class ApplicationPreferencesService
         ProjectSettings? DefaultProjectSettings = null,
         string? LastProjectPath = null,
         bool OpenLastProjectOnStartup = false,
-        double UiFontSize = 13.0);
+        double UiFontSize = 13.0,
+        string LanguageCode = LocalizationService.DefaultLanguageCode);
 }

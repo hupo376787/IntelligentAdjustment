@@ -20,7 +20,7 @@ public partial class NetworkGraphTabViewModel : WorkspaceTabViewModel
     private LevelDifferenceRowViewModel? selectedDifference;
 
     [ObservableProperty]
-    private string statusText = "水准网图由草图坐标与当前高差网络拓扑生成。";
+    private string statusText = LocalizationService.Text("Loc.Graph.StatusInitial");
 
     [ObservableProperty]
     private int missingCoordinateCount;
@@ -28,7 +28,7 @@ public partial class NetworkGraphTabViewModel : WorkspaceTabViewModel
     public NetworkGraphTabViewModel(
         ProjectDocumentViewModel document,
         IReadOnlyList<NetworkRoute> routes)
-        : base("network-graph", "水准网图")
+        : base("network-graph", LocalizationService.Text("Loc.Nav.NetworkGraph"))
     {
         this.document = document;
         Routes = routes;
@@ -58,8 +58,8 @@ public partial class NetworkGraphTabViewModel : WorkspaceTabViewModel
         NetworkDiagramScene scene = BuildScene();
         MissingCoordinateCount = scene.MissingCoordinateCount;
         StatusText = MissingCoordinateCount == 0
-            ? "水准网图使用全部已保存草图坐标。点击图中测段可联动右侧表格。"
-            : $"{MissingCoordinateCount} 个点尚未设置草图坐标，当前以临时布局显示；到“网形草图”定位后会自动替换。";
+            ? LocalizationService.Text("Loc.Graph.StatusSavedCoordinates")
+            : LocalizationService.Format("Loc.Graph.StatusMissingCoordinates", MissingCoordinateCount);
 
         RedrawRequested?.Invoke(this, EventArgs.Empty);
     }

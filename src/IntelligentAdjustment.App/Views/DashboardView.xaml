@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28" MaxWidth="1120" HorizontalAlignment="Left">
-            <TextBlock Text="工程概览" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="项目基本信息、观测规模与当前工作状态"
+            <TextBlock Text="{DynamicResource Loc.Dashboard.Title}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Loc.Dashboard.Subtitle}"
                        Style="{StaticResource PageSubtitleStyle}"/>
 
             <Grid Margin="0,0,0,18">
@@ -25,7 +25,7 @@
                         </Grid.ColumnDefinitions>
                         <Border Background="{DynamicResource AppAccentBrush}" CornerRadius="3"/>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="项目名称" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{DynamicResource Loc.Dashboard.ProjectName}" Foreground="{DynamicResource AppMutedTextBrush}"/>
                             <TextBlock Text="{Binding Document.ProjectName, TargetNullValue=未命名}"
                                        FontSize="18"
                                        FontWeight="SemiBold"
@@ -47,7 +47,7 @@
                         </Grid.ColumnDefinitions>
                         <Border Background="{DynamicResource AppTealBrush}" CornerRadius="3"/>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="高差观测" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{DynamicResource Loc.Dashboard.LevelDifferences}" Foreground="{DynamicResource AppMutedTextBrush}"/>
                             <TextBlock Text="{Binding Document.LevelDifferences.Count}"
                                        FontSize="{DynamicResource AppPageTitleFontSize}"
                                        FontWeight="SemiBold"
@@ -67,7 +67,7 @@
                         </Grid.ColumnDefinitions>
                         <Border Background="{DynamicResource AppPurpleBrush}" CornerRadius="3"/>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="已知高程点" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                            <TextBlock Text="{DynamicResource Loc.Dashboard.KnownPoints}" Foreground="{DynamicResource AppMutedTextBrush}"/>
                             <TextBlock Text="{Binding Document.KnownHeights.Count}"
                                        FontSize="{DynamicResource AppPageTitleFontSize}"
                                        FontWeight="SemiBold"
@@ -78,7 +78,7 @@
                 </Border>
             </Grid>
 
-            <GroupBox Header="工程信息" Padding="20">
+            <GroupBox Header="{DynamicResource Loc.Dashboard.ProjectInfo}" Padding="20">
                 <Grid Width="800">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="120"/>
@@ -92,17 +92,17 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="项目名称" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource Loc.Dashboard.ProjectName}" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Text="{Binding Document.ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
-                    <TextBlock Grid.Column="2" Text="项目编号" Margin="16,8,0,8" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="{DynamicResource Loc.Dashboard.ProjectNumber}" Margin="16,8,0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="3" Text="{Binding Document.ProjectNumber, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
 
-                    <TextBlock Grid.Row="1" Text="工程单位" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Text="{DynamicResource Loc.Dashboard.UnitName}" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Document.UnitName, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="项目负责人" Margin="16,8,0,8" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{DynamicResource Loc.Dashboard.ProjectLeader}" Margin="16,8,0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Document.ProjectLeader, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
 
-                    <TextBlock Grid.Row="2" Text="审核人" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Text="{DynamicResource Loc.Dashboard.Reviewer}" Margin="0,8" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Document.Reviewer, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
                 </Grid>
             </GroupBox>

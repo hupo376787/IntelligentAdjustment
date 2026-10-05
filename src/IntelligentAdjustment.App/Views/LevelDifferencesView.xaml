@@ -5,41 +5,41 @@
              xmlns:behaviors="clr-namespace:IntelligentAdjustment.App.Behaviors">
     <DockPanel Margin="16">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="新增一行" Command="{Binding AddCommand}" Padding="12,5" Margin="0,0,6,0"/>
-            <Button Content="删除选中" Command="{Binding DeleteSelectedCommand}" Padding="12,5" Margin="0,0,12,0"/>
+            <Button Content="{DynamicResource Loc.Diff.AddRow}" Command="{Binding AddCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Button Content="{DynamicResource Loc.Common.DeleteSelected}" Command="{Binding DeleteSelectedCommand}" Padding="12,5" Margin="0,0,12,0"/>
 
             <Separator Width="10"/>
 
-            <Button Content="合并测站"
+            <Button Content="{DynamicResource Loc.Diff.MergeStations}"
                     Command="{Binding TogglePointRoleCommand}"
-                    ToolTip="切换选中测站的“平差点/过渡点”状态"
+                    ToolTip="{DynamicResource Loc.Diff.ToggleRoleTip}"
                     Padding="12,5"
                     Margin="0,0,6,0"/>
-            <Button Content="自动合并"
+            <Button Content="{DynamicResource Loc.Diff.AutoMerge}"
                     Command="{Binding AutoDetectTransitionPointsCommand}"
-                    ToolTip="自动识别符合规则的过渡点；不会立即删除数据"
+                    ToolTip="{DynamicResource Loc.Diff.AutoMergeTip}"
                     Padding="12,5"
                     Margin="0,0,6,0"/>
-            <Button Content="合并后删除"
+            <Button Content="{DynamicResource Loc.Diff.MergeDelete}"
                     Command="{Binding MergeSelectedAndDeleteCommand}"
-                    ToolTip="将选中测站纳入合并关系并立即压缩、删除中间过渡点"
+                    ToolTip="{DynamicResource Loc.Diff.MergeDeleteTip}"
                     Padding="12,5"
                     Margin="0,0,6,0"/>
-            <Button Content="删除过渡点"
+            <Button Content="{DynamicResource Loc.Diff.DeleteTransition}"
                     Command="{Binding DeleteTransitionPointsCommand}"
-                    ToolTip="压缩当前工程中已经标记的过渡点，与当前选区无关"
+                    ToolTip="{DynamicResource Loc.Diff.DeleteTransitionTip}"
                     Padding="12,5"/>
 
             <Separator Width="10"/>
 
-            <Button Content="设为平差点" Command="{Binding SetAdjustmentPointCommand}" Padding="12,5" Margin="0,0,6,0"/>
-            <Button Content="设为过渡点" Command="{Binding SetTransitionPointCommand}" Padding="12,5"/>
+            <Button Content="{DynamicResource Loc.Diff.SetAdjustment}" Command="{Binding SetAdjustmentPointCommand}" Padding="12,5" Margin="0,0,6,0"/>
+            <Button Content="{DynamicResource Loc.Diff.SetTransition}" Command="{Binding SetTransitionPointCommand}" Padding="12,5"/>
         </StackPanel>
 
         <TextBlock DockPanel.Dock="Bottom"
                    Margin="2,8,0,0"
                    Foreground="{DynamicResource AppMutedTextBrush}"
-                   Text="提示：Ctrl+C 复制选中行；Ctrl+V 可粘贴 5 列“起点、终点、高差、距离、测站数”或本表复制的整行数据。Enter 向下移动，Tab 横向移动。"/>
+                   Text="{DynamicResource Loc.Diff.Hint}"/>
 
         <DataGrid x:Name="DifferenceGrid"
                   ItemsSource="{Binding Items}"
@@ -54,14 +54,14 @@
                   PreviewKeyDown="DifferenceGrid_PreviewKeyDown"
                   behaviors:DataGridSelectionBehavior.SelectedItems="{Binding SelectedRows}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Sequence}" Width="70" IsReadOnly="True"/>
-                <DataGridTextColumn Header="起点点名"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Sequence}" Binding="{Binding Sequence}" Width="70" IsReadOnly="True"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Diff.FromPoint}"
                                     Binding="{Binding FromPoint, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="120"/>
-                <DataGridTextColumn Header="终点点名"
+                <DataGridTextColumn Header="{DynamicResource Loc.Diff.ToPoint}"
                                     Binding="{Binding ToPoint, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="120"/>
-                <DataGridTextColumn Header="高差 [m]" Width="120">
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.HeightDifferenceM}" Width="120">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="HeightDifference" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -71,7 +71,7 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="距离 [m]" Width="120">
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.DistanceM}" Width="120">
                     <DataGridTextColumn.Binding>
                         <MultiBinding Converter="{StaticResource NumericPrecisionConverter}" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                             <Binding Path="DistanceMeters" Mode="TwoWay" ValidatesOnDataErrors="True"/>
@@ -81,10 +81,10 @@
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="测站数"
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.StationCount}"
                                     Binding="{Binding StationCount, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                     Width="90"/>
-                <DataGridTemplateColumn Header="平差类型" Width="120">
+                <DataGridTemplateColumn Header="{DynamicResource Loc.Diff.Role}" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ToPointRole, Converter={StaticResource PointRoleConverter}}" VerticalAlignment="Center"/>
@@ -94,26 +94,26 @@
                         <DataTemplate>
                             <ComboBox SelectedValue="{Binding ToPointRole, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="Tag">
-                                <ComboBoxItem Content="平差点" Tag="{x:Static domain:PointRole.AdjustmentPoint}"/>
-                                <ComboBoxItem Content="过渡点" Tag="{x:Static domain:PointRole.TransitionPoint}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Role.Adjustment}" Tag="{x:Static domain:PointRole.AdjustmentPoint}"/>
+                                <ComboBoxItem Content="{DynamicResource Loc.Role.Transition}" Tag="{x:Static domain:PointRole.TransitionPoint}"/>
                             </ComboBox>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="线路" Binding="{Binding LineId}" Width="80" IsReadOnly="True"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Diff.Line}" Binding="{Binding LineId}" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.Remarks}" Binding="{Binding Comment, UpdateSourceTrigger=LostFocus}" Width="*"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                    <MenuItem Header="删除选中行" Command="{Binding DeleteSelectedCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Common.DeleteSelected}" Command="{Binding DeleteSelectedCommand}"/>
                     <Separator/>
-                    <MenuItem Header="合并测站（切换平差类型）" Command="{Binding TogglePointRoleCommand}"/>
-                    <MenuItem Header="自动合并（自动识别过渡点）" Command="{Binding AutoDetectTransitionPointsCommand}"/>
-                    <MenuItem Header="合并后删除" Command="{Binding MergeSelectedAndDeleteCommand}"/>
-                    <MenuItem Header="删除过渡点" Command="{Binding DeleteTransitionPointsCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.MergeStations}" Command="{Binding TogglePointRoleCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.AutoMerge}" Command="{Binding AutoDetectTransitionPointsCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.MergeDelete}" Command="{Binding MergeSelectedAndDeleteCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.DeleteTransition}" Command="{Binding DeleteTransitionPointsCommand}"/>
                     <Separator/>
-                    <MenuItem Header="设为平差点" Command="{Binding SetAdjustmentPointCommand}"/>
-                    <MenuItem Header="设为过渡点" Command="{Binding SetTransitionPointCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.SetAdjustment}" Command="{Binding SetAdjustmentPointCommand}"/>
+                    <MenuItem Header="{DynamicResource Loc.Diff.SetTransition}" Command="{Binding SetTransitionPointCommand}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IntelligentAdjustment.Domain;
+using IntelligentAdjustment.App.Services;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -13,10 +14,10 @@ public partial class AdjustmentResultsTabViewModel : WorkspaceTabViewModel
     private bool isStale;
 
     [ObservableProperty]
-    private string summary = "尚未执行高程平差。";
+    private string summary = LocalizationService.Text("Loc.Adjust.NotRun");
 
     public AdjustmentResultsTabViewModel(Func<Task> recalculate)
-        : base("adjustment-results", "平差结果")
+        : base("adjustment-results", LocalizationService.Text("Loc.Nav.AdjustmentResults"))
     {
         this.recalculate = recalculate;
     }
@@ -45,10 +46,17 @@ public partial class AdjustmentResultsTabViewModel : WorkspaceTabViewModel
             Differences.Add(difference);
         }
 
-        string method = result.Method == AdjustmentMethod.Classical ? "经典平差" : "拟稳平差";
+        string method = result.Method == AdjustmentMethod.Classical
+            ? LocalizationService.Text("Loc.Adjust.Classical")
+            : LocalizationService.Text("Loc.Adjust.QuasiStable");
         int decimals = Math.Clamp(settings.HeightDecimals, 0, 10);
         string sigma0 = result.UnitWeightStandardDeviation.ToString($"F{decimals}");
-        Summary = $"{method}；单位权中误差 {sigma0} m；自由度 {result.DegreesOfFreedom}；迭代 {result.Iterations} 次";
+        Summary = LocalizationService.Format(
+            "Loc.Adjust.Summary",
+            method,
+            sigma0,
+            result.DegreesOfFreedom,
+            result.Iterations);
         IsStale = isStale;
     }
 

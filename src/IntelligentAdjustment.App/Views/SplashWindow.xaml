@@ -42,7 +42,7 @@
                                FontSize="29"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource AppPrimaryTextBrush}"/>
-                    <TextBlock Text="高程控制网平差与成果分析"
+                    <TextBlock Text="{DynamicResource Loc.App.ProductSubtitle}"
                                Margin="0,5,0,0"
                                FontSize="14"
                                Foreground="{DynamicResource AppSecondaryTextBrush}"/>
@@ -52,11 +52,11 @@
             <StackPanel Grid.Row="1"
                         VerticalAlignment="Center"
                         Margin="0,12,0,0">
-                <TextBlock Text="From data to certainty."
+                <TextBlock Text="{DynamicResource Loc.App.Slogan}"
                            FontSize="20"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource AppAccentBrush}"/>
-                <TextBlock Text="从观测数据到成果报告，保持每一步清晰、可追溯。"
+                <TextBlock Text="{DynamicResource Loc.App.SloganDescription}"
                            Margin="0,7,0,0"
                            Foreground="{DynamicResource AppMutedTextBrush}"/>
             </StackPanel>
@@ -64,7 +64,7 @@
             <StackPanel Grid.Row="2">
                 <Grid Margin="0,0,0,8">
                     <TextBlock x:Name="WorkItemText"
-                               Text="正在启动…"
+                               Text="{DynamicResource Loc.Splash.Starting}"
                                Foreground="{DynamicResource AppSecondaryTextBrush}"/>
                     <TextBlock x:Name="PercentText"
                                HorizontalAlignment="Right"

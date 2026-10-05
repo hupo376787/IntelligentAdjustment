@@ -22,5 +22,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\IntelligentAdjustment.ico" />
+    <Content Include="Languages\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>

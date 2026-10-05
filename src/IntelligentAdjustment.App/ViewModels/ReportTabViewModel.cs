@@ -17,14 +17,14 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
     private readonly ResultTextExportService textExporter = new();
 
     [ObservableProperty]
-    private string statusText = "报告章节内容随工程保存；DOCX/XLSX 导出不依赖本机 Office。";
+    private string statusText = LocalizationService.Text("Loc.Report.StatusInitial");
 
     public ReportTabViewModel(
         ProjectDocumentViewModel document,
         ProjectSessionService session,
         IUserDialogService dialogs,
         Func<Task<bool>> ensureSaved)
-        : base("report", "报告与导出")
+        : base("report", LocalizationService.Text("Loc.Nav.Report"))
     {
         this.document = document;
         this.session = session;
@@ -57,7 +57,7 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
         }
 
         exporter.ExportDocx(workspace, calculation, path);
-        StatusText = $"DOCX 已导出：{path}";
+        StatusText = LocalizationService.Format("Loc.Report.ExportedDocx", path);
         dialogs.Info(StatusText);
     }
 
@@ -84,7 +84,7 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
         }
 
         exporter.ExportXlsx(workspace, calculation, path);
-        StatusText = $"XLSX 已导出：{path}";
+        StatusText = LocalizationService.Format("Loc.Report.ExportedXlsx", path);
         dialogs.Info(StatusText);
     }
 
@@ -111,7 +111,7 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
         }
 
         textExporter.Export(workspace, calculation, path);
-        StatusText = $"TXT 已导出：{path}";
+        StatusText = LocalizationService.Format("Loc.Report.ExportedTxt", path);
         dialogs.Info(StatusText);
     }
 
@@ -120,15 +120,15 @@ public partial class ReportTabViewModel : WorkspaceTabViewModel
         if (calculation is null)
         {
             return dialogs.Confirm(
-                "当前工程尚未执行高程平差。报告仍可导出，但平差结果、闭合路线和精度统计将为空。是否继续？",
-                "导出报告");
+                LocalizationService.Text("Loc.Report.NoAdjustmentConfirm"),
+                LocalizationService.Text("Loc.Report.ExportTitle"));
         }
 
         if (calculation.Revision.ResultsAreStale)
         {
             return dialogs.Confirm(
-                "当前平差结果基于旧数据。导出的报告会明确标注“当前结果基于旧数据”。是否继续？",
-                "导出报告");
+                LocalizationService.Text("Loc.Report.StaleConfirm"),
+                LocalizationService.Text("Loc.Report.ExportTitle"));
         }
 
         return true;

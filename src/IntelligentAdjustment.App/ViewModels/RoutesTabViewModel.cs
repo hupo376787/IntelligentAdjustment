@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IntelligentAdjustment.Domain;
+using IntelligentAdjustment.App.Services;
 
 namespace IntelligentAdjustment.App.ViewModels;
 
@@ -10,7 +11,7 @@ public partial class RoutesTabViewModel : WorkspaceTabViewModel
     private bool isStale;
 
     public RoutesTabViewModel()
-        : base("routes", "闭合/附合路线")
+        : base("routes", LocalizationService.Text("Loc.Nav.Routes"))
     {
     }
 

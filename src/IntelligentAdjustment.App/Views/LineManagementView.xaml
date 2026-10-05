@@ -23,38 +23,38 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="新线路" VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource Loc.Line.NewLine}" VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1"
                          Margin="8,0,8,0"
                          Text="{Binding NewLineName, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Grid.Column="2"
-                        Content="创建"
+                        Content="{DynamicResource Loc.Line.Create}"
                         Command="{Binding CreateCommand}"
                         Padding="14,5"/>
 
                 <TextBlock Grid.Column="4"
-                           Text="当前名称"
+                           Text="{DynamicResource Loc.Line.CurrentName}"
                            VerticalAlignment="Center"/>
                 <TextBox Grid.Column="5"
                          Margin="8,0,8,0"
                          Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Grid.Column="6"
-                        Content="重命名"
+                        Content="{DynamicResource Loc.Line.Rename}"
                         Command="{Binding RenameCommand}"
                         Padding="14,5"
                         Margin="0,0,8,0"/>
                 <Button Grid.Column="7"
-                        Content="上移"
+                        Content="{DynamicResource Loc.Line.MoveUp}"
                         Command="{Binding MoveUpCommand}"
                         Padding="12,5"
                         Margin="0,0,6,0"/>
                 <Button Grid.Column="8"
-                        Content="下移"
+                        Content="{DynamicResource Loc.Line.MoveDown}"
                         Command="{Binding MoveDownCommand}"
                         Padding="12,5"
                         Margin="0,0,6,0"/>
                 <Button Grid.Column="9"
-                        Content="删除"
+                        Content="{DynamicResource Loc.Common.Delete}"
                         Command="{Binding DeleteCommand}"
                         Padding="12,5"/>
             </Grid>
@@ -68,13 +68,13 @@
                   SelectionMode="Single"
                   SelectionUnit="FullRow">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="顺序" Binding="{Binding DisplayOrder}" Width="70"/>
-                <DataGridTextColumn Header="线路名称" Binding="{Binding Name}" Width="180"/>
-                <DataGridTextColumn Header="来源类型" Binding="{Binding InstrumentType}" Width="130"/>
-                <DataGridTextColumn Header="源文件" Binding="{Binding SourceFileName}" Width="220"/>
-                <DataGridTextColumn Header="原始观测" Binding="{Binding RawObservationCount}" Width="100"/>
-                <DataGridTextColumn Header="高差观测" Binding="{Binding LevelDifferenceCount}" Width="100"/>
-                <DataGridTextColumn Header="内部 ID" Binding="{Binding Id}" Width="100"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.Order}" Binding="{Binding DisplayOrder}" Width="70"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.Name}" Binding="{Binding Name}" Width="180"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.SourceType}" Binding="{Binding InstrumentType}" Width="130"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Common.SourceFile}" Binding="{Binding SourceFileName}" Width="220"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.RawCount}" Binding="{Binding RawObservationCount}" Width="100"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.DifferenceCount}" Binding="{Binding LevelDifferenceCount}" Width="100"/>
+                <DataGridTextColumn Header="{DynamicResource Loc.Line.InternalId}" Binding="{Binding Id}" Width="100"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
