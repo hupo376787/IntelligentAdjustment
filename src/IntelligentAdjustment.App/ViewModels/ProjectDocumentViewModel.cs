@@ -256,7 +256,11 @@ public partial class ProjectDocumentViewModel : ObservableObject
         {
             UnsubscribeRows(LevelDifferences);
             LevelDifferences.Clear();
-            foreach (var item in differences.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
+            Dictionary<long, int> lineOrder = Lines.ToDictionary(x => x.Id, x => x.DisplayOrder);
+            foreach (var item in differences
+                         .OrderBy(x => lineOrder.TryGetValue(x.LineId, out int order) ? order : int.MaxValue)
+                         .ThenBy(x => x.Sequence)
+                         .ThenBy(x => x.Id))
             {
                 LevelDifferences.Add(LevelDifferenceRowViewModel.FromDomain(item, ResolveLineName(item.LineId)));
             }
@@ -269,7 +273,11 @@ public partial class ProjectDocumentViewModel : ObservableObject
         {
             UnsubscribeRows(RawObservations);
             RawObservations.Clear();
-            foreach (var item in observations.OrderBy(x => x.LineId).ThenBy(x => x.Sequence))
+            Dictionary<long, int> lineOrder = Lines.ToDictionary(x => x.Id, x => x.DisplayOrder);
+            foreach (var item in observations
+                         .OrderBy(x => lineOrder.TryGetValue(x.LineId, out int order) ? order : int.MaxValue)
+                         .ThenBy(x => x.Sequence)
+                         .ThenBy(x => x.Id))
             {
                 RawObservations.Add(RawObservationRowViewModel.FromDomain(item));
             }
