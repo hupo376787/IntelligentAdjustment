@@ -321,6 +321,27 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
             LocalizationService.Text("Loc.Settings.AppDefaults"));
     }
 
+    [RelayCommand]
+    private void RestoreSystemDefaults()
+    {
+        if (!dialogs.Confirm(
+                LocalizationService.Text("Loc.Settings.RestoreSystemDefaultsConfirm"),
+                LocalizationService.Text("Loc.Settings.RestoreSystemDefaults")))
+        {
+            return;
+        }
+
+        preferences.RestoreFactoryDefaults();
+        document.Settings = new ProjectSettings();
+        UiAppearanceService.ApplyFontSize(preferences.UiFontSize);
+        LocalizationService.ApplyLanguage(preferences.LanguageCode);
+        NotifyAllSettingsChanged();
+
+        dialogs.Info(
+            LocalizationService.Text("Loc.Settings.RestoreSystemDefaultsDone"),
+            LocalizationService.Text("Loc.Settings.RestoreSystemDefaults"));
+    }
+
     private void Document_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ProjectDocumentViewModel.Settings))
