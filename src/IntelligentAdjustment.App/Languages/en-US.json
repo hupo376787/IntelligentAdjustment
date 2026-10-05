@@ -357,7 +357,7 @@
   "Loc.Map.SvgFileName": "network-sketch.svg",
   "Loc.Map.ExportedSvg": "Network sketch vector image exported: {0}",
   "Loc.Map.GraphUnits": "{0:0.###} layout units",
-  "Loc.Map.Scale": "Zoom {0:0.###}×",
+  "Loc.Map.Scale": "Zoom {0:0}%",
   "Loc.Graph.StatusInitial": "The leveling network graph is generated from sketch coordinates and the current height-difference topology.",
   "Loc.Graph.StatusSavedCoordinates": "The leveling network graph uses all saved sketch coordinates. Click a segment to synchronize with the table.",
   "Loc.Graph.StatusMissingCoordinates": "{0} points do not have sketch coordinates and are shown with a temporary layout. Position them in Network sketch to replace the temporary layout.",
@@ -408,5 +408,8 @@
   "Loc.Dialog.ExportOutTitle": "Export height-difference OUT",
   "Loc.Dialog.OutSaveFilter": "Height-difference OUT (*.out)|*.out",
   "Loc.Message.NoDifferencesToExport": "The current project has no height-difference observations to export.",
-  "Loc.Status.ExportedOut": "OUT exported: {0}"
+  "Loc.Status.ExportedOut": "OUT exported: {0}",
+  "Loc.Map.ShowRealDistance": "Show measured distance",
+  "Loc.Map.DistanceLabel": "{0} m",
+  "Loc.Menu.ExportOut": "Export OUT"
 }

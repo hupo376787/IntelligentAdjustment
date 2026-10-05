@@ -1,5 +1,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -625,7 +626,7 @@ public partial class MapSketchView : UserControl
         DrawGrid();
         DrawEdges();
         DrawNodes();
-        DrawScaleBar();
+        UpdateZoomText();
 
         if (isMarquee)
         {
@@ -700,12 +701,61 @@ public partial class MapSketchView : UserControl
                 continue;
             }
 
+            Point fromScreen = WorldToScreen(from);
+            Point toScreen = WorldToScreen(to);
+
             AddLine(
-                WorldToScreen(from),
-                WorldToScreen(to),
+                fromScreen,
+                toScreen,
                 new SolidColorBrush(Color.FromRgb(190, 197, 205)),
                 1.2);
+
+            if (viewModel.ShowRealDistances)
+            {
+                DrawDistanceLabel(edge, fromScreen, toScreen);
+            }
         }
+    }
+
+    private void DrawDistanceLabel(
+        LevelDifferenceRowViewModel edge,
+        Point from,
+        Point to)
+    {
+        if (viewModel is null)
+        {
+            return;
+        }
+
+        int decimals = Math.Clamp(viewModel.Document.Settings.DistanceDecimals, 0, 8);
+        string value = edge.DistanceMeters.ToString(
+            $"F{decimals}",
+            CultureInfo.CurrentCulture);
+
+        var label = new TextBlock
+        {
+            Text = LocalizationService.Format("Loc.Map.DistanceLabel", value),
+            FontSize = 11,
+            Foreground = Brushes.SteelBlue,
+            Background = new SolidColorBrush(Color.FromArgb(225, 255, 255, 255)),
+            Padding = new Thickness(3, 1, 3, 1),
+            IsHitTestVisible = false
+        };
+
+        label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+        Vector direction = to - from;
+        Vector normal = direction.Length > 0.001
+            ? new Vector(-direction.Y / direction.Length, direction.X / direction.Length)
+            : new Vector(0, -1);
+
+        Point midpoint = new(
+            (from.X + to.X) / 2 + normal.X * 10,
+            (from.Y + to.Y) / 2 + normal.Y * 10);
+
+        Canvas.SetLeft(label, midpoint.X - label.DesiredSize.Width / 2);
+        Canvas.SetTop(label, midpoint.Y - label.DesiredSize.Height / 2);
+        SketchCanvas.Children.Add(label);
     }
 
     private void DrawNodes()
@@ -793,49 +843,11 @@ public partial class MapSketchView : UserControl
         }
     }
 
-    private void DrawScaleBar()
+    private void UpdateZoomText()
     {
-        if (SketchCanvas.ActualWidth < 180 || SketchCanvas.ActualHeight < 100)
-        {
-            return;
-        }
-
-        const double targetPixels = 120;
-        double rawWorld = targetPixels / scale;
-        double worldLength = NiceNumber(rawWorld);
-        double pixels = worldLength * scale;
-
-        double x = 28;
-        double y = SketchCanvas.ActualHeight - 34;
-        AddLine(x, y, x + pixels, y, Brushes.Black, 2);
-        AddLine(x, y - 5, x, y + 5, Brushes.Black, 2);
-        AddLine(x + pixels, y - 5, x + pixels, y + 5, Brushes.Black, 2);
-
-        var label = new TextBlock
-        {
-            Text = LocalizationService.Format("Loc.Map.GraphUnits", worldLength),
-            FontSize = 11,
-            Foreground = Brushes.DimGray,
-            IsHitTestVisible = false
-        };
-        Canvas.SetLeft(label, x);
-        Canvas.SetTop(label, y - 24);
-        SketchCanvas.Children.Add(label);
-
-        ScaleText.Text = LocalizationService.Format("Loc.Map.Scale", scale);
-    }
-
-    private static double NiceNumber(double value)
-    {
-        if (!double.IsFinite(value) || value <= 0)
-        {
-            return 1;
-        }
-
-        double exponent = Math.Pow(10, Math.Floor(Math.Log10(value)));
-        double fraction = value / exponent;
-        double nice = fraction < 1.5 ? 1 : fraction < 3.5 ? 2 : fraction < 7.5 ? 5 : 10;
-        return nice * exponent;
+        ScaleText.Text = LocalizationService.Format(
+            "Loc.Map.Scale",
+            scale * 100.0);
     }
 
     private void AddLine(Point from, Point to, Brush brush, double thickness) =>

@@ -20,6 +20,9 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
     private string? selectedPointName;
 
     [ObservableProperty]
+    private bool showRealDistances;
+
+    [ObservableProperty]
     private bool snapEnabled = true;
 
     [ObservableProperty]
@@ -44,6 +47,9 @@ public partial class MapSketchTabViewModel : WorkspaceTabViewModel
 
     public event EventHandler? FitRequested;
     public event EventHandler? RedrawRequested;
+
+    partial void OnShowRealDistancesChanged(bool value) =>
+        RedrawRequested?.Invoke(this, EventArgs.Empty);
 
     public void Refresh()
     {

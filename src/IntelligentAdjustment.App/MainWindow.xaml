@@ -40,51 +40,87 @@
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,3,0,0"/>
         </Style>
+
+        <DataTemplate x:Key="MenuHeaderWithIconTemplate">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Viewbox Width="15" Height="15" Margin="0,0,7,0">
+                    <Path Data="{Binding Tag,
+                                        RelativeSource={RelativeSource AncestorType={x:Type MenuItem}},
+                                        Converter={StaticResource NavIconConverter}}"
+                          Fill="Transparent"
+                          Stroke="{Binding Foreground,
+                                           RelativeSource={RelativeSource AncestorType={x:Type MenuItem}}}"
+                          StrokeThickness="1.8"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"/>
+                </Viewbox>
+                <AccessText Text="{Binding}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource AppSurfaceBrush}"
               Foreground="{DynamicResource AppPrimaryTextBrush}">
-            <MenuItem Header="{DynamicResource Loc.Menu.File}">
-                <MenuItem Header="{DynamicResource Loc.Menu.NewProject}" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl+N"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.OpenProject}" Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl+O"/>
+            <MenuItem Tag="menu-file"
+                      Header="{DynamicResource Loc.Menu.File}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="menu-new" Header="{DynamicResource Loc.Menu.NewProject}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Tag="menu-open" Header="{DynamicResource Loc.Menu.OpenProject}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl+O"/>
                 <Separator/>
-                <MenuItem Header="{DynamicResource Loc.Menu.SaveProject}" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.SaveAs}" Command="{Binding SaveProjectAsCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.CloseProject}" Command="{Binding CloseProjectCommand}"/>
+                <MenuItem Tag="menu-save" Header="{DynamicResource Loc.Menu.SaveProject}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding SaveProjectCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Tag="menu-save-as" Header="{DynamicResource Loc.Menu.SaveAs}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding SaveProjectAsCommand}"/>
+                <MenuItem Tag="menu-close" Header="{DynamicResource Loc.Menu.CloseProject}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding CloseProjectCommand}"/>
                 <Separator/>
-                <MenuItem Header="{DynamicResource Loc.Menu.InstrumentImport}" Command="{Binding OpenInstrumentImportCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.ImportOut}" Command="{Binding ImportOutCommand}"/>
+                <MenuItem Tag="instrument-import" Header="{DynamicResource Loc.Menu.InstrumentImport}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenInstrumentImportCommand}"/>
+                <MenuItem Tag="menu-import" Header="{DynamicResource Loc.Menu.ImportOut}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding ImportOutCommand}"/>
+                <MenuItem Tag="menu-export" Header="{DynamicResource Loc.Menu.ExportOut}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding ExportOutCommand}"/>
                 <Separator/>
-                <MenuItem Header="{DynamicResource Loc.Menu.ReportExport}" Command="{Binding OpenReportCommand}"/>
+                <MenuItem Tag="report" Header="{DynamicResource Loc.Menu.ReportExport}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenReportCommand}"/>
                 <Separator/>
-                <MenuItem Header="{DynamicResource Loc.Menu.Exit}" Command="{Binding ExitCommand}"/>
+                <MenuItem Tag="menu-exit" Header="{DynamicResource Loc.Menu.Exit}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="{DynamicResource Loc.Menu.Edit}">
-                <MenuItem Header="{DynamicResource Loc.Menu.Undo}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.Redo}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
+
+            <MenuItem Tag="menu-edit"
+                      Header="{DynamicResource Loc.Menu.Edit}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="menu-undo" Header="{DynamicResource Loc.Menu.Undo}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
+                <MenuItem Tag="menu-redo" Header="{DynamicResource Loc.Menu.Redo}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
             </MenuItem>
-            <MenuItem Header="{DynamicResource Loc.Menu.Calculate}">
-                <MenuItem Header="{DynamicResource Loc.Menu.SearchRoutes}" Command="{Binding SearchRoutesCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Menu.RunAdjustment}" Command="{Binding CalculateAdjustmentCommand}"/>
+
+            <MenuItem Tag="menu-calculate"
+                      Header="{DynamicResource Loc.Menu.Calculate}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="action-search-routes" Header="{DynamicResource Loc.Menu.SearchRoutes}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding SearchRoutesCommand}"/>
+                <MenuItem Tag="action-run-adjustment" Header="{DynamicResource Loc.Menu.RunAdjustment}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding CalculateAdjustmentCommand}"/>
             </MenuItem>
-            <MenuItem Header="{DynamicResource Loc.Menu.View}">
-                <MenuItem Header="{DynamicResource Loc.Nav.Dashboard}" Command="{Binding OpenDashboardCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.Lines}" Command="{Binding OpenLineManagementCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.RawObservations}" Command="{Binding OpenRawObservationsCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.Differences}" Command="{Binding OpenLevelDifferencesCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.KnownHeights}" Command="{Binding OpenKnownHeightsCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.MapSketch}" Command="{Binding OpenMapSketchCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.NetworkGraph}" Command="{Binding OpenNetworkGraphCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.AdjustmentResults}" Command="{Binding OpenAdjustmentResultsCommand}"/>
-                <MenuItem Header="{DynamicResource Loc.Nav.Report}" Command="{Binding OpenReportCommand}"/>
+
+            <MenuItem Tag="menu-view"
+                      Header="{DynamicResource Loc.Menu.View}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="dashboard" Header="{DynamicResource Loc.Nav.Dashboard}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenDashboardCommand}"/>
+                <MenuItem Tag="lines" Header="{DynamicResource Loc.Nav.Lines}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenLineManagementCommand}"/>
+                <MenuItem Tag="raw-observations" Header="{DynamicResource Loc.Nav.RawObservations}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenRawObservationsCommand}"/>
+                <MenuItem Tag="differences" Header="{DynamicResource Loc.Nav.Differences}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenLevelDifferencesCommand}"/>
+                <MenuItem Tag="known-heights" Header="{DynamicResource Loc.Nav.KnownHeights}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenKnownHeightsCommand}"/>
+                <MenuItem Tag="map-sketch" Header="{DynamicResource Loc.Nav.MapSketch}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenMapSketchCommand}"/>
+                <MenuItem Tag="network-graph" Header="{DynamicResource Loc.Nav.NetworkGraph}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenNetworkGraphCommand}"/>
+                <MenuItem Tag="adjustment-results" Header="{DynamicResource Loc.Nav.AdjustmentResults}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenAdjustmentResultsCommand}"/>
+                <MenuItem Tag="report" Header="{DynamicResource Loc.Nav.Report}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenReportCommand}"/>
             </MenuItem>
-            <MenuItem Header="{DynamicResource Loc.Menu.Tools}">
-                <MenuItem Header="{DynamicResource Loc.Nav.ProjectSettings}" Command="{Binding OpenProjectSettingsCommand}"/>
+
+            <MenuItem Tag="menu-tools"
+                      Header="{DynamicResource Loc.Menu.Tools}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="settings" Header="{DynamicResource Loc.Nav.ProjectSettings}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding OpenProjectSettingsCommand}"/>
             </MenuItem>
-            <MenuItem Header="{DynamicResource Loc.Menu.Help}">
-                <MenuItem Header="{DynamicResource Loc.Menu.About}" Command="{Binding AboutCommand}"/>
+
+            <MenuItem Tag="menu-help"
+                      Header="{DynamicResource Loc.Menu.Help}"
+                      HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}">
+                <MenuItem Tag="menu-about" Header="{DynamicResource Loc.Menu.About}" HeaderTemplate="{StaticResource MenuHeaderWithIconTemplate}" Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
 
