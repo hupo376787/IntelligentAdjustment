@@ -297,9 +297,13 @@ internal sealed class LegacyTemplateReportExporter
             .Select(x => x.PointName)
             .ToHashSet(StringComparer.Ordinal);
 
+        Dictionary<long, int> lineOrder = workspace.Lines
+            .ToDictionary(x => x.Id, x => x.DisplayOrder);
+
         List<string[]> rows = workspace.LevelDifferences
-            .OrderBy(x => x.LineId)
+            .OrderBy(x => lineOrder.TryGetValue(x.LineId, out int order) ? order : int.MaxValue)
             .ThenBy(x => x.Sequence)
+            .ThenBy(x => x.Id)
             .Select(x => new[]
             {
                 x.FromPoint,
