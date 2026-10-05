@@ -36,21 +36,30 @@ public sealed class ApplicationPreferencesService
         ArgumentNullException.ThrowIfNull(settings);
         state = state with
         {
-            DefaultProjectSettings = settings,
-            OpenLastProjectOnStartup = settings.OpenLastProjectOnStartup
+            DefaultProjectSettings = settings
         };
         Save();
     }
 
-    public void RememberProject(string? projectPath, bool openLastProjectOnStartup)
+    public void RememberProject(string? projectPath)
     {
         state = state with
         {
             LastProjectPath = string.IsNullOrWhiteSpace(projectPath)
                 ? state.LastProjectPath
-                : Path.GetFullPath(projectPath),
-            OpenLastProjectOnStartup = openLastProjectOnStartup
+                : Path.GetFullPath(projectPath)
         };
+        Save();
+    }
+
+    public void SetOpenLastProjectOnStartup(bool value)
+    {
+        if (state.OpenLastProjectOnStartup == value)
+        {
+            return;
+        }
+
+        state = state with { OpenLastProjectOnStartup = value };
         Save();
     }
 

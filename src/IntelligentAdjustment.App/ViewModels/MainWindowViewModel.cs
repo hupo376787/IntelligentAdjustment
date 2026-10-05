@@ -521,9 +521,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(CurrentProjectPath) && basisWorkspace is not null)
         {
-            preferences.RememberProject(
-                CurrentProjectPath,
-                basisWorkspace.Settings.OpenLastProjectOnStartup);
+            preferences.RememberProject(CurrentProjectPath);
         }
 
         session.Close();
@@ -687,7 +685,7 @@ public partial class MainWindowViewModel : ObservableObject
         basisWorkspace = workspace;
         CurrentProjectPath = filePath;
         Document.Load(workspace);
-        preferences.RememberProject(filePath, workspace.Settings.OpenLastProjectOnStartup);
+        preferences.RememberProject(filePath);
 
         if (resetTabs)
         {

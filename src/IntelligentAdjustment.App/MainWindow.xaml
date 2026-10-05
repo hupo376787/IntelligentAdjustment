@@ -219,6 +219,36 @@
                         <TextBlock Text="导入 OUT" Style="{StaticResource MainToolbarLabelStyle}"/>
                     </StackPanel>
                 </Button>
+
+                <Border Width="1" Height="44" Margin="8,10" Background="{DynamicResource AppBorderBrush}"/>
+
+                <Button Command="{Binding AboutCommand}"
+                        ToolTip="关于 IntelligentAdjustment"
+                        Style="{StaticResource MainToolbarButtonStyle}">
+                    <StackPanel>
+                        <Border Width="32"
+                                Height="32"
+                                CornerRadius="9"
+                                Background="{DynamicResource AppTealSoftBrush}"
+                                HorizontalAlignment="Center">
+                            <Viewbox Width="19" Height="19">
+                                <Grid Width="24" Height="24">
+                                    <Ellipse Stroke="{DynamicResource AppTealBrush}"
+                                             StrokeThickness="2"
+                                             Fill="Transparent"/>
+                                    <TextBlock Text="i"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource AppTealBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,-1,0,0"/>
+                                </Grid>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="关于" Style="{StaticResource MainToolbarLabelStyle}"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Border>
 

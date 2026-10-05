@@ -186,13 +186,16 @@ public sealed partial class SettingsTabViewModel : WorkspaceTabViewModel
 
     public bool OpenLastProjectOnStartup
     {
-        get => document.Settings.OpenLastProjectOnStartup;
+        get => preferences.OpenLastProjectOnStartup;
         set
         {
-            if (value != document.Settings.OpenLastProjectOnStartup)
+            if (value == preferences.OpenLastProjectOnStartup)
             {
-                document.Settings = document.Settings with { OpenLastProjectOnStartup = value };
+                return;
             }
+
+            preferences.SetOpenLastProjectOnStartup(value);
+            OnPropertyChanged();
         }
     }
 
