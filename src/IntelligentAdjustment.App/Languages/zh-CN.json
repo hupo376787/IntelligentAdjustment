@@ -417,5 +417,12 @@
   "Loc.Help.ManualOpenFailed": "无法打开用户使用手册：{0}",
   "Loc.Settings.RestoreSystemDefaults": "恢复系统设置",
   "Loc.Settings.RestoreSystemDefaultsConfirm": "将恢复系统默认参数，包括当前项目设置、应用默认项目设置、字体大小、语言、启动选项和撤销/重做确认。是否继续？",
-  "Loc.Settings.RestoreSystemDefaultsDone": "已恢复系统默认设置。"
+  "Loc.Settings.RestoreSystemDefaultsDone": "已恢复系统默认设置。",
+  "Loc.Message.SearchRoutesNoObservations": "路线搜索完成，但当前工程没有高差观测，无法搜索闭合/附合路线。",
+  "Loc.Message.SearchRoutesNoRoutesSingleKnownOpenChain": "路线搜索完成，未找到闭合/附合路线。\\n当前网络无闭合环，且仅有 1 个已知高程点；附合路线至少需要 2 个位于当前网络中的已知高程点。\\n当前数据属于单端已知的开路线，可正常执行高程平差，但无法计算闭合差。",
+  "Loc.Message.SearchRoutesNoRoutesTooFewKnown": "路线搜索完成，未找到闭合/附合路线。\\n当前网络无闭合环，且网络内只有 {0} 个已知高程点；附合路线至少需要 2 个已知高程点。\\n可检查“已知高程”页面是否缺少终点控制高程。",
+  "Loc.Message.SearchRoutesNoRoutesDisconnected": "路线搜索完成，未找到闭合/附合路线。\\n当前网络没有闭合环，并被分成 {0} 个不连通部分；虽然网络内有 {1} 个已知高程点，但它们之间无法形成附合路线。\\n请检查点名、线路连接关系和高差观测。",
+  "Loc.Status.RoutesNoObservations": "路线搜索完成：当前没有高差观测。",
+  "Loc.Status.RoutesNoneTooFewKnown": "路线搜索完成：0 条；无闭合环，网络内已知高程点 {0} 个。",
+  "Loc.Status.RoutesNone": "路线搜索完成：未找到闭合/附合路线。"
 }

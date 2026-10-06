@@ -417,5 +417,12 @@
   "Loc.Help.ManualOpenFailed": "Unable to open the user manual: {0}",
   "Loc.Settings.RestoreSystemDefaults": "Restore system defaults",
   "Loc.Settings.RestoreSystemDefaultsConfirm": "This restores factory defaults for the current project settings, application defaults, font size, language, startup option, and undo/redo confirmation. Continue?",
-  "Loc.Settings.RestoreSystemDefaultsDone": "System defaults were restored."
+  "Loc.Settings.RestoreSystemDefaultsDone": "System defaults were restored.",
+  "Loc.Message.SearchRoutesNoObservations": "Route search is complete, but the project has no level-difference observations, so no closed or attached route can be searched.",
+  "Loc.Message.SearchRoutesNoRoutesSingleKnownOpenChain": "Route search is complete. No closed or attached route was found.\\nThe network has no closed loop and only one known-height point. An attached route requires at least two known-height points in the current network.\\nThis dataset is a one-ended known open leveling run. Height adjustment can still be performed, but a closure error cannot be computed.",
+  "Loc.Message.SearchRoutesNoRoutesTooFewKnown": "Route search is complete. No closed or attached route was found.\\nThe network has no closed loop and contains only {0} known-height point(s). An attached route requires at least two known-height points.\\nCheck the Known Heights page to see whether the terminal control height is missing.",
+  "Loc.Message.SearchRoutesNoRoutesDisconnected": "Route search is complete. No closed or attached route was found.\\nThe network has no closed loop and is split into {0} disconnected component(s). Although {1} known-height point(s) are in the network, they cannot form an attached route.\\nCheck point names, line connectivity, and level-difference observations.",
+  "Loc.Status.RoutesNoObservations": "Route search complete: there are no level-difference observations.",
+  "Loc.Status.RoutesNoneTooFewKnown": "Route search complete: 0 routes; no loop and {0} known-height point(s) in the network.",
+  "Loc.Status.RoutesNone": "Route search complete: no closed/attached route found."
 }

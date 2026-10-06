@@ -337,6 +337,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         int routeCount = 0;
+        string? completionMessage = null;
         bool completed = false;
 
         await RunBusyAsync(() =>
@@ -348,10 +349,15 @@ public partial class MainWindowViewModel : ObservableObject
                 basisWorkspace.Settings);
 
             routeCount = routes.Count;
+            completionMessage = BuildRouteSearchCompletionMessage(routes, basisWorkspace);
             RoutesTabViewModel tab = GetOrCreateRoutesTab();
             tab.Load(routes, basisWorkspace.Settings);
             SelectedTab = tab;
-            StatusMessage = LocalizationService.Format("Loc.Status.RoutesDone", routeCount);
+
+            StatusMessage = routeCount > 0
+                ? LocalizationService.Format("Loc.Status.RoutesDone", routeCount)
+                : BuildEmptyRouteSearchStatus(basisWorkspace);
+
             completed = true;
             return Task.CompletedTask;
         });
@@ -359,10 +365,153 @@ public partial class MainWindowViewModel : ObservableObject
         if (completed)
         {
             dialogs.Info(
-                LocalizationService.Format("Loc.Message.SearchRoutesDone", routeCount),
+                completionMessage
+                ?? LocalizationService.Format("Loc.Message.SearchRoutesDone", routeCount),
                 LocalizationService.Text("Loc.Message.SearchRoutesTitle"));
         }
     }
+
+    private static string BuildRouteSearchCompletionMessage(
+        IReadOnlyList<NetworkRoute> routes,
+        ProjectWorkspace workspace)
+    {
+        if (routes.Count > 0)
+        {
+            return LocalizationService.Format("Loc.Message.SearchRoutesDone", routes.Count);
+        }
+
+        IReadOnlyList<LevelDifference> observations = workspace.LevelDifferences;
+        if (observations.Count == 0)
+        {
+            return LocalizationService.Text("Loc.Message.SearchRoutesNoObservations");
+        }
+
+        RouteSearchDiagnostics diagnostics = AnalyzeRouteSearchInputs(
+            observations,
+            workspace.KnownHeights);
+
+        if (diagnostics.CycleRank == 0 &&
+            diagnostics.KnownPointsInNetwork == 1 &&
+            diagnostics.ComponentCount == 1 &&
+            diagnostics.IsSingleOpenChain)
+        {
+            return LocalizationService.Text("Loc.Message.SearchRoutesNoRoutesSingleKnownOpenChain");
+        }
+
+        if (diagnostics.CycleRank == 0 &&
+            diagnostics.KnownPointsInNetwork < 2)
+        {
+            return LocalizationService.Format(
+                "Loc.Message.SearchRoutesNoRoutesTooFewKnown",
+                diagnostics.KnownPointsInNetwork);
+        }
+
+        if (diagnostics.CycleRank == 0 &&
+            diagnostics.KnownPointsInNetwork >= 2 &&
+            diagnostics.ComponentCount > 1)
+        {
+            return LocalizationService.Format(
+                "Loc.Message.SearchRoutesNoRoutesDisconnected",
+                diagnostics.ComponentCount,
+                diagnostics.KnownPointsInNetwork);
+        }
+
+        return LocalizationService.Format(
+            "Loc.Message.SearchRoutesDone",
+            routes.Count);
+    }
+
+    private static string BuildEmptyRouteSearchStatus(ProjectWorkspace workspace)
+    {
+        if (workspace.LevelDifferences.Count == 0)
+        {
+            return LocalizationService.Text("Loc.Status.RoutesNoObservations");
+        }
+
+        RouteSearchDiagnostics diagnostics = AnalyzeRouteSearchInputs(
+            workspace.LevelDifferences,
+            workspace.KnownHeights);
+
+        if (diagnostics.CycleRank == 0 && diagnostics.KnownPointsInNetwork < 2)
+        {
+            return LocalizationService.Format(
+                "Loc.Status.RoutesNoneTooFewKnown",
+                diagnostics.KnownPointsInNetwork);
+        }
+
+        return LocalizationService.Text("Loc.Status.RoutesNone");
+    }
+
+    private static RouteSearchDiagnostics AnalyzeRouteSearchInputs(
+        IReadOnlyList<LevelDifference> observations,
+        IReadOnlyList<KnownHeight> knownHeights)
+    {
+        var points = observations
+            .SelectMany(x => new[] { x.FromPoint, x.ToPoint })
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var pointSet = points.ToHashSet(StringComparer.Ordinal);
+        int knownInNetwork = knownHeights
+            .Select(x => x.PointName)
+            .Distinct(StringComparer.Ordinal)
+            .Count(pointSet.Contains);
+
+        var adjacency = points.ToDictionary(
+            point => point,
+            _ => new List<string>(),
+            StringComparer.Ordinal);
+
+        foreach (LevelDifference observation in observations)
+        {
+            adjacency[observation.FromPoint].Add(observation.ToPoint);
+            adjacency[observation.ToPoint].Add(observation.FromPoint);
+        }
+
+        int components = 0;
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string point in points)
+        {
+            if (!visited.Add(point))
+            {
+                continue;
+            }
+
+            components++;
+            var queue = new Queue<string>();
+            queue.Enqueue(point);
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+                foreach (string next in adjacency[current])
+                {
+                    if (visited.Add(next))
+                    {
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+        }
+
+        int cycleRank = observations.Count - points.Length + components;
+        bool isSingleOpenChain =
+            components == 1 &&
+            points.Length >= 2 &&
+            adjacency.Values.Count(x => x.Count == 1) == 2 &&
+            adjacency.Values.All(x => x.Count is 1 or 2);
+
+        return new RouteSearchDiagnostics(
+            cycleRank,
+            components,
+            knownInNetwork,
+            isSingleOpenChain);
+    }
+
+    private sealed record RouteSearchDiagnostics(
+        int CycleRank,
+        int ComponentCount,
+        int KnownPointsInNetwork,
+        bool IsSingleOpenChain);
 
     [RelayCommand]
     private async Task CalculateAdjustmentAsync()
