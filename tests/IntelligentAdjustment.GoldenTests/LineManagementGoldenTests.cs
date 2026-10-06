@@ -7,7 +7,7 @@ namespace IntelligentAdjustment.GoldenTests;
 public sealed class LineManagementGoldenTests
 {
     [Fact]
-    public async Task CreateRenameMoveDeleteLine_PreservesOrderAndInvalidatesOnlyWhenDataIsDeleted()
+    public async Task CreateRenameMoveDeleteLine_AllowsProjectToReturnToZeroLines()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         string file = Path.Combine(Path.GetTempPath(), $"ia-lines-{Guid.NewGuid():N}.iap");
@@ -16,6 +16,9 @@ public sealed class LineManagementGoldenTests
         {
             var session = new ProjectSessionService();
             ProjectWorkspace workspace = await session.CreateAsync(file, cancellationToken);
+            Assert.Empty(workspace.Lines);
+
+            workspace = await session.CreateLineAsync("线路 A", cancellationToken);
             long firstId = Assert.Single(workspace.Lines).Id;
 
             workspace = await session.CreateLineAsync("线路 B", cancellationToken);
@@ -56,6 +59,10 @@ public sealed class LineManagementGoldenTests
             Assert.Single(workspace.Lines);
             Assert.DoesNotContain(workspace.LevelDifferences, x => x.LineId == secondId);
             Assert.Equal(2, workspace.Revision.InputRevision);
+
+            workspace = await session.DeleteLineAsync(firstId, cancellationToken);
+            Assert.Empty(workspace.Lines);
+            Assert.Equal(2, workspace.Revision.InputRevision);
         }
         finally
         {
@@ -65,4 +72,5 @@ public sealed class LineManagementGoldenTests
             }
         }
     }
+
 }
