@@ -1,4 +1,3 @@
-using System.Text;
 using IntelligentAdjustment.Core.Routes;
 using IntelligentAdjustment.Application.Import;
 using IntelligentAdjustment.Application.Models;
@@ -95,28 +94,55 @@ public sealed class InstrumentImportRegistryGoldenTests
 
         try
         {
-            var source = new StringBuilder();
-            source.AppendLine("PtID Order Height Distance StaffType ReducedLevel Type");
-            source.AppendLine("@0 2 0.0000 0.000 2 0.0000 107");
+            // Exact contents of the legacy Sample/GeoMax_ZDL.mdt shipped with
+            // AdjustLevel. This protects the real-world import + route-search case,
+            // not only a synthetic BFFB fixture.
+            const string source = """
+                PtID       Order       Height      Distance    StaffType   ReducedLevel Type
+                @0         2           0.0000      0.000       2           0.0000      107
+                1          B           1.24193     7.4414      2           30.00000    107
+                2          F           0.82182     7.7296      2           30.00000    107
+                2          F           0.82189     7.7293      2           30.00000    107
+                1          B           1.24166     7.4540      2           30.00000    107
+                3          F           1.14182     8.7067      2           30.41994    107
+                2          B           0.88865     8.8756      2           30.41994    107
+                2          B           0.88855     8.8780      2           30.41994    107
+                3          F           1.14180     8.7210      2           30.41994    107
+                3          B           1.16185     19.0175     2           30.16673    107
+                4          F           0.90928     19.0166     2           30.16673    107
+                4          F           0.90928     19.0243     2           30.16673    107
+                3          B           1.16189     19.0186     2           30.16673    107
+                5          F           1.36908     21.9415     2           30.41933    107
+                4          B           0.91373     21.9373     2           30.41933    107
+                4          B           0.91373     21.9394     2           30.41933    107
+                5          F           1.36903     21.9430     2           30.41933    107
+                5          B           1.41232     3.7342      2           29.96400    107
+                6          F           0.96281     4.0967      2           29.96400    107
+                6          F           0.96294     4.0902      2           29.96400    107
+                5          B           1.41237     3.7338      2           29.96400    107
+                7          F           0.95646     5.3243      2           30.41347    107
+                6          B           0.95408     5.7204      2           30.41347    107
+                6          B           0.95410     5.7148      2           30.41347    107
+                7          F           0.95644     5.3226      2           30.41347    107
+                7          B           0.93953     16.0873     2           30.41111    107
+                8          F           1.16521     16.3633     2           30.41111    107
+                8          F           1.16517     16.3644     2           30.41111    107
+                7          B           0.93934     16.0981     2           30.41111    107
+                9          F           0.96435     16.9408     2           30.18536    107
+                8          B           1.19537     17.5108     2           30.18536    107
+                8          B           1.19529     17.5059     2           30.18536    107
+                9          F           0.96420     16.9529     2           30.18536    107
+                9          B           0.94785     18.0920     2           30.41641    107
+                10         F           1.19213     18.1860     2           30.41641    107
+                10         F           1.19225     18.1964     2           30.41641    107
+                9          B           0.94750     18.1134     2           30.41641    107
+                11         F           1.24577     19.6183     2           30.17190    107
+                10         B           1.07289     19.6978     2           30.17190    107
+                10         B           1.07289     19.6978     2           30.17190    107
+                11         F           1.24518     19.6307     2           30.17190    107
+                """;
 
-            for (int station = 1; station <= 10; station++)
-            {
-                double fromHeight = 30.0 + (station - 1) * 0.1;
-                double toHeight = fromHeight + 0.1;
-                string from = station.ToString();
-                string to = (station + 1).ToString();
-
-                source.AppendLine(FormattableString.Invariant(
-                    $"{from} B 1.50000 40.0000 2 {fromHeight:F5} 107"));
-                source.AppendLine(FormattableString.Invariant(
-                    $"{to} F 1.40000 40.0000 2 {toHeight:F5} 107"));
-                source.AppendLine(FormattableString.Invariant(
-                    $"{to} F 1.40000 40.0000 2 {toHeight:F5} 107"));
-                source.AppendLine(FormattableString.Invariant(
-                    $"{from} B 1.50000 40.0000 2 {fromHeight:F5} 107"));
-            }
-
-            await File.WriteAllTextAsync(mdt, source.ToString(), cancellationToken);
+            await File.WriteAllTextAsync(mdt, source, cancellationToken);
 
             var session = new ProjectSessionService();
             _ = await session.CreateAsync(projectFile, cancellationToken);
