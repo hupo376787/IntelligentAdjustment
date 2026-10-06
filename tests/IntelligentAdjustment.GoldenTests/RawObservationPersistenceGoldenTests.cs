@@ -16,6 +16,9 @@ public sealed class RawObservationPersistenceGoldenTests
         {
             var session = new ProjectSessionService();
             ProjectWorkspace workspace = await session.CreateAsync(file, cancellationToken);
+            Assert.Empty(workspace.Lines);
+
+            workspace = await session.CreateLineAsync("线路 A", cancellationToken);
             long lineId = Assert.Single(workspace.Lines).Id;
 
             var raw = new RawObservation
