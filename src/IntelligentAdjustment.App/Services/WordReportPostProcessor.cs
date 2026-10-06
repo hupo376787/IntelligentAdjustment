@@ -185,8 +185,10 @@ internal static class WordReportPostProcessor
             }
 
             XNamespace wordNs = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-            foreach (XAttribute dirty in settings
-                         .DescendantsAndSelf()
+            IEnumerable<XElement> settingsElements =
+                settings.Root?.DescendantsAndSelf()
+                ?? Enumerable.Empty<XElement>();
+            foreach (XAttribute dirty in settingsElements
                          .Attributes(wordNs + "dirty")
                          .ToArray())
             {
