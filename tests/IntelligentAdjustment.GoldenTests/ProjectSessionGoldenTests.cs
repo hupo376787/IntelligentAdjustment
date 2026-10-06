@@ -7,7 +7,7 @@ namespace IntelligentAdjustment.GoldenTests;
 public sealed class ProjectSessionGoldenTests
 {
     [Fact]
-    public async Task NewProject_CreatesEditableManualLine()
+    public async Task NewProject_StartsWithoutObservationLines_AndReopenKeepsItEmpty()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         string file = Path.Combine(Path.GetTempPath(), $"ia-session-{Guid.NewGuid():N}.iap");
@@ -17,11 +17,15 @@ public sealed class ProjectSessionGoldenTests
             var session = new ProjectSessionService();
             ProjectWorkspace workspace = await session.CreateAsync(file, cancellationToken);
 
-            var line = Assert.Single(workspace.Lines);
-            Assert.Equal(0, line.DisplayOrder);
-            Assert.Equal("线路 0", line.Name);
-            Assert.Equal("MANUAL", line.InstrumentType);
+            Assert.Empty(workspace.Lines);
             Assert.Equal(0, workspace.Revision.InputRevision);
+
+            session.Close();
+
+            var reopenedSession = new ProjectSessionService();
+            ProjectWorkspace reopened = await reopenedSession.OpenAsync(file, cancellationToken);
+            Assert.Empty(reopened.Lines);
+            Assert.Equal(0, reopened.Revision.InputRevision);
         }
         finally
         {
