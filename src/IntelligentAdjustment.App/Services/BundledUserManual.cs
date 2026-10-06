@@ -20,7 +20,7 @@ internal static class BundledUserManual
             return deployedPath;
         }
 
-        byte[] compressed = ReadEmbeddedCompressedPdf();
+        byte[] compressed = ReadCompressedPdf();
         byte[] pdf;
 
         using (var source = new MemoryStream(compressed, writable: false))
@@ -71,7 +71,7 @@ internal static class BundledUserManual
         return path;
     }
 
-    private static byte[] ReadEmbeddedCompressedPdf()
+    private static byte[] ReadCompressedPdf()
     {
         Assembly assembly = typeof(BundledUserManual).Assembly;
         string[] resources = assembly
@@ -82,31 +82,55 @@ internal static class BundledUserManual
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (resources.Length == 0)
+        if (resources.Length > 0)
         {
-            string available = string.Join(
-                ", ",
-                assembly.GetManifestResourceNames()
-                    .Where(name => name.Contains("Manual", StringComparison.OrdinalIgnoreCase))
-                    .Take(8));
-            throw new InvalidDataException(
-                string.IsNullOrWhiteSpace(available)
-                    ? "未找到内置用户使用手册资源。"
-                    : $"未找到用户手册分片资源。已发现：{available}");
+            var embeddedBase64 = new StringBuilder(resources.Length * 8000);
+            foreach (string resource in resources)
+            {
+                using Stream stream = assembly.GetManifestResourceStream(resource)
+                    ?? throw new InvalidDataException($"无法读取内置用户使用手册资源：{resource}");
+                using var reader = new StreamReader(
+                    stream,
+                    Encoding.ASCII,
+                    detectEncodingFromByteOrderMarks: false);
+                embeddedBase64.Append(reader.ReadToEnd().Trim());
+            }
+
+            return Convert.FromBase64String(embeddedBase64.ToString());
         }
 
-        var base64 = new StringBuilder(resources.Length * 8000);
-        foreach (string resource in resources)
+        // Some WPF/MSBuild combinations can change manifest resource names.
+        // The same tiny base64 chunks are therefore also copied to the output
+        // directory and provide a deterministic fallback.
+        string physicalDirectory = Path.Combine(
+            AppContext.BaseDirectory,
+            "Help",
+            "ManualBase64");
+        string[] physicalParts = Directory.Exists(physicalDirectory)
+            ? Directory.GetFiles(physicalDirectory, "manual.part*.txt")
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToArray()
+            : Array.Empty<string>();
+
+        if (physicalParts.Length > 0)
         {
-            using Stream stream = assembly.GetManifestResourceStream(resource)
-                ?? throw new InvalidDataException($"无法读取内置用户使用手册资源：{resource}");
-            using var reader = new StreamReader(
-                stream,
-                Encoding.ASCII,
-                detectEncodingFromByteOrderMarks: false);
-            base64.Append(reader.ReadToEnd().Trim());
+            var fileBase64 = new StringBuilder(physicalParts.Length * 8000);
+            foreach (string part in physicalParts)
+            {
+                fileBase64.Append(File.ReadAllText(part, Encoding.ASCII).Trim());
+            }
+
+            return Convert.FromBase64String(fileBase64.ToString());
         }
 
-        return Convert.FromBase64String(base64.ToString());
+        string available = string.Join(
+            ", ",
+            assembly.GetManifestResourceNames()
+                .Where(name => name.Contains("Manual", StringComparison.OrdinalIgnoreCase))
+                .Take(8));
+        throw new InvalidDataException(
+            string.IsNullOrWhiteSpace(available)
+                ? "未找到内置用户使用手册资源。"
+                : $"未找到用户手册分片资源。已发现：{available}");
     }
 }
