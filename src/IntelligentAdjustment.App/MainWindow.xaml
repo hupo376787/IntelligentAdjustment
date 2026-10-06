@@ -455,8 +455,8 @@
 
                         <Expander Header="{DynamicResource Loc.Nav.Data}">
                             <StackPanel Margin="8,4,8,0">
-                                <Button Tag="lines" Content="{DynamicResource Loc.Nav.Lines}" Command="{Binding OpenLineManagementCommand}"/>
                                 <Button Tag="instrument-import" Content="{DynamicResource Loc.Nav.InstrumentImport}" Command="{Binding OpenInstrumentImportCommand}"/>
+                                <Button Tag="lines" Content="{DynamicResource Loc.Nav.Lines}" Command="{Binding OpenLineManagementCommand}"/>
                                 <Button Tag="raw-observations" Content="{DynamicResource Loc.Nav.RawObservations}" Command="{Binding OpenRawObservationsCommand}"/>
                                 <Button Tag="differences" Content="{DynamicResource Loc.Nav.Differences}" Command="{Binding OpenLevelDifferencesCommand}"/>
                                 <Button Tag="known-heights" Content="{DynamicResource Loc.Nav.KnownHeights}" Command="{Binding OpenKnownHeightsCommand}"/>
