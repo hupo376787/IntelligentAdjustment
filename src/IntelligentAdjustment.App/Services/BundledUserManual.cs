@@ -7,10 +7,19 @@ namespace IntelligentAdjustment.App.Services;
 internal static class BundledUserManual
 {
     private const string FileName = "Intelligent_Adjustment_User_Manual.pdf";
-    private const string ResourceMarker = ".Help.ManualBase64.manual.part";
+    private const string ResourceMarker = "manual.part";
 
     public static string GetOrCreatePath()
     {
+        string deployedPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Help",
+            FileName);
+        if (File.Exists(deployedPath))
+        {
+            return deployedPath;
+        }
+
         byte[] compressed = ReadEmbeddedCompressedPdf();
         byte[] pdf;
 
@@ -20,6 +29,16 @@ internal static class BundledUserManual
         {
             gzip.CopyTo(output);
             pdf = output.ToArray();
+        }
+
+        if (pdf.Length < 5 ||
+            pdf[0] != (byte)'%' ||
+            pdf[1] != (byte)'P' ||
+            pdf[2] != (byte)'D' ||
+            pdf[3] != (byte)'F' ||
+            pdf[4] != (byte)'-')
+        {
+            throw new InvalidDataException("内置用户使用手册不是有效的 PDF 文件。");
         }
 
         string directory = Path.Combine(
@@ -57,13 +76,23 @@ internal static class BundledUserManual
         Assembly assembly = typeof(BundledUserManual).Assembly;
         string[] resources = assembly
             .GetManifestResourceNames()
-            .Where(name => name.Contains(ResourceMarker, StringComparison.Ordinal))
-            .OrderBy(name => name, StringComparer.Ordinal)
+            .Where(name =>
+                name.Contains(ResourceMarker, StringComparison.OrdinalIgnoreCase) &&
+                name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         if (resources.Length == 0)
         {
-            throw new InvalidDataException("未找到内置用户使用手册资源。");
+            string available = string.Join(
+                ", ",
+                assembly.GetManifestResourceNames()
+                    .Where(name => name.Contains("Manual", StringComparison.OrdinalIgnoreCase))
+                    .Take(8));
+            throw new InvalidDataException(
+                string.IsNullOrWhiteSpace(available)
+                    ? "未找到内置用户使用手册资源。"
+                    : $"未找到用户手册分片资源。已发现：{available}");
         }
 
         var base64 = new StringBuilder(resources.Length * 8000);
