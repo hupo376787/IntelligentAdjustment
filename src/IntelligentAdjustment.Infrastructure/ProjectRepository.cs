@@ -39,36 +39,6 @@ public sealed class ProjectRepository
             DateTimeOffset.Parse(reader.GetString(6)));
     }
 
-    public async Task<long> EnsureManualLineAsync(CancellationToken cancellationToken = default)
-    {
-        await using var connection = _database.CreateConnection();
-        await connection.OpenAsync(cancellationToken);
-
-        await using (var existing = connection.CreateCommand())
-        {
-            existing.CommandText = """
-                SELECT Id
-                FROM ObservationLine
-                ORDER BY DisplayOrder, Id
-                LIMIT 1;
-                """;
-            object? value = await existing.ExecuteScalarAsync(cancellationToken);
-            if (value is not null && value != DBNull.Value)
-            {
-                return Convert.ToInt64(value);
-            }
-        }
-
-        await using var command = connection.CreateCommand();
-        command.CommandText = """
-            INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
-            VALUES(0, '线路 0', NULL, 'MANUAL', $created);
-            SELECT last_insert_rowid();
-            """;
-        command.Parameters.AddWithValue("$created", DateTimeOffset.UtcNow.ToString("O"));
-        return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken));
-    }
-
     public async Task<bool> RemoveEmptyDefaultManualLineAsync(
         CancellationToken cancellationToken = default)
     {
@@ -215,26 +185,6 @@ public sealed class ProjectRepository
             {
                 throw new InvalidOperationException("指定线路不存在。");
             }
-        }
-
-        int remaining;
-        await using (var countLines = connection.CreateCommand())
-        {
-            countLines.Transaction = transaction;
-            countLines.CommandText = "SELECT COUNT(*) FROM ObservationLine;";
-            remaining = Convert.ToInt32(await countLines.ExecuteScalarAsync(cancellationToken));
-        }
-
-        if (remaining == 0)
-        {
-            await using var createCommand = connection.CreateCommand();
-            createCommand.Transaction = transaction;
-            createCommand.CommandText = """
-                INSERT INTO ObservationLine(DisplayOrder, Name, SourceFileName, InstrumentType, CreatedAtUtc)
-                VALUES(0, '线路 0', NULL, 'MANUAL', $createdAt);
-                """;
-            createCommand.Parameters.AddWithValue("$createdAt", DateTimeOffset.UtcNow.ToString("O"));
-            await createCommand.ExecuteNonQueryAsync(cancellationToken);
         }
 
         await NormalizeLineOrderAsync(connection, transaction, cancellationToken);
