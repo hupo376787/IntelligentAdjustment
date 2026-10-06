@@ -33,6 +33,7 @@ internal static class WordReportPostProcessor
         object? documentsObject = null;
         object? documentObject = null;
         object? tablesOfContentsObject = null;
+        object? documentFieldsObject = null;
 
         try
         {
@@ -76,31 +77,25 @@ internal static class WordReportPostProcessor
                     tableOfContentsObject = tablesOfContents.Item(index);
                     dynamic tableOfContents = tableOfContentsObject;
                     tableOfContents.Update();
-
-                    // The exported report is a final deliverable. Keep the freshly
-                    // calculated TOC display text/hyperlinks, but lock its fields so
-                    // Word will not show "update table of contents" or field-update
-                    // security prompts when the user opens the file.
-                    object? rangeObject = null;
-                    object? fieldsObject = null;
-                    try
-                    {
-                        rangeObject = tableOfContents.Range;
-                        dynamic range = rangeObject;
-                        fieldsObject = range.Fields;
-                        dynamic fields = fieldsObject;
-                        fields.Locked = true;
-                    }
-                    finally
-                    {
-                        ReleaseComObject(fieldsObject);
-                        ReleaseComObject(rangeObject);
-                    }
                 }
                 finally
                 {
                     ReleaseComObject(tableOfContentsObject);
                 }
+            }
+
+            document.Repaginate();
+
+            // The report is a final deliverable. After Word has calculated the
+            // correct TOC text and page numbers, convert the body fields to their
+            // current display text. This removes TOC/PAGEREF field codes entirely,
+            // which prevents both the "update table of contents" dialog and the
+            // "fields may refer to other files" security prompt on the next open.
+            documentFieldsObject = document.Fields;
+            dynamic documentFields = documentFieldsObject;
+            if (documentFields.Count > 0)
+            {
+                documentFields.Unlink();
             }
 
             document.Save();
@@ -109,6 +104,8 @@ internal static class WordReportPostProcessor
             documentObject = null;
 
             application.Quit(0);
+            ReleaseComObject(documentFieldsObject);
+            documentFieldsObject = null;
             ReleaseComObject(tablesOfContentsObject);
             tablesOfContentsObject = null;
             ReleaseComObject(documentsObject);
@@ -130,6 +127,7 @@ internal static class WordReportPostProcessor
         }
         finally
         {
+            ReleaseComObject(documentFieldsObject);
             ReleaseComObject(tablesOfContentsObject);
             ReleaseComObject(documentObject);
             ReleaseComObject(documentsObject);
@@ -181,14 +179,18 @@ internal static class WordReportPostProcessor
                         StringComparison.Ordinal))
                 .ToArray();
 
-            if (flags.Length == 0)
-            {
-                return;
-            }
-
             foreach (XElement flag in flags)
             {
                 flag.Remove();
+            }
+
+            XNamespace wordNs = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+            foreach (XAttribute dirty in settings
+                         .DescendantsAndSelf()
+                         .Attributes(wordNs + "dirty")
+                         .ToArray())
+            {
+                dirty.Remove();
             }
 
             settingsEntry.Delete();
