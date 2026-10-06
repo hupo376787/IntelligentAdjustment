@@ -86,7 +86,7 @@ public sealed class InstrumentSampleParserGoldenTests
     }
 
     [Fact]
-    public async Task GeoMaxMdt_ParsesBffbAndReducedLevel()
+    public async Task GeoMaxMdt_ParsesBffbWithoutInventingTerminalControlPoint()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         string file = TempFile(".mdt");
@@ -107,30 +107,20 @@ public sealed class InstrumentSampleParserGoldenTests
             var importer = new GeoMaxZdlInstrumentDataImporter();
             InstrumentImportResult result = await importer.ParseAsync(file, cancellationToken);
 
-            Assert.Collection(
-                result.KnownHeights,
-                start =>
-                {
-                    Assert.Equal("1", start.PointName);
-                    Assert.Equal(30.0, start.Height);
-                },
-                end =>
-                {
-                    Assert.Equal("2", end.PointName);
-                    Assert.Equal(30.0, end.Height);
-                });
+            KnownHeight known = Assert.Single(result.KnownHeights);
+            Assert.Equal("1", known.PointName);
+            Assert.Equal(30.0, known.Height);
+            Assert.DoesNotContain(result.KnownHeights, x => x.PointName == "2");
 
             RawObservation raw = Assert.Single(result.RawObservations);
             Assert.Equal(ObservationOrder.BFFB, raw.ObservationOrder);
             Assert.Equal(MeasurementMode.AlternatingBFFB, raw.MeasurementMode);
 
-            NetworkRoute route = Assert.Single(
+            Assert.Empty(
                 new RouteSearchEngine().Search(
                     result.LevelDifferences,
                     result.KnownHeights,
                     new ProjectSettings()));
-            Assert.Equal(RouteType.Attached, route.RouteType);
-            Assert.Equal(["1", "2"], route.Points);
         }
         finally
         {

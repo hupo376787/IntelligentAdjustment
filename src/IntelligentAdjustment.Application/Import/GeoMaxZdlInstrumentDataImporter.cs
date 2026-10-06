@@ -79,21 +79,11 @@ public sealed class GeoMaxZdlInstrumentDataImporter : IInstrumentDataImporter
 
             if (i == 0)
             {
+                // GeoMax MDT repeats the current station's starting reduced level on
+                // both backsight and foresight rows. It is not an independent known
+                // height for the foresight endpoint, so only the first backsight can
+                // safely initialize a control point from the file.
                 known.Add(new KnownHeight(backs[0].PointName, backs[0].ReducedLevel));
-            }
-
-            // GeoMax MDT carries a reduced level for the foresight endpoint as well.
-            // Import the final foresight as the second control point when the run ends
-            // at a different point. Without this endpoint a normal 1→2→...→N run has
-            // only one known height, so no attached route can be searched.
-            if (i + 4 == readings.Count)
-            {
-                string terminalPoint = fores[0].PointName;
-                if (!string.Equals(terminalPoint, backs[0].PointName, StringComparison.Ordinal) &&
-                    !known.Any(x => string.Equals(x.PointName, terminalPoint, StringComparison.Ordinal)))
-                {
-                    known.Add(new KnownHeight(terminalPoint, fores.Average(x => x.ReducedLevel)));
-                }
             }
 
             string[] labels = BuildLabels(station);

@@ -86,7 +86,7 @@ public sealed class InstrumentImportRegistryGoldenTests
     }
 
     [Fact]
-    public async Task GeoMaxImport_CreatesAttachedRoute_AndRemovesEmptyDefaultLine()
+    public async Task GeoMaxImport_DoesNotInventTerminalKnownHeight_AndRemovesEmptyDefaultLine()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         string projectFile = Path.Combine(Path.GetTempPath(), $"ia-geomax-{Guid.NewGuid():N}.iap");
@@ -95,8 +95,9 @@ public sealed class InstrumentImportRegistryGoldenTests
         try
         {
             // Exact contents of the legacy Sample/GeoMax_ZDL.mdt shipped with
-            // AdjustLevel. This protects the real-world import + route-search case,
-            // not only a synthetic BFFB fixture.
+            // AdjustLevel. ReducedLevel is the current station's starting elevation;
+            // foresight rows repeat it and therefore must not create a terminal
+            // control point.
             const string source = """
                 PtID       Order       Height      Distance    StaffType   ReducedLevel Type
                 @0         2           0.0000      0.000       2           0.0000      107
@@ -158,19 +159,36 @@ public sealed class InstrumentImportRegistryGoldenTests
             Assert.Equal(10, workspace.LevelDifferences.Count);
             Assert.DoesNotContain(workspace.Lines, x => x.InstrumentType == "MANUAL");
 
-            Assert.Contains(workspace.KnownHeights, x => x.PointName == "1");
-            Assert.Contains(workspace.KnownHeights, x => x.PointName == "11");
+            KnownHeight start = Assert.Single(workspace.KnownHeights);
+            Assert.Equal("1", start.PointName);
+            Assert.Equal(30.0, start.Height);
+            Assert.DoesNotContain(workspace.KnownHeights, x => x.PointName == "11");
+
+            // With only one actual control point the open chain must not be presented
+            // as an attached route with a fabricated closure.
+            Assert.Empty(
+                new RouteSearchEngine().Search(
+                    workspace.LevelDifferences,
+                    workspace.KnownHeights,
+                    workspace.Settings));
+
+            // When the real terminal control height is supplied, the sample becomes a
+            // valid attached route and its closure is approximately -0.695 mm.
+            KnownHeight[] knownWithTerminal =
+                workspace.KnownHeights.Append(new KnownHeight("11", 30.0)).ToArray();
 
             NetworkRoute route = Assert.Single(
                 new RouteSearchEngine().Search(
                     workspace.LevelDifferences,
-                    workspace.KnownHeights,
+                    knownWithTerminal,
                     workspace.Settings)
                 .Where(x => x.RouteType == RouteType.Attached));
 
             Assert.Equal(10, route.EdgeCount);
             Assert.Equal("1", route.Points[0]);
             Assert.Equal("11", route.Points[^1]);
+            Assert.InRange(route.ClosureMeters, -0.000695 - 1e-12, -0.000695 + 1e-12);
+            Assert.True(Math.Abs(route.ClosureMeters) <= route.LengthToleranceMeters);
         }
         finally
         {
@@ -183,4 +201,5 @@ public sealed class InstrumentImportRegistryGoldenTests
             }
         }
     }
+
 }
