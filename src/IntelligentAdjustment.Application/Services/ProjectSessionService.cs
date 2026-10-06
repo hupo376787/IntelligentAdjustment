@@ -41,7 +41,6 @@ public sealed class ProjectSessionService
         await _database.CreateAsync(cancellationToken);
         _repository = new ProjectRepository(_database);
         CurrentProjectPath = filePath;
-        _ = await _repository.EnsureManualLineAsync(cancellationToken);
 
         var workspace = await LoadAsync(cancellationToken);
         string defaultName = Path.GetFileNameWithoutExtension(filePath);
@@ -80,7 +79,6 @@ public sealed class ProjectSessionService
         _database = new ProjectDatabase(filePath);
         _repository = new ProjectRepository(_database);
         CurrentProjectPath = filePath;
-        _ = await _repository.EnsureManualLineAsync(cancellationToken);
         return await LoadAsync(cancellationToken);
     }
 
@@ -219,9 +217,8 @@ public sealed class ProjectSessionService
                 cancellationToken);
         }
 
-        // A newly created project contains an empty "线路 0" so manual entry works
-        // immediately. Once real instrument/OUT data has been imported, remove only
-        // that untouched default line to avoid other pages selecting an empty line.
+        // Older project files may still contain the legacy untouched "线路 0".
+        // Once real instrument/OUT data is imported, remove only that empty placeholder.
         _ = await _repository!.RemoveEmptyDefaultManualLineAsync(cancellationToken);
 
         ProjectWorkspace workspace = await LoadAsync(cancellationToken);
