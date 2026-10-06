@@ -36,9 +36,9 @@ public sealed class ClassicalAdjustmentSolver : IAdjustmentSolver
         int n = points.Count;
         int k = knownInNetwork.Length;
         int degreesOfFreedom = m - n + k;
-        if (degreesOfFreedom <= 0)
+        if (degreesOfFreedom < 0)
         {
-            throw new InvalidNetworkException("The adjustment has no positive redundancy (m - n + k <= 0).");
+            throw new InvalidNetworkException("The adjustment has negative redundancy (m - n + k < 0).");
         }
 
         var unknownIndex = unknownPoints
@@ -110,7 +110,14 @@ public sealed class ClassicalAdjustmentSolver : IAdjustmentSolver
             vpv += AdjustmentMath.Weight(observations[i]) * residuals[i] * residuals[i];
         }
 
-        double sigma0 = Math.Sqrt(vpv / degreesOfFreedom);
+        // A connected open leveling run with exactly one known point can be
+        // uniquely solvable with zero redundancy (degreesOfFreedom == 0).
+        // Legacy AdjustLevel accepts this case: heights are propagated exactly,
+        // residuals are zero, and no empirical unit-weight standard deviation can
+        // be estimated. Preserve that behavior by reporting sigma0/error as zero.
+        double sigma0 = degreesOfFreedom == 0
+            ? 0
+            : Math.Sqrt(vpv / degreesOfFreedom);
 
         var adjustedHeights = new List<AdjustedHeight>(points.Count);
         foreach (string point in points)

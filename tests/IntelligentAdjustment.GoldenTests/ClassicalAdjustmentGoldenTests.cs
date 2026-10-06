@@ -35,6 +35,51 @@ public sealed class ClassicalAdjustmentGoldenTests
 
 
     [Fact]
+    public void ExampleOpenRun_ZeroRedundancy_MatchesAdjustLevelGolden()
+    {
+        // Exact station-level differences produced by importing the legacy
+        // Sample/Example.mdt file. The original Example.adl accepts this
+        // non-redundant open run and stores I362=-0.39485, point 5=-1.00300,
+        // zero residuals and zero reported standard errors.
+        LevelDifference[] observations =
+        [
+            new(1, 1, 0, "TZB",  "1",    -0.03350, 34.18680, 1),
+            new(2, 1, 1, "1",    "2",     0.21860, 34.31320, 1),
+            new(3, 1, 2, "2",    "3",    -0.11830, 36.77895, 1),
+            new(4, 1, 3, "3",    "I362", -0.46165, 36.59150, 1),
+            new(5, 1, 4, "I362", "4",    -0.24825, 44.85060, 1),
+            new(6, 1, 5, "4",    "5",    -0.35990, 44.93335, 1)
+        ];
+
+        var result = new ClassicalAdjustmentSolver().Solve(
+            observations,
+            [new KnownHeight("TZB", 0.00000)]);
+
+        Assert.Equal(0, result.DegreesOfFreedom);
+        AssertClose(0.00000, Height(result, "TZB"), 1e-12);
+        AssertClose(-0.39485, Height(result, "I362"), 1e-12);
+        AssertClose(-1.00300, Height(result, "5"), 1e-12);
+        AssertClose(0, result.UnitWeightStandardDeviation, 1e-12);
+
+        Assert.All(
+            result.Heights,
+            height => AssertClose(0, height.StandardError, 1e-12));
+
+        Assert.All(
+            result.Differences,
+            difference =>
+            {
+                AssertClose(0, difference.Residual, 1e-12);
+                AssertClose(
+                    difference.ObservedDifference,
+                    difference.AdjustedDifferenceValue,
+                    1e-12);
+                AssertClose(0, difference.StandardError, 1e-12);
+            });
+    }
+
+
+    [Fact]
     public void LeicaGsiClosedLoop_MatchesVerifiedAdjustLevelGolden()
     {
         LevelDifference[] observations =
