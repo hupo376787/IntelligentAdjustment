@@ -424,5 +424,11 @@
   "Loc.Message.SearchRoutesNoRoutesDisconnected": "Route search is complete. No closed or attached route was found.\\nThe network has no closed loop and is split into {0} disconnected component(s). Although {1} known-height point(s) are in the network, they cannot form an attached route.\\nCheck point names, line connectivity, and level-difference observations.",
   "Loc.Status.RoutesNoObservations": "Route search complete: there are no level-difference observations.",
   "Loc.Status.RoutesNoneTooFewKnown": "Route search complete: 0 routes; no loop and {0} known-height point(s) in the network.",
-  "Loc.Status.RoutesNone": "Route search complete: no closed/attached route found."
+  "Loc.Status.RoutesNone": "Route search complete: no closed/attached route found.",
+  "Loc.Map.Legend": "Legend",
+  "Loc.Map.LegendKnown": "Known point",
+  "Loc.Map.LegendAdjustment": "Adjustment point",
+  "Loc.Map.LegendTransition": "Transition point",
+  "Loc.Map.LegendObservation": "Level-difference observation",
+  "Loc.Line.EmptyHint": "There are no lines yet. Instrument import creates lines automatically; for manual entry, enter a line name above and create one."
 }
