@@ -31,5 +31,9 @@
     <EmbeddedResource Include="Help\ManualBase64\manual.part*.txt">
       <LogicalName>IntelligentAdjustment.App.Help.ManualBase64.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+    <Content Include="Help\ManualBase64\manual.part*.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>
