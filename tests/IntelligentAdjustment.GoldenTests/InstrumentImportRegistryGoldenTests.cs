@@ -65,7 +65,7 @@ public sealed class InstrumentImportRegistryGoldenTests
                 [first, second],
                 cancellationToken);
 
-            // Once imported data exists, the untouched default manual line is removed.
+            // New projects start without a placeholder line; only the imported source lines are created.
             Assert.Equal(2, workspace.Lines.Count);
             Assert.DoesNotContain(workspace.Lines, x => x.InstrumentType == "MANUAL");
             Assert.Equal(2, workspace.Lines.Count(x => x.InstrumentType == "高差 OUT"));
@@ -86,7 +86,7 @@ public sealed class InstrumentImportRegistryGoldenTests
     }
 
     [Fact]
-    public async Task GeoMaxImport_DoesNotInventTerminalKnownHeight_AndRemovesEmptyDefaultLine()
+    public async Task GeoMaxImport_DoesNotInventTerminalKnownHeight_AndCreatesOnlyImportedLine()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         string projectFile = Path.Combine(Path.GetTempPath(), $"ia-geomax-{Guid.NewGuid():N}.iap");
